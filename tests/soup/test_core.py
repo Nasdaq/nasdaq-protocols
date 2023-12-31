@@ -231,3 +231,13 @@ def test_unpack_logout_request():
     assert message.Indicator == 'O'
     assert message.is_logout()
     assert not message.is_heartbeat()
+
+
+def test_unpack_invalid_logout_request():
+    with pytest.raises(soup.InvalidSoupMessage):
+        soup.SoupMessage.from_bytes(b'\x00\x01O\x00')
+
+
+def test_unpack_invalid_logout_request_2():
+    with pytest.raises(soup.InvalidSoupMessage):
+        soup.SoupMessage.from_bytes(b'\x00\x01O\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')

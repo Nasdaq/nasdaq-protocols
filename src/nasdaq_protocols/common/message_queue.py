@@ -5,6 +5,7 @@ from typing import Any, Callable, Awaitable
 
 import attrs
 from .utils import logable, stop_task, Validators
+from .types import Stoppable, StateError, EndOfQueue
 
 
 __all__ = [
@@ -16,10 +17,10 @@ __all__ = [
 DispatcherCoro = Callable[[Any], Awaitable[None]]
 
 
-
 @logable
 @attrs.define(auto_attribs=True)
-class DispatchableMessageQueue:
+class DispatchableMessageQueue(Stoppable):
+    """A message queue that dispatches messages to a coro."""
 
     session_id: Any = attrs.field(validator=Validators.not_none())
     on_msg_coro: DispatcherCoro = None
@@ -30,9 +31,7 @@ class DispatchableMessageQueue:
 
     def __attrs_post_init__(self):
         self._msg_queue = asyncio.Queue()
-        if self.on_msg_coro:
-            self._dispatcher_task = asyncio.create_task(self._start_dispatching(), name=f'{self.session_id}-dispatcher')
-            self.log.debug('%s> queue dispatcher started.', self.session_id)
+        self.start_dispatching(self.on_msg_coro)
 
     async def put(self, msg: Any):
         await self._msg_queue.put(msg)
@@ -56,17 +55,17 @@ class DispatchableMessageQueue:
 
     def get_nowait(self):
         if self._dispatcher_task:
-            raise DispatchableMessageQueue.StateError(f'{self.session_id}-dispatcher, Dispatcher is running, cannot use get_no_wait')
+            raise StateError(f'{self.session_id}-dispatcher, Dispatcher is running, cannot use get_no_wait')
         try:
             return self._msg_queue.get_nowait()
         except asyncio.QueueEmpty:
             if self._closed:
-                raise DispatchableMessageQueue.EndOfQueue()
+                raise EndOfQueue()
 
     @asynccontextmanager
     async def pause_dispatching(self):
         if not self._dispatcher_task:
-            raise DispatchableMessageQueue.StateError(f'Dispatcher is not running, cannot pause')
+            raise StateError(f'Dispatcher is not running, cannot pause')
         self._dispatcher_task = await stop_task(self._dispatcher_task)
         try:
             self.log.debug('%s> queue dispatcher paused.', self.session_id)
@@ -75,20 +74,32 @@ class DispatchableMessageQueue:
             self._dispatcher_task = asyncio.create_task(self._start_dispatching(), name=f'{self.session_id}-dispatcher')
             self.log.debug('%s> queue dispatcher resumed.', self.session_id)
 
+    def start_dispatching(self, on_msg_coro: DispatcherCoro):
+        if self._dispatcher_task:
+            raise StateError(f'Dispatcher is already running, cannot start')
+        if on_msg_coro:
+            self.on_msg_coro = on_msg_coro
+            self._dispatcher_task = asyncio.create_task(self._start_dispatching(), name=f'{self.session_id}-dispatcher')
+            self.log.debug('%s> queue dispatcher started.', self.session_id)
 
     async def stop(self):
-        self._closed = True
-        self._dispatcher_task = await stop_task(self._dispatcher_task)
-        self._recv_task = await stop_task(self._recv_task)
+        if not self._closed:
+            self._closed = True
+            self._dispatcher_task = await stop_task(self._dispatcher_task)
+            self._recv_task = await stop_task(self._recv_task)
+
+    def is_stopped(self):
+        return self._closed
 
     async def _start_dispatching(self):
         counter = count(1)
         while True:
             try:
-                await self.on_msg_coro(await self._msg_queue.get())
+                msg = await self._msg_queue.get()
+                await self.on_msg_coro(msg)
                 self.log.debug('%s> dispatched message %s', self.session_id, next(counter))
-            except asyncio.CancelledError as exc:
-                raise exc
+            except asyncio.CancelledError:
+                break
             except Exception as exc:
                 self.log.warning('%s> Exception when handling message, %s', self.session_id, exc)
 
@@ -97,12 +108,6 @@ class DispatchableMessageQueue:
         try:
             return await self._recv_task
         except asyncio.CancelledError:
-            raise DispatchableMessageQueue.EndOfQueue()  # pylint: disable=W0707
+            raise EndOfQueue()  # pylint: disable=W0707
         finally:
             self._recv_task = await stop_task(self._recv_task)
-
-    class StateError(RuntimeError):
-        pass
-
-    class EndOfQueue(EOFError):
-        pass

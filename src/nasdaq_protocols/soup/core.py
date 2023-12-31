@@ -69,8 +69,11 @@ class SoupMessage(Serializable):
 
     @classmethod
     def unpack(cls, bytes_: bytes):
-        _, _ = struct.unpack(SoupMessage.Format, bytes_)
-        return cls()
+        try:
+            _, _ = struct.unpack(SoupMessage.Format, bytes_)
+            return cls()
+        except struct.error:
+            raise InvalidSoupMessage(f'invalid soup message, received = {bytes_}')
 
     def is_heartbeat(self):
         return False

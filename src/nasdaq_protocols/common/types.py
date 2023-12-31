@@ -2,7 +2,10 @@ import abc
 
 
 __all__ = [
-    'Serializable'
+    'Serializable',
+    'Stoppable',
+    'StateError',
+    'EndOfQueue'
 ]
 
 
@@ -19,3 +22,19 @@ class Serializable(abc.ABC):
     def from_bytes(cls, bytes_: bytes):
         """unpack the object from binary format."""
         pass
+
+
+class Stoppable(abc.ABC):
+    @abc.abstractmethod
+    async def stop(self):
+        pass
+
+    @abc.abstractmethod
+    def is_stopped(self):
+        pass
+
+class StateError(RuntimeError):
+    pass
+
+class EndOfQueue(EOFError):
+    pass

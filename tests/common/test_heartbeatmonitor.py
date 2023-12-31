@@ -16,12 +16,10 @@ def monitor_trip_receiver_kit():
     yield q, on_no_activity
 
 
-
 async def ping(monitor: HearbeatMonitor, interval: float, times: int = sys.maxsize ** 10):
     for i in range(times):
         monitor.ping()
         await asyncio.sleep(interval)
-
 
 
 @pytest.mark.asyncio
@@ -80,3 +78,31 @@ async def test_monitor_trips_when_pinged_after_interval(monitor_trip_receiver_ki
 
     assert monitor_trip_time - start_time >= 0.1
     assert not monitor.is_running()
+
+
+@pytest.mark.asyncio
+async def test_shutdown_monitor_from_no_activity_coro_monitor_turnsoff_itself(monitor_trip_receiver_kit):
+    monitor = None
+    event = asyncio.Event()
+    async def receiver():
+        await monitor.stop()
+        event.set()
+
+    monitor = HearbeatMonitor(session_id='test', interval=0.1, on_no_activity_coro=receiver)
+
+    await event.wait()
+    assert monitor.is_stopped()
+
+
+@pytest.mark.asyncio
+async def test_shutdown_monitor_from_no_activity_coro(monitor_trip_receiver_kit):
+    monitor = None
+    event = asyncio.Event()
+    async def receiver():
+        await monitor.stop()
+        event.set()
+
+    monitor = HearbeatMonitor(session_id='test', interval=0.1, on_no_activity_coro=receiver, stop_when_no_activity=False)
+
+    await event.wait()
+    assert monitor.is_stopped()
