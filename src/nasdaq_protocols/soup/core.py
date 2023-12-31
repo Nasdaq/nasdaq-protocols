@@ -24,7 +24,6 @@ __all__ = [
 
 class InvalidSoupMessage(ValueError):
     """Raised when an invalid soup message is received."""
-    pass
 
 
 class LoginRejectReason(enum.Enum):

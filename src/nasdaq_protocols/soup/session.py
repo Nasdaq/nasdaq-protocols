@@ -5,7 +5,7 @@ from typing import Any, Awaitable, Callable, ClassVar
 import attrs
 from nasdaq_protocols import common
 from ._reader import SoupMessageReader
-from .core import *
+from .core import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 __all__ = [
@@ -168,5 +168,3 @@ class SoupServerSession(SoupSession, session_type='server'):
             self.start_heartbeats(self.client_heartbeat_interval, self.server_heartbeat_interval)
         else:
             await self.close()
-
-

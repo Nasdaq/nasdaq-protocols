@@ -27,10 +27,10 @@ async def _stop_task(task: asyncio.Task):
         task.cancel()
         if asyncio.current_task() != task:
             await task
-    except asyncio.CancelledError as e:
+    except asyncio.CancelledError:
         pass
-    except RuntimeError as e:
-        _logger.error('Error stopping task: %s', e)
+    except RuntimeError as exc:
+        _logger.error('Error stopping task: %s', exc)
 
 
 def logable(target):
@@ -80,5 +80,3 @@ class Validators:
         """Validator to check if the value is not None"""
         if value is None:
             raise ValueError(f'{attr.name} cannot be None')
-
-

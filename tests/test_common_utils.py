@@ -78,4 +78,3 @@ async def test_stop_task_on_already_stopped_tasks():
 
     task = await common.stop_task(task)
     await common.stop_task(task)
-

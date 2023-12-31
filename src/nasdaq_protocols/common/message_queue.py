@@ -56,16 +56,18 @@ class DispatchableMessageQueue(Stoppable):
     def get_nowait(self):
         if self._dispatcher_task:
             raise StateError(f'{self.session_id}-dispatcher, Dispatcher is running, cannot use get_no_wait')
+        msg = None
         try:
-            return self._msg_queue.get_nowait()
+            msg = self._msg_queue.get_nowait()
         except asyncio.QueueEmpty:
             if self._closed:
                 raise EndOfQueue()
+        return msg
 
     @asynccontextmanager
     async def pause_dispatching(self):
         if not self._dispatcher_task:
-            raise StateError(f'Dispatcher is not running, cannot pause')
+            raise StateError('Dispatcher is not running, cannot pause')
         self._dispatcher_task = await stop_task(self._dispatcher_task)
         try:
             self.log.debug('%s> queue dispatcher paused.', self.session_id)
@@ -76,7 +78,7 @@ class DispatchableMessageQueue(Stoppable):
 
     def start_dispatching(self, on_msg_coro: DispatcherCoro):
         if self._dispatcher_task:
-            raise StateError(f'Dispatcher is already running, cannot start')
+            raise StateError('Dispatcher is already running, cannot start')
         if on_msg_coro:
             self.on_msg_coro = on_msg_coro
             self._dispatcher_task = asyncio.create_task(self._start_dispatching(), name=f'{self.session_id}-dispatcher')
@@ -100,7 +102,7 @@ class DispatchableMessageQueue(Stoppable):
                 self.log.debug('%s> dispatched message %s', self.session_id, next(counter))
             except asyncio.CancelledError:
                 break
-            except Exception as exc:
+            except Exception as exc:  # pylint: disable=broad-except
                 self.log.warning('%s> Exception when handling message, %s', self.session_id, exc)
 
     async def _blocking_read(self):

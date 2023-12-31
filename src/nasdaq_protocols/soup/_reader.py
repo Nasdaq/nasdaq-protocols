@@ -44,7 +44,7 @@ class SoupMessageReader(common.Reader):
                 self.log.debug('%s> dispatching message %s', self.session_id, str(msg))
                 try:
                     await self.on_msg_coro(msg)
-                except Exception:
+                except Exception:  # pylint: disable=broad-except
                     await self.on_close_coro()
 
             self._buffer = self._buffer[siz + 2:]

@@ -167,7 +167,7 @@ class AsyncSession(asyncio.Protocol, abc.ABC):
             if self.on_close_coro:
                 await self.on_close_coro()
 
-    def start_heartbeats(self, local_hb_interval: int, remote_hb_interval: int):
+    def start_heartbeats(self, local_hb_interval: int | float, remote_hb_interval: int | float):
         """Starts the heartbeats for the session.
 
         - if the remote failed heartbeats, then the session is closed.
@@ -201,7 +201,8 @@ class AsyncSession(asyncio.Protocol, abc.ABC):
     def data_received(self, data):
         if self._remote_hb_monitor:
             self._remote_hb_monitor.ping()
-        self._reader_task = asyncio.create_task(self._reader.on_data(data), name=f'asyncsession-ondata:{self.session_id}')
+        self._reader_task = asyncio.create_task(self._reader.on_data(data),
+                                                name=f'asyncsession-ondata:{self.session_id}')
 
     def connection_lost(self, exc):
         self.log.debug('%s> connection lost', self.session_id)

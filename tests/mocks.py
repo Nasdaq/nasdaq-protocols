@@ -1,7 +1,7 @@
 import asyncio
 import logging
 from collections import OrderedDict
-from typing import Any, Callable, Tuple
+from typing import Any, Callable
 
 import attrs
 import pytest
@@ -38,7 +38,6 @@ class MockServerSession(asyncio.Protocol):
         self.transport = transport
 
     def data_received(self, data):
-        data = data.decode('ascii')
         for predicate, executor in self.actions.items():
             if predicate(data):
                 executor.execute(data)
@@ -46,16 +45,21 @@ class MockServerSession(asyncio.Protocol):
     def connection_lost(self, exc):
         self.connected = False
 
-    def send(self, data: str):
+    def send(self, data: str | common.Serializable | bytes):
         # send protocols: len + data
         if self.transport:
-            self.transport.write(data.encode())
+            if isinstance(data, str):
+                data = data.encode('ascii')
+            elif isinstance(data, common.Serializable):
+                data = data.to_bytes()
+            elif isinstance(data, bytes):
+                pass
+            else:
+                raise ValueError(f'Unsupported data type: {type(data)}')
+            self.transport.write(data)
 
-    def when(self, matcher: Matcher | str) -> ActonExecutor:
+    def when(self, matcher: Matcher) -> ActonExecutor:
         executor = ActonExecutor()
-        if isinstance(matcher, str):
-            data = matcher
-            matcher = lambda x: x == data
         self.actions[matcher] = executor
         return executor
 

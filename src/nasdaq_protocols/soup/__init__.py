@@ -5,7 +5,7 @@ from .core import *
 from .session import *
 
 
-async def connect_async(remote: tuple[str, int],
+async def connect_async(remote: tuple[str, int],  # pylint: disable=too-many-arguments
                         user: str,
                         passwd: str,
                         session_id: str = '',

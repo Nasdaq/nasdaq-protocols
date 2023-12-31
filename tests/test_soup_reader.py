@@ -1,16 +1,17 @@
+import asyncio
 import logging
 
 import attrs
 import pytest
+from nasdaq_protocols import soup
 from nasdaq_protocols.soup._reader import SoupMessageReader
-from nasdaq_protocols.soup import *
-from nasdaq_protocols.common import stop_task
+from nasdaq_protocols import common
 from unittest.mock import MagicMock
 
 
 logger = logging.getLogger(__name__)
-input1 = LoginRequest('nouser', 'nopassword', 'session', '1')
-input2 = LoginAccepted('session', 10)
+input1 = soup.LoginRequest('nouser', 'nopassword', 'session', '1')
+input2 = soup.LoginAccepted('session', 10)
 
 
 @attrs.define(slots=False, auto_attribs=True)
@@ -18,7 +19,7 @@ class MsgHandler:
     received_messages: asyncio.Queue = attrs.field(init=False, default=attrs.Factory(asyncio.Queue))
     closed: asyncio.Event = attrs.field(init=False, default=attrs.Factory(asyncio.Event))
 
-    async def on_msg(self, msg: SoupMessage):
+    async def on_msg(self, msg: soup.SoupMessage):
         await self.received_messages.put(msg)
 
     async def on_close(self):
@@ -39,14 +40,14 @@ async def reader(handler) -> SoupMessageReader:
         handler.received_messages.get_nowait()
 
     yield reader
-    await stop_task(reader)
+    await common.stop_task(reader)
 
 
 @pytest.mark.asyncio
 async def test_reader_is_stoppable(reader, handler):
     assert not handler.closed.is_set()
 
-    await stop_task(reader)
+    await common.stop_task(reader)
 
     assert handler.closed.is_set()
 
@@ -93,7 +94,7 @@ async def test_reader_reads_one_message_from_multiple_packets(reader, handler):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize('msg', [LogoutRequest(), EndOfSession()])
+@pytest.mark.parametrize('msg', [soup.LogoutRequest(), soup.EndOfSession()])
 async def test_reader_invokes_close_when_end_of_session_is_detected(reader, handler, msg):
     await reader.on_data(msg.to_bytes())
 

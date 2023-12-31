@@ -4,15 +4,14 @@ from typing import Any
 
 import attrs
 import pytest
-
-from nasdaq_protocols.common import session, Validators, SessionId
+from nasdaq_protocols import common
 from .mocks import mock_server_session
 
 logger = logging.getLogger(__name__)
 
 
 @attrs.define(auto_attribs=True)
-class SampleTestReader(session.Reader):
+class SampleTestReader(common.Reader):
     stopped: bool = False
 
     async def stop(self):
@@ -30,9 +29,9 @@ class SampleTestReader(session.Reader):
 
 
 @attrs.define(auto_attribs=True)
-class SampleTestClientSession(session.AsyncSession):
-    session_id: Any = attrs.field(validator=Validators.not_none())
-    reader_factory: session.ReaderFactory = SampleTestReader.create
+class SampleTestClientSession(common.AsyncSession):
+    session_id: Any = attrs.field(validator=common.Validators.not_none())
+    reader_factory: common.ReaderFactory = SampleTestReader.create
     received: asyncio.Queue = attrs.field(init=False, factory=asyncio.Queue)
     closed: asyncio.Event = attrs.field(init=False, factory=asyncio.Event)
 
@@ -52,13 +51,14 @@ class SampleTestClientSession(session.AsyncSession):
 
 
 @pytest.fixture(scope='function')
-async def client_session(mock_server_session, event_loop) -> SampleTestClientSession:
+async def client_session(mock_server_session) -> SampleTestClientSession:
+    event_loop = asyncio.get_running_loop()
     port, server_session = mock_server_session
-    session_ = SampleTestClientSession(session_id=SessionId())
+    session_ = SampleTestClientSession(session_id=common.SessionId())
     await event_loop.create_connection(lambda: session_, '127.0.0.1', port)
 
     # test server-client communication works
-    server_session.when('echo').do(lambda _: server_session.send('echoed'))
+    server_session.when(lambda x: x == b'echo').do(lambda _: server_session.send('echoed'))
     session_.send_msg('echo')
     assert await asyncio.wait_for(session_.received.get(), 1) == 'echoed'
     assert session_.is_active()
@@ -79,7 +79,7 @@ async def client_session(mock_server_session, event_loop) -> SampleTestClientSes
 async def test_stop_initiated_by_server(mock_server_session, client_session):
     _, server_session = mock_server_session
 
-    server_session.when('stop').do(lambda _: server_session.close())
+    server_session.when(lambda x: x == b'stop').do(lambda _: server_session.close())
 
     # informs the server to close the connection from server side.
     client_session.send_msg('stop')

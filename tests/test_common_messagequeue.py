@@ -146,6 +146,7 @@ async def test_able_to_pause_a_queue_with_dispatcher(receiver: asyncio.Queue):
 async def test_stopping_queue_in_handler_coro(receiver: asyncio.Queue):
     q = common.DispatchableMessageQueue(session_id='test')
     event = asyncio.Event()
+
     async def on_msg(_msg):
         event.set()
         await common.stop_task(q)
@@ -156,3 +157,13 @@ async def test_stopping_queue_in_handler_coro(receiver: asyncio.Queue):
 
     await event.wait()
     assert q.is_stopped() is True
+
+
+@pytest.mark.asyncio
+async def test_start_dispatching_twice_raises_exception(receiver: asyncio.Queue):
+    q = common.DispatchableMessageQueue(session_id='test', on_msg_coro=receiver.put)
+
+    with pytest.raises(common.StateError):
+        q.start_dispatching(receiver.put)
+
+    await q.stop()

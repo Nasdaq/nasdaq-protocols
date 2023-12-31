@@ -15,26 +15,28 @@ class Serializable(abc.ABC):
     @abc.abstractmethod
     def to_bytes(self):
         """pack the object to binary format."""
-        pass
+        raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
     def from_bytes(cls, bytes_: bytes):
         """unpack the object from binary format."""
-        pass
+        raise NotImplementedError
 
 
 class Stoppable(abc.ABC):
     @abc.abstractmethod
     async def stop(self):
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
     def is_stopped(self):
-        pass
+        raise NotImplementedError
+
 
 class StateError(RuntimeError):
     pass
+
 
 class EndOfQueue(EOFError):
     pass
