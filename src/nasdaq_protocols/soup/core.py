@@ -1,8 +1,12 @@
+"""
+nasdaq_protocols.soup.core module contains the implementation of the
+soup messages.
+"""
 import enum
 import struct
 
 import attrs
-from nasdaq_protocols.common import logable, Serializable
+from nasdaq_protocols import common
 
 
 __all__ = [
@@ -27,6 +31,8 @@ class InvalidSoupMessage(ValueError):
 
 
 class LoginRejectReason(enum.Enum):
+    """Login Reject Reason sent from server in case of login failure."""
+
     NOT_AUTHORIZED = 'A'
     SESSION_NOT_AVAILABLE = 'S'
 
@@ -36,9 +42,18 @@ class LoginRejectReason(enum.Enum):
         return reason if isinstance(reason, cls) else LoginRejectReason(reason)
 
 
-@logable
-class SoupMessage(Serializable):
-    """Base class for all soup messages."""
+@common.logable
+class SoupMessage(common.Serializable):
+    """
+    Base class for all soup messages.
+
+    Give raw bytes use this class to unpack the bytes to the corresponding soup message::
+
+        input_bytes = b'\x00\x1fAtest      2                   '
+        soup_msg = SoupMessage.from_bytes(input_bytes)
+        type(soup_msg)
+
+    """
 
     ClassByIndicator = {}
     Format = '!h c'
@@ -83,6 +98,15 @@ class SoupMessage(Serializable):
 
 @attrs.define(slots=False, auto_attribs=True)
 class LoginRequest(SoupMessage, indicator='L', description='Login Request'):
+    """
+    SoupBinTCP Login Request Message.
+
+    :param user: Username to login
+    :param passwd:  Password to login
+    :param session: Name of the session to join [Default=''] .
+    :param sequence: The sequence number. [Default=1]
+    """
+
     Format = '!h c 6s 10s 10s 20s'
     Length = 47
 
@@ -91,7 +115,12 @@ class LoginRequest(SoupMessage, indicator='L', description='Login Request'):
     session: str
     sequence: str
 
-    def to_bytes(self):
+    def to_bytes(self) -> bytes:
+        """
+        Pack the soup message to binary format
+
+        :return: bytes
+        """
         return struct.pack(LoginRequest.Format,
                            LoginRequest.Length,
                            self.Indicator.encode('ascii'),
@@ -111,13 +140,23 @@ class LoginRequest(SoupMessage, indicator='L', description='Login Request'):
 
 @attrs.define(slots=False, auto_attribs=True)
 class LoginAccepted(SoupMessage, indicator='A', description='Login Accepted'):
+    """
+    SoupBinTCP Login Accepted Message.
+
+    :param session_id: Name of the session joined [Default=''] .
+    :param sequence: The next sequence number.
+    """
     Format = '!h c 10s 20s'
     Len = 31
 
     session_id: str
     sequence: int
 
-    def to_bytes(self):
+    def to_bytes(self) -> bytes:
+        """
+        Pack the soup message to binary format
+        :return: bytes
+        """
         return struct.pack(LoginAccepted.Format,
                            LoginAccepted.Len, self.Indicator.encode('ascii'),
                            _pack(self.session_id, 10),
@@ -131,12 +170,21 @@ class LoginAccepted(SoupMessage, indicator='A', description='Login Accepted'):
 
 @attrs.define(slots=False, auto_attribs=True)
 class LoginRejected(SoupMessage, indicator='J', description='Login Rejected'):
+    """
+    SoupBinTCP Login Rejected Message.
+
+    :param reason: Reason for login failure. Refer `LoginRejectReason`
+    """
     Format = '!h c c'
     Length = 2
 
     reason: LoginRejectReason = attrs.field(converter=LoginRejectReason.get)
 
-    def to_bytes(self):
+    def to_bytes(self) -> bytes:
+        """
+        Pack the soup message to binary format
+        :return: bytes
+        """
         return struct.pack(LoginRejected.Format,
                            LoginRejected.Length,
                            self.Indicator.encode('ascii'),
@@ -150,9 +198,18 @@ class LoginRejected(SoupMessage, indicator='J', description='Login Rejected'):
 
 @attrs.define(slots=False, auto_attribs=True)
 class SequencedData(SoupMessage, indicator='S', description='Sequenced Data'):
+    """
+    SoupBinTCP Sequenced Data Message.
+
+    :param data: The application payload sent by the server.
+    """
     data: bytes
 
-    def to_bytes(self):
+    def to_bytes(self) -> bytes:
+        """
+        Pack the soup message to binary format
+        :return: bytes
+        """
         msg = struct.pack(SoupMessage.Format,
                           len(self.data)+1,
                           self.Indicator.encode('ascii'))
@@ -166,9 +223,18 @@ class SequencedData(SoupMessage, indicator='S', description='Sequenced Data'):
 
 @attrs.define(slots=False, auto_attribs=True)
 class UnSequencedData(SoupMessage, indicator='U', description='UnSequenced Data'):
+    """
+    SoupBinTCP Unsequenced Data Message.
+
+    :param data: The application payload to be sent to server.
+    """
     data: bytes
 
-    def to_bytes(self):
+    def to_bytes(self) -> bytes:
+        """
+        Pack the soup message to binary format
+        :return: bytes
+        """
         msg = struct.pack(SoupMessage.Format,
                           len(self.data)+1,
                           self.Indicator.encode('ascii'))
@@ -182,9 +248,18 @@ class UnSequencedData(SoupMessage, indicator='U', description='UnSequenced Data'
 
 @attrs.define(slots=False, auto_attribs=True)
 class Debug(SoupMessage, indicator='+', description='Debug'):
+    """
+    SoupBinTCP Debug Message.
+
+    :param msg: The debug message.
+    """
     msg: str
 
-    def to_bytes(self):
+    def to_bytes(self) -> bytes:
+        """
+        Pack the soup message to binary format
+        :return: bytes
+        """
         msg = struct.pack(SoupMessage.Format,
                           len(self.msg) + 1,
                           self.Indicator.encode('ascii'))
@@ -198,24 +273,42 @@ class Debug(SoupMessage, indicator='+', description='Debug'):
 
 @attrs.define(slots=False, auto_attribs=True)
 class ClientHeartbeat(SoupMessage, indicator='R', description='Client Heartbeat'):
+    """
+    SoupBinTCP Client Heartbeat Message.
+    """
+
     def is_heartbeat(self):
         return True
 
 
 @attrs.define(slots=False, auto_attribs=True)
 class ServerHeartbeat(SoupMessage, indicator='H', description='Server Heartbeat'):
+    """
+    SoupBinTCP Server Heartbeat Message.
+    """
+
     def is_heartbeat(self):
         return True
 
 
 @attrs.define(slots=False, auto_attribs=True)
 class EndOfSession(SoupMessage, indicator='Z', description='End of Session'):
+    """
+    SoupBinTCP End of Session Message.
+
+    This message is sent from server to indicate the soup stream is now closed.
+    """
     def is_logout(self):
         return True
 
 
 @attrs.define(slots=False, auto_attribs=True)
 class LogoutRequest(SoupMessage, indicator='O', description='LogoutRequest'):
+    """
+    SoupBinTCP Logout Request Message.
+
+    This message is initiated by the client to sever for graceful session logoff.
+    """
     def is_logout(self):
         return True
 

@@ -35,8 +35,8 @@ class Stoppable(abc.ABC):
 
 
 class StateError(RuntimeError):
-    pass
+    """Raised when an operation is attempted in an invalid state."""
 
 
 class EndOfQueue(EOFError):
-    pass
+    """Raised when the end of the queue is reached."""

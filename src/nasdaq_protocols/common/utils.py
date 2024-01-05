@@ -34,7 +34,9 @@ async def _stop_task(task: asyncio.Task):
 
 
 def logable(target):
-    """decorator to add a logger to a class"""
+    """
+    decorator that adds a log object to the class.
+    """
     assert inspect.isclass(target)
 
     target.log = logging.getLogger(target.__name__)
@@ -42,7 +44,9 @@ def logable(target):
 
 
 async def stop_task(tasks: _StopTaskTypes | list[_StopTaskTypes]) -> asyncio.Task | Stoppable | None:
-    """Cancel a task and wait for it to finish"""
+    """
+    Cancel a task and wait for it to finish
+    """
     if not isinstance(tasks, list):
         tasks = [tasks]
 
