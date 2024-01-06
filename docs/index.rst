@@ -15,6 +15,8 @@ Welcome to nasdaq-protocols's documentation!
    install
    api_reference
    user_guide
+   developer_guide
+   LICENSE
 
 
 Indices and tables

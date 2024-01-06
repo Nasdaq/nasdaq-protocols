@@ -2,6 +2,7 @@
 max-line-length=180
 
 [MASTER]
+ignore-paths=src/nasdaq_protocols/_version.py
 disable=
     C0114, #missing-module-docstring
     C0115, #missing-class-docstring

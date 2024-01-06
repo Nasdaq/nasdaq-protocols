@@ -35,4 +35,3 @@ autodoc_typehints = 'description'
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 # https://www.sphinx-doc.org/en/master/usage/theming.html [themes]
 html_theme = 'agogo'
-html_static_path = ['_static']
