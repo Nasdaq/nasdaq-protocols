@@ -33,7 +33,11 @@ class DispatchableMessageQueue(Stoppable):
         self._msg_queue = asyncio.Queue()
         self.start_dispatching(self.on_msg_coro)
 
-    async def put(self, msg: Any):
+    async def put(self, msg: Any) -> None:
+        """
+        put an entry into the queue.
+        :param msg: Any
+        """
         await self._msg_queue.put(msg)
 
     async def get(self):
@@ -51,9 +55,17 @@ class DispatchableMessageQueue(Stoppable):
         return msg if msg else await self._blocking_read()
 
     def put_nowait(self, msg: Any):
+        """
+        put an entry into the queue.
+        :param msg: Any
+        """
         self._msg_queue.put_nowait(msg)
 
-    def get_nowait(self):
+    def get_nowait(self) -> Any | None:
+        """
+        get an entry from the queue. This is a non-blocking call.
+        :return: entry from the queue or None if queue is empty.
+        """
         if self._dispatcher_task:
             raise StateError(f'{self.session_id}-dispatcher, Dispatcher is running, cannot use get_no_wait')
         msg = None
@@ -66,6 +78,17 @@ class DispatchableMessageQueue(Stoppable):
 
     @asynccontextmanager
     async def pause_dispatching(self):
+        """
+        This is a context manager that pauses the dispatcher::
+
+              queue = DispatchableMessageQueue(session_id, on_msg_coro)
+
+              queue.get()  # will raise an exception
+
+              async with queue.pause_dispatching():
+                   queue.get()  # will not raise an exception
+
+        """
         if not self._dispatcher_task:
             raise StateError('Dispatcher is not running, cannot pause')
         self._dispatcher_task = await stop_task(self._dispatcher_task)
@@ -76,7 +99,12 @@ class DispatchableMessageQueue(Stoppable):
             self._dispatcher_task = asyncio.create_task(self._start_dispatching(), name=f'{self.session_id}-dispatcher')
             self.log.debug('%s> queue dispatcher resumed.', self.session_id)
 
-    def start_dispatching(self, on_msg_coro: DispatcherCoro):
+    def start_dispatching(self, on_msg_coro: DispatcherCoro) -> None:
+        """
+        Start dispatching messages from the queue to the coro.
+
+        :param on_msg_coro:
+        """
         if self._dispatcher_task:
             raise StateError('Dispatcher is already running, cannot start')
         if on_msg_coro:
@@ -84,13 +112,19 @@ class DispatchableMessageQueue(Stoppable):
             self._dispatcher_task = asyncio.create_task(self._start_dispatching(), name=f'{self.session_id}-dispatcher')
             self.log.debug('%s> queue dispatcher started.', self.session_id)
 
-    async def stop(self):
+    async def stop(self) -> None:
+        """
+        Stop the queue.
+        """
         if not self._closed:
             self._closed = True
             self._dispatcher_task = await stop_task(self._dispatcher_task)
             self._recv_task = await stop_task(self._recv_task)
 
-    def is_stopped(self):
+    def is_stopped(self) -> bool:
+        """
+        :return: True if the queue is stopped.
+        """
         return self._closed
 
     async def _start_dispatching(self):

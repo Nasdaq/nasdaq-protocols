@@ -106,8 +106,8 @@ async def test_stop_initiated_by_client(mock_server_session, client_session):
 async def test_server_failed_heartbeat_connection_is_closed(mock_server_session, client_session):
     _, server_session = mock_server_session
 
-    client_session.start_heartbeats(10, 0.1)
-    await asyncio.sleep(2)
+    client_session.start_heartbeats(10, 0.01)
+    await asyncio.sleep(0.1)
 
     # test client session is closed
     assert client_session.is_closed()

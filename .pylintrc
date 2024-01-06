@@ -1,0 +1,13 @@
+[FORMAT]
+max-line-length=180
+
+[MASTER]
+disable=
+    C0114, #missing-module-docstring
+    C0115, #missing-class-docstring
+    C0116, #missing-function-docstring
+    W0223, #abstract-method
+    E1101, #no-member
+    R0903, #too-few-public-methods
+    R0902, #too-many-instance-attributes
+    W0707, #too-many-statements
