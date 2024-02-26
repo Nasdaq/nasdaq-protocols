@@ -3,7 +3,8 @@
 
 name: Python package
 
-on: [push]
+on:
+  workflow_call:
 
 jobs:
   build:
@@ -26,3 +27,9 @@ jobs:
     - name: Run tox
       run: |
         tox r
+    - name: Cache Document output
+      id: cache-document-output
+      uses: actions/cache@v4
+      with:
+        path: docs/_build/html
+        key: document-output

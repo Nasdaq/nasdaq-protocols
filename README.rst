@@ -1,5 +1,5 @@
-Welcome to nasdaq-protocols's documentation!
-============================================
+Nasdaq Protocols Python Library
+===============================
 
 .. toctree::
    :maxdepth: 1
@@ -15,11 +15,13 @@ Introduction
 ------------
 This library provides a Python implementation of the Nasdaq protocols and FIX protocol.
 
-Following protocols are planned to be implemented in this repository:
+Currently, the library supports the following protocols:
 1. SOUP
-2. OUCH
-3. ITCH
-4. FIX
+
+Following protocols are planned to be implemented in this repository:
+1. OUCH
+2. ITCH
+3. FIX
 
 
 Indices and tables
