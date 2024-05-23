@@ -1,0 +1,36 @@
+from enum import Enum
+from nasdaq_protocols.common.message import *
+from nasdaq_protocols import {{impl}}
+
+
+__all__ = [
+{{#enums}}
+    '{{name}}',
+{{/enums}}
+{{#records}}
+    '{{name}}',
+{{/records}}
+{{#messages}}
+    '{{name}}',
+{{/messages}}
+]
+
+
+{{> enum}}
+{{> record}}
+# Messages
+{{#messages}}
+class {{name}}({{impl}}.Message, indicator={{indicator}}, direction='{{direction}}'):
+    class BodyRecord(Record):
+        Fields = [
+{{#fields}}
+            Field('{{name}}', {{{type}}}{{#default}}, default_value={{#quote}}'{{/quote}}{{default_value}}{{#quote}}'{{/quote}}{{/default}}),
+{{/fields}}
+        ]
+
+{{#fields}}
+    {{name}}: {{hint}}
+{{/fields}}
+
+
+{{/messages}}

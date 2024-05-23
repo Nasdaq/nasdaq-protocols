@@ -1,4 +1,6 @@
 attrs>=23.1
+chevron>=0.14.0
+click>=8.1
 pytest>=7.4
 pytest-cov>=4.1
 pytest-asyncio>=0.23

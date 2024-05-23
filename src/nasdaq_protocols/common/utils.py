@@ -2,7 +2,6 @@ import asyncio
 import inspect
 import logging
 from typing import Tuple
-from functools import wraps
 
 from .types import Stoppable
 

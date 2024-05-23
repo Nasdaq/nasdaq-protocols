@@ -1,0 +1,9 @@
+# Enums
+{{#enums}}
+class {{name}}(Enum):
+{{#values}}
+    {{name}} = {{#quote}}'{{/quote}}{{value}}{{#quote}}'{{/quote}}
+{{/values}}
+
+
+{{/enums}}

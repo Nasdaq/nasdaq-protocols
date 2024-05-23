@@ -10,7 +10,7 @@ async def receiver() -> asyncio.Queue:
 
 
 @pytest.mark.asyncio
-async def test_able_to_put_get_without_active_dispatcher():
+async def test__dispatchablemessagequeue__no_active_dispatcher__able_to_put_and_get():
     q = common.DispatchableMessageQueue(session_id='test')
     await q.put('test')
 
@@ -18,7 +18,7 @@ async def test_able_to_put_get_without_active_dispatcher():
 
 
 @pytest.mark.asyncio
-async def test_able_to_put_get_nowait_without_active_dispatcher():
+async def test__dispatchablemessagequeue__no_active_dispatcher__able_to_put_and_get__nowait():
     q = common.DispatchableMessageQueue(session_id='test')
     q.put_nowait('test')
 
@@ -26,13 +26,13 @@ async def test_able_to_put_get_nowait_without_active_dispatcher():
 
 
 @pytest.mark.asyncio
-async def test_get_nowait_on_empty_queue_returns_none():
+async def test__dispatchablemessagequeue__when_queue_is_empty__get_nowait_returns_none():
     q = common.DispatchableMessageQueue(session_id='test')
     assert q.get_nowait() is None
 
 
 @pytest.mark.asyncio
-async def test_able_to_put_get_with_active_dispatcher(receiver: asyncio.Queue):
+async def test__dispatchablemessagequeue__active_dispatcher__item_is_dispatched(receiver: asyncio.Queue):
     q = common.DispatchableMessageQueue(session_id='test', on_msg_coro=receiver.put)
     await q.put('test')
 
@@ -42,7 +42,7 @@ async def test_able_to_put_get_with_active_dispatcher(receiver: asyncio.Queue):
 
 
 @pytest.mark.asyncio
-async def test_unable_get_with_active_dispatcher(receiver: asyncio.Queue):
+async def test__dispatchablemessagequeue__active_dispatcher__get_raises_exception(receiver: asyncio.Queue):
     q = common.DispatchableMessageQueue(session_id='test', on_msg_coro=receiver.put)
     await q.put('test')
 
@@ -53,7 +53,7 @@ async def test_unable_get_with_active_dispatcher(receiver: asyncio.Queue):
 
 
 @pytest.mark.asyncio
-async def test_unable_to_get_nowait_with_active_dispatcher(receiver: asyncio.Queue):
+async def test__dispatchablemessagequeue__active_dispatcher__get_raises_exception__nowait(receiver: asyncio.Queue):
     q = common.DispatchableMessageQueue(session_id='test', on_msg_coro=receiver.put)
     q.put_nowait('test')
 
@@ -64,7 +64,7 @@ async def test_unable_to_get_nowait_with_active_dispatcher(receiver: asyncio.Que
 
 
 @pytest.mark.asyncio
-async def test_blocking_read_when_queue_is_empty(receiver: asyncio.Queue):
+async def test__dispatchablemessagequeue__empty_queue__get_blocks_until_item_available(receiver: asyncio.Queue):
     q = common.DispatchableMessageQueue(session_id='test')
 
     read_task = asyncio.create_task(q.get())
@@ -75,7 +75,7 @@ async def test_blocking_read_when_queue_is_empty(receiver: asyncio.Queue):
 
 
 @pytest.mark.asyncio
-async def test_stopping_queue_with_pending_blocking_read(receiver: asyncio.Queue):
+async def test__dispatchablemessagequeue__stop_queue_while_read_blocking__queue_stopped(receiver: asyncio.Queue):
     q = common.DispatchableMessageQueue(session_id='test')
 
     read_task = asyncio.create_task(q.get())
@@ -87,7 +87,7 @@ async def test_stopping_queue_with_pending_blocking_read(receiver: asyncio.Queue
 
 
 @pytest.mark.asyncio
-async def test_queue_continues_processing_if_handler_throws_exception(receiver: asyncio.Queue):
+async def test__dispatchablemessagequeue__dispatcher_raises_exception__queue_continues(receiver: asyncio.Queue):
     async def on_msg(msg):
         if msg == 'exception':
             raise RuntimeError('exception')
@@ -105,7 +105,7 @@ async def test_queue_continues_processing_if_handler_throws_exception(receiver: 
 
 
 @pytest.mark.asyncio
-async def test_get_on_stopped_queue_raises_exception():
+async def test__dispatchablemessagequeue__queue_stopped__get_raises_exception():
     q = common.DispatchableMessageQueue(session_id='test')
     await q.stop()
 
@@ -114,7 +114,7 @@ async def test_get_on_stopped_queue_raises_exception():
 
 
 @pytest.mark.asyncio
-async def test_get_nowait_on_stopped_queue_raises_exception():
+async def test__dispatchablemessagequeue__queue_stopped__get_raises_exception__nowait():
     q = common.DispatchableMessageQueue(session_id='test')
     await q.stop()
 
@@ -123,7 +123,7 @@ async def test_get_nowait_on_stopped_queue_raises_exception():
 
 
 @pytest.mark.asyncio
-async def test_unable_to_pause_a_queue_without_dispatcher():
+async def test__dispatchablemessagequeue__no_active_dispatcher__pause_raises_exception():
     q = common.DispatchableMessageQueue(session_id='test')
 
     with pytest.raises(common.StateError):
@@ -132,7 +132,7 @@ async def test_unable_to_pause_a_queue_without_dispatcher():
 
 
 @pytest.mark.asyncio
-async def test_able_to_pause_a_queue_with_dispatcher(receiver: asyncio.Queue):
+async def test__dispatchablemessagequeue__active_dispatcher__able_to_pause_queue(receiver: asyncio.Queue):
     q = common.DispatchableMessageQueue(session_id='test', on_msg_coro=receiver.put)
 
     async with q.pause_dispatching():
@@ -143,7 +143,7 @@ async def test_able_to_pause_a_queue_with_dispatcher(receiver: asyncio.Queue):
 
 
 @pytest.mark.asyncio
-async def test_stopping_queue_in_handler_coro(receiver: asyncio.Queue):
+async def test__dispatchablemessagequeue__queue_stopped_in_dispatcher__queue_is_stopped(receiver: asyncio.Queue):
     q = common.DispatchableMessageQueue(session_id='test')
     event = asyncio.Event()
 
@@ -160,7 +160,7 @@ async def test_stopping_queue_in_handler_coro(receiver: asyncio.Queue):
 
 
 @pytest.mark.asyncio
-async def test_start_dispatching_twice_raises_exception(receiver: asyncio.Queue):
+async def test__dispatchablemessagequeue__active_dispatcher__unable_to_start_dispatching_again(receiver: asyncio.Queue):
     q = common.DispatchableMessageQueue(session_id='test', on_msg_coro=receiver.put)
 
     with pytest.raises(common.StateError):

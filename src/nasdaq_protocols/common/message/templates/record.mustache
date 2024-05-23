@@ -1,0 +1,15 @@
+# Records
+{{#records}}
+class {{name}}({{record_type}}):
+    Fields = [
+{{#fields}}
+        Field('{{name}}', {{{type}}}{{#default}}, default_value={{#quote}}'{{/quote}}{{default_value}}{{#quote}}'{{/quote}}{{/default}}),
+{{/fields}}
+    ]
+
+{{#fields}}
+    {{name}}: {{hint}}
+{{/fields}}
+
+
+{{/records}}

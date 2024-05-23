@@ -4,7 +4,7 @@ from typing import Any, Callable, Coroutine, Generic, Type, TypeVar
 from itertools import count
 
 import attrs
-from .types import Stoppable, Serializable
+from .types import Stoppable, Serializable, StateError
 from .utils import logable, stop_task, Validators
 from .message_queue import DispatchableMessageQueue
 
@@ -231,6 +231,16 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
         self._remote_hb_monitor = HeartbeatMonitor(self.session_id, remote_hb_interval, self.close)
         self.log.debug('%s> started heartbeats', self.session_id)
 
+    def set_handlers(self, on_msg_coro: OnMsgCoro = None, on_close_coro: OnCloseCoro = None):
+        if on_msg_coro:
+            if self._msg_queue.is_dispatching():
+                raise StateError('Dispatcher already active, cannot set on_msg handler')
+            self.on_msg_coro = on_msg_coro
+        if on_close_coro:
+            self.on_close_coro = on_close_coro
+            if self._closing_task is not None or self._closed:
+                raise StateError("Session already closed, cannot set close handler")
+
     def start_dispatching(self):
         """
         By default, the session starts with dispatching switched-on.
@@ -239,8 +249,9 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
         during the lifetime of this session, dispatching can be switched-on by calling
         this method.
         """
-        self._msg_queue.start_dispatching(self.on_msg_coro)
-        self.log.debug('%s> started dispatching', self.session_id)
+        if self.on_msg_coro:
+            self._msg_queue.start_dispatching(self.on_msg_coro)
+            self.log.debug('%s> started dispatching', self.session_id)
 
     # asyncio.Protocol overloads.
     def connection_made(self, transport: asyncio.Transport):

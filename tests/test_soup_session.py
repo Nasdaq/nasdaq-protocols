@@ -24,7 +24,7 @@ class SoupServerTestSession(soup.SoupServerSession, session_type='server'):
 
 
 @pytest.fixture(scope='function')
-async def test_soup_server_session(unused_tcp_port):
+async def soup_server_session(unused_tcp_port):
     session = SoupServerTestSession()
     server, serving_task = await common.start_server(('127.0.0.1', unused_tcp_port), lambda: session)
     yield unused_tcp_port, session
@@ -39,8 +39,8 @@ async def test_soup_server_session(unused_tcp_port):
 
 
 @pytest.mark.asyncio
-async def test_server_rejected_login(test_soup_server_session):
-    port, server_session = test_soup_server_session
+async def test__soup_session__invalid_credentials__login_rejected(soup_server_session):
+    port, server_session = soup_server_session
 
     with pytest.raises(ConnectionRefusedError):
         client_session = await soup.connect_async(
@@ -53,8 +53,8 @@ async def test_server_rejected_login(test_soup_server_session):
 
 
 @pytest.mark.asyncio
-async def test_server_accepted_login(test_soup_server_session):
-    port, server_session = test_soup_server_session
+async def test__soup_session__valid_credentials__login_accepted(soup_server_session):
+    port, server_session = soup_server_session
 
     client_session = await soup.connect_async(
         ('127.0.0.1', port),
@@ -68,8 +68,8 @@ async def test_server_accepted_login(test_soup_server_session):
 
 
 @pytest.mark.asyncio
-async def test_client_server_communicate(test_soup_server_session):
-    port, server_session = test_soup_server_session
+async def test__soup_session__able_to_communicate(soup_server_session):
+    port, server_session = soup_server_session
 
     client_session = await soup.connect_async(
         ('127.0.0.1', port),
@@ -90,8 +90,8 @@ async def test_client_server_communicate(test_soup_server_session):
 
 
 @pytest.mark.asyncio
-async def test_server_streaming_client_uses_dispatcher(test_soup_server_session):
-    port, server_session = test_soup_server_session
+async def test__soup_session__with_dispatcher__dispatcher_invoked(soup_server_session):
+    port, server_session = soup_server_session
 
     closed = asyncio.Event()
 
