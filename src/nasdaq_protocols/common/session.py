@@ -10,7 +10,7 @@ from .message_queue import DispatchableMessageQueue
 
 
 __all__ = [
-    'HearbeatMonitor',
+    'HeartbeatMonitor',
     'Reader',
     'AsyncSession',
     'OnMonitorNoActivityCoro',
@@ -29,7 +29,7 @@ ReaderFactory = Callable[[Any, OnMsgCoro, OnCloseCoro], 'Reader']
 
 @logable
 @attrs.define(auto_attribs=True)
-class HearbeatMonitor(Stoppable):
+class HeartbeatMonitor(Stoppable):
     """
     Monitor that trips the `on_no_activity_coro` if no activity is detected.
 
@@ -150,8 +150,8 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
     _closed: bool = attrs.field(init=False, default=False)
     _closing_task: asyncio.Task = attrs.field(init=False, default=None)
     _reader_task: asyncio.Task = attrs.field(init=False, default=None)
-    _local_hb_monitor: HearbeatMonitor = attrs.field(init=False, default=None)
-    _remote_hb_monitor: HearbeatMonitor = attrs.field(init=False, default=None)
+    _local_hb_monitor: HeartbeatMonitor = attrs.field(init=False, default=None)
+    _remote_hb_monitor: HeartbeatMonitor = attrs.field(init=False, default=None)
     _msg_queue: DispatchableMessageQueue = attrs.field(init=False, default=None)
 
     def __attrs_post_init__(self):
@@ -225,10 +225,10 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
         - if the remote failed heartbeats, then the session is closed.
         - if the local heartbeat timer expires, then `send_heartbeat` is called.
         """
-        self._local_hb_monitor = HearbeatMonitor(
+        self._local_hb_monitor = HeartbeatMonitor(
             self.session_id, local_hb_interval, self.send_heartbeat, stop_when_no_activity=False
         )
-        self._remote_hb_monitor = HearbeatMonitor(self.session_id, remote_hb_interval, self.close)
+        self._remote_hb_monitor = HeartbeatMonitor(self.session_id, remote_hb_interval, self.close)
         self.log.debug('%s> started heartbeats', self.session_id)
 
     def start_dispatching(self):
