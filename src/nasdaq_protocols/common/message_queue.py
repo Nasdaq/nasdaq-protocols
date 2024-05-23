@@ -99,6 +99,12 @@ class DispatchableMessageQueue(Stoppable):
             self._dispatcher_task = asyncio.create_task(self._start_dispatching(), name=f'{self.session_id}-dispatcher')
             self.log.debug('%s> queue dispatcher resumed.', self.session_id)
 
+    def is_dispatching(self) -> bool:
+        """
+        Check is message queue is actively dispatching.
+        """
+        return self._dispatcher_task is not None
+
     def start_dispatching(self, on_msg_coro: DispatcherCoro) -> None:
         """
         Start dispatching messages from the queue to the coro.

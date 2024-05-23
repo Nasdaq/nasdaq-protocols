@@ -7,7 +7,8 @@ import pytest
 from nasdaq_protocols import common
 from .mocks import mock_server_session
 
-logger = logging.getLogger(__name__)
+
+LOG = logging.getLogger(__name__)
 
 
 @attrs.define(auto_attribs=True)
@@ -21,7 +22,7 @@ class SampleTestReader(common.Reader):
         return self.stopped
 
     async def on_data(self, data: bytes):
-        asyncio.create_task(self.on_msg_coro(data.decode('ascii')))
+        await asyncio.create_task(self.on_msg_coro(data.decode('ascii')))
 
     @staticmethod
     def create(session_id, on_msg, on_close):
@@ -58,7 +59,7 @@ async def client_session(mock_server_session) -> SampleTestClientSession:
     await event_loop.create_connection(lambda: session_, '127.0.0.1', port)
 
     # test server-client communication works
-    server_session.when(lambda x: x == b'echo').do(lambda _: server_session.send('echoed'))
+    server_session.when(lambda x: x == b'echo').do(lambda session, _: session.send('echoed'))
     session_.send_msg('echo')
     assert await asyncio.wait_for(session_.received.get(), 1) == 'echoed'
     assert session_.is_active()
@@ -76,10 +77,10 @@ async def client_session(mock_server_session) -> SampleTestClientSession:
     assert session_._msg_queue.is_stopped()
 
 
-async def test_stop_initiated_by_server(mock_server_session, client_session):
+async def test__asyncsession__transport_closed__session_is_closed(mock_server_session, client_session):
     _, server_session = mock_server_session
 
-    server_session.when(lambda x: x == b'stop').do(lambda _: server_session.close())
+    server_session.when(lambda x: x == b'stop').do(lambda session, _: session.close())
 
     # informs the server to close the connection from server side.
     client_session.send_msg('stop')
@@ -89,7 +90,7 @@ async def test_stop_initiated_by_server(mock_server_session, client_session):
     assert client_session.is_closed()
 
 
-async def test_stop_initiated_by_client(mock_server_session, client_session):
+async def test__asyncsession__close__session_is_closed(mock_server_session, client_session):
     _, server_session = mock_server_session
 
     await client_session.close()
@@ -103,7 +104,7 @@ async def test_stop_initiated_by_client(mock_server_session, client_session):
     await client_session.close()
 
 
-async def test_server_failed_heartbeat_connection_is_closed(mock_server_session, client_session):
+async def test__asyncsession__missed_remote_heartbeats__session_is_closed(mock_server_session, client_session):
     _, server_session = mock_server_session
 
     client_session.start_heartbeats(10, 0.01)

@@ -8,3 +8,5 @@ Common api reference
 .. automodule:: nasdaq_protocols.common.types
 
 .. automodule:: nasdaq_protocols.common.utils
+
+.. automodule:: nasdaq_protocols.common.message.types

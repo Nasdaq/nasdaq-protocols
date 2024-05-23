@@ -5,7 +5,7 @@ import pytest
 from nasdaq_protocols import common
 
 
-def test_unable_to_decorate_function_with_loggable():
+def test__loggable__unable_to_decorate_function():
 
     with pytest.raises(AssertionError):
         @common.logable
@@ -13,7 +13,7 @@ def test_unable_to_decorate_function_with_loggable():
             pass
 
 
-def test_able_to_decorate_class_with_logable():
+def test__loggable__able_to_decorate_class():
     @common.logable
     class A:
         pass
@@ -22,16 +22,16 @@ def test_able_to_decorate_class_with_logable():
     assert A.log.name == 'A'
 
 
-def test_not_none_validator_prevents_none():
+def test__not_none_validator__fails_when_none_is_supplied():
     @attrs.define
     class A:
-        attr: str = attrs.field(validator=common.Validators.not_none())
+        attr: str | None = attrs.field(validator=common.Validators.not_none())
 
     with pytest.raises(ValueError):
         A(None)
 
 
-def test_not_none_validator_accepts_valid_value():
+def test__not_none_validator__accepts_valid_value():
     @attrs.define
     class A:
         attr: str = attrs.field(validator=common.Validators.not_none())
@@ -40,7 +40,7 @@ def test_not_none_validator_accepts_valid_value():
 
 
 @pytest.mark.asyncio
-async def test_stop_task_cancels_task():
+async def test__stop_task__stops_an_async_task():
     q = asyncio.Queue()
 
     task = asyncio.create_task(q.get())
@@ -52,7 +52,7 @@ async def test_stop_task_cancels_task():
 
 
 @pytest.mark.asyncio
-async def test_stop_task_stops_task_on_any_runtime_error():
+async def test__stop_task__stops_task_even_if_runtime_error_is_raised():
     reader_ready_to_be_stopped = asyncio.Event()
 
     async def reader():
@@ -71,7 +71,7 @@ async def test_stop_task_stops_task_on_any_runtime_error():
 
 
 @pytest.mark.asyncio
-async def test_stop_task_on_already_stopped_tasks():
+async def test__stop_task__no_effect_on_already_stopped_tasks():
     q = asyncio.Queue()
 
     task = asyncio.create_task(q.get())
