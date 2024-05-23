@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61", "setuptools_scm[toml]==6.2"]
+requires = ["setuptools>=64", "setuptools_scm[toml]>=8"]
 build-backend = "setuptools.build_meta"
 
 
@@ -19,12 +19,7 @@ dependencies = [
 
 dynamic = ["version"]
 
-[tool.setuptools.dynamic]
-version = {attr = "nasdaq_protocols/_version.version"}
-
 [tool.setuptools_scm]
-local_scheme = "node-and-date"
-write_to = "src/nasdaq_protocols/_version.py"
 
 
 [tool.setuptools.packages.find]
