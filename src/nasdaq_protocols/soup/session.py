@@ -101,7 +101,7 @@ class SoupSession(common.AsyncSession, abc.ABC):
 
         :param msg: SoupMessage object.
         """
-        bytes_ = msg.to_bytes()
+        _, bytes_ = msg.to_bytes()
         self._transport.write(bytes_)
         self.log.debug('%s> sent %s', self.session_id, str(bytes_))
 

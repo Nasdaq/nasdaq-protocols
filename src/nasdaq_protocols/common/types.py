@@ -1,4 +1,5 @@
 import abc
+from typing import Generic, TypeVar, Type
 
 
 __all__ = [
@@ -7,19 +8,20 @@ __all__ = [
     'StateError',
     'EndOfQueue'
 ]
+T = TypeVar('T')
 
 
-class Serializable(abc.ABC):
+class Serializable(abc.ABC, Generic[T]):
     """Abstract Base class for serializable objects."""
 
     @abc.abstractmethod
-    def to_bytes(self):
+    def to_bytes(self) -> tuple[int, bytes]:
         """pack the object to binary format."""
         raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod
-    def from_bytes(cls, bytes_: bytes):
+    def from_bytes(cls, bytes_: bytes) -> tuple[int, Type[T]]:
         """unpack the object from binary format."""
         raise NotImplementedError
 

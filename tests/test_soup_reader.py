@@ -54,8 +54,10 @@ async def test_reader_is_stoppable(reader, handler):
 
 @pytest.mark.asyncio
 async def test_reader_reads_one_message_per_packet(reader, handler):
-    await reader.on_data(input1.to_bytes())
-    await reader.on_data(input2.to_bytes())
+    _len, bytes_ = input1.to_bytes()
+    await reader.on_data(bytes_)
+    _len, bytes_ = input2.to_bytes()
+    await reader.on_data(bytes_)
 
     msg1 = await handler.received_messages.get()
     assert msg1 == input1
@@ -66,7 +68,9 @@ async def test_reader_reads_one_message_per_packet(reader, handler):
 
 @pytest.mark.asyncio
 async def test_reader_reads_multiple_message_in_one_packet(reader, handler):
-    input_ = input1.to_bytes() + input2.to_bytes()
+    _len, input1_bytes = input1.to_bytes()
+    _len, input2_bytes = input2.to_bytes()
+    input_ = input1_bytes + input2_bytes
 
     await reader.on_data(input_)
 
@@ -80,14 +84,16 @@ async def test_reader_reads_multiple_message_in_one_packet(reader, handler):
 @pytest.mark.asyncio
 async def test_reader_reads_one_message_from_multiple_packets(reader, handler):
     # Send in the bytes one by one except the last one.
-    for byte_ in input1.to_bytes()[:-1]:
+    _len, bytes_ = input1.to_bytes()
+    for byte_ in bytes_[:-1]:
         await reader.on_data(bytes([byte_]))
         await asyncio.sleep(0.001)
         with pytest.raises(asyncio.QueueEmpty):
             _ = handler.received_messages.get_nowait()
 
     # Feed in the last byte and the message is formed and dispatched.
-    await reader.on_data(bytes([input1.to_bytes()[-1]]))
+    _len, bytes_ = input1.to_bytes()
+    await reader.on_data(bytes([bytes_[-1]]))
     msg = await handler.received_messages.get()
 
     assert msg == input1
@@ -96,7 +102,8 @@ async def test_reader_reads_one_message_from_multiple_packets(reader, handler):
 @pytest.mark.asyncio
 @pytest.mark.parametrize('msg', [soup.LogoutRequest(), soup.EndOfSession()])
 async def test_reader_invokes_close_when_end_of_session_is_detected(reader, handler, msg):
-    await reader.on_data(msg.to_bytes())
+    _len, bytes_ = msg.to_bytes()
+    await reader.on_data(bytes_)
 
     await handler.closed.wait()
     assert handler.closed.is_set()
@@ -106,8 +113,8 @@ async def test_reader_invokes_close_when_end_of_session_is_detected(reader, hand
 async def test_reader_invokes_close_when_msg_handler_throws_exception(reader, handler):
     # Cross wire reader's on_msg_coro to throw an exception
     reader.on_msg_coro = MagicMock(side_effect=KeyError('test'))
-
-    await reader.on_data(input1.to_bytes())
+    _len, bytes_ = input1.to_bytes()
+    await reader.on_data(bytes_)
 
     await handler.closed.wait()
     assert handler.closed.is_set()

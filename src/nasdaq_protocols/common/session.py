@@ -1,6 +1,6 @@
 import abc
 import asyncio
-from typing import Any, Callable, Coroutine
+from typing import Any, Callable, Coroutine, Generic, Type, TypeVar
 from itertools import count
 
 import attrs
@@ -19,7 +19,7 @@ __all__ = [
     'ReaderFactory',
     'SessionId'
 ]
-
+T = TypeVar('T')
 
 OnMonitorNoActivityCoro = Callable[[], Coroutine]
 OnMsgCoro = Callable[[Any], Coroutine]
@@ -124,7 +124,7 @@ class SessionId:
 
 @logable
 @attrs.define(auto_attribs=True)
-class AsyncSession(asyncio.Protocol, abc.ABC):
+class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
     """
     Abstract base class for async sessions.
 
@@ -154,12 +154,11 @@ class AsyncSession(asyncio.Protocol, abc.ABC):
     _remote_hb_monitor: HearbeatMonitor = attrs.field(init=False, default=None)
     _msg_queue: DispatchableMessageQueue = attrs.field(init=False, default=None)
 
-
     def __attrs_post_init__(self):
         # By default do not dispatch messages
         self._msg_queue = DispatchableMessageQueue(self.session_id)
 
-    async def receive_msg(self) -> Any:
+    async def receive_msg(self) -> Type[T]:
         """
         Receive a message from the peer. This is a blocking call.
         This call blocks until a new message is available.
@@ -170,7 +169,7 @@ class AsyncSession(asyncio.Protocol, abc.ABC):
         """
         return await self._msg_queue.get()
 
-    def receive_msg_nowait(self) -> Any | None:
+    def receive_msg_nowait(self) -> Type[T] | None:
         """
         Receive a message from the peer. This is a non-blocking call.
 
@@ -272,7 +271,7 @@ class AsyncSession(asyncio.Protocol, abc.ABC):
         self.initiate_close()
 
     @abc.abstractmethod
-    def send_msg(self, msg: Serializable) -> None:
+    def send_msg(self, msg: Serializable[T]) -> None:
         """
         Send a message to the peer.
         :param msg: Any message that is serializable.

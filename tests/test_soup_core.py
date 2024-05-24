@@ -37,12 +37,13 @@ def test_unpack_invalid_soup_message():
 
 def test_pack_login_request():
     input_lr = soup.LoginRequest('nouser', 'nopassword', 'session', '1')
+    _len, bytes_ = input_lr.to_bytes()
 
-    assert test_login_reject == input_lr.to_bytes()
+    assert test_login_reject == bytes_
 
 
 def test_unpack_login_request():
-    message: soup.LoginRequest = soup.SoupMessage.from_bytes(test_login_reject)
+    _len, message = soup.SoupMessage.from_bytes(test_login_reject)
 
     assert type(message) is soup.LoginRequest
     assert message.Indicator == 'L'
@@ -58,12 +59,13 @@ def test_unpack_login_request():
 
 def test_pack_login_accepted():
     input_la = soup.LoginAccepted('test', 2)
+    _len, bytes_ = input_la.to_bytes()
 
-    assert test_login_accepted == input_la.to_bytes()
+    assert test_login_accepted == bytes_
 
 
 def test_unpack_login_accepted():
-    message: soup.LoginAccepted = soup.SoupMessage.from_bytes(test_login_accepted)
+    _len, message = soup.SoupMessage.from_bytes(test_login_accepted)
 
     assert type(message) is soup.LoginAccepted
     assert message.Indicator == 'A'
@@ -76,13 +78,15 @@ def test_unpack_login_accepted():
 def test_pack_login_rejected():
     input_lra = soup.LoginRejected(soup.LoginRejectReason.NOT_AUTHORIZED)
     input_lrs = soup.LoginRejected(soup.LoginRejectReason.SESSION_NOT_AVAILABLE)
+    _len, input_lra_bytes = input_lra.to_bytes()
+    _len, input_lrs_bytes = input_lrs.to_bytes()
 
-    assert test_login_rejected == input_lra.to_bytes()
-    assert test_login_rejected_session == input_lrs.to_bytes()
+    assert test_login_rejected == input_lra_bytes
+    assert test_login_rejected_session == input_lrs_bytes
 
 
 def test_unpack_login_rejected_auth():
-    message: soup.LoginRejected = soup.SoupMessage.from_bytes(test_login_rejected)
+    _len, message = soup.SoupMessage.from_bytes(test_login_rejected)
 
     assert type(message) is soup.LoginRejected
     assert message.Indicator == 'J'
@@ -92,7 +96,7 @@ def test_unpack_login_rejected_auth():
 
 
 def test_unpack_login_rejected_session():
-    message: soup.LoginRejected = soup.SoupMessage.from_bytes(test_login_rejected_session)
+    _len, message = soup.SoupMessage.from_bytes(test_login_rejected_session)
 
     assert type(message) is soup.LoginRejected
     assert message.Indicator == 'J'
@@ -103,12 +107,13 @@ def test_unpack_login_rejected_session():
 
 def test_pack_sequenced_data():
     input_sd = soup.SequencedData(b'test_txt')
+    _len, bytes_ = input_sd.to_bytes()
 
-    assert test_sequenced == input_sd.to_bytes()
+    assert test_sequenced == bytes_
 
 
 def test_unpack_sequenced_data():
-    message: soup.SequencedData = soup.SoupMessage.from_bytes(test_sequenced)
+    _len, message = soup.SoupMessage.from_bytes(test_sequenced)
 
     assert type(message) is soup.SequencedData
     assert message.Indicator == 'S'
@@ -119,12 +124,13 @@ def test_unpack_sequenced_data():
 
 def test_pack_empty_sequence_data():
     input_sd = soup.SequencedData(b'')
+    _len, bytes_ = input_sd.to_bytes()
 
-    assert b'\x00\x01S' == input_sd.to_bytes()
+    assert b'\x00\x01S' == bytes_
 
 
 def test_unpack_empty_sequence_data():
-    message: soup.SequencedData = soup.SoupMessage.from_bytes(b'\x00\x01S')
+    _len, message = soup.SoupMessage.from_bytes(b'\x00\x01S')
 
     assert type(message) is soup.SequencedData
     assert message.Indicator == 'S'
@@ -135,12 +141,13 @@ def test_unpack_empty_sequence_data():
 
 def test_pack_unsequenced_data():
     input_usd = soup.UnSequencedData(b'test_txt')
+    _len, bytes_ = input_usd.to_bytes()
 
-    assert test_unsequenced == input_usd.to_bytes()
+    assert test_unsequenced == bytes_
 
 
 def test_unpack_unsequenced_data():
-    message: soup.UnSequencedData = soup.SoupMessage.from_bytes(test_unsequenced)
+    _len, message = soup.SoupMessage.from_bytes(test_unsequenced)
 
     assert type(message) is soup.UnSequencedData
     assert message.Indicator == 'U'
@@ -151,12 +158,13 @@ def test_unpack_unsequenced_data():
 
 def test_pack_empty_unsequenced_data():
     input_usd = soup.UnSequencedData(b'')
+    _len, bytes_ = input_usd.to_bytes()
 
-    assert b'\x00\x01U' == input_usd.to_bytes()
+    assert b'\x00\x01U' == bytes_
 
 
 def test_unpack_empty_unsequenced_data():
-    message: soup.UnSequencedData = soup.SoupMessage.from_bytes(b'\x00\x01U')
+    _len, message = soup.SoupMessage.from_bytes(b'\x00\x01U')
 
     assert type(message) is soup.UnSequencedData
     assert message.Indicator == 'U'
@@ -167,12 +175,13 @@ def test_unpack_empty_unsequenced_data():
 
 def test_pack_debug():
     input_d = soup.Debug('test_txt')
+    _len, bytes_ = input_d.to_bytes()
 
-    assert test_debug == input_d.to_bytes()
+    assert test_debug == bytes_
 
 
 def test_unpack_debug():
-    message: soup.Debug = soup.SoupMessage.from_bytes(test_debug)
+    _len, message = soup.SoupMessage.from_bytes(test_debug)
 
     assert type(message) is soup.Debug
     assert message.Indicator == '+'
@@ -182,11 +191,12 @@ def test_unpack_debug():
 
 
 def test_pack_client_heartbeat():
-    assert client_heartbeat_message == soup.ClientHeartbeat().to_bytes()
+    _len, bytes_ = soup.ClientHeartbeat().to_bytes()
+    assert client_heartbeat_message == bytes_
 
 
 def test_unpack_client_heartbeat():
-    message: soup.ClientHeartbeat = soup.SoupMessage.from_bytes(client_heartbeat_message)
+    _len, message = soup.SoupMessage.from_bytes(client_heartbeat_message)
 
     assert type(message) is soup.ClientHeartbeat
     assert message.Indicator == 'R'
@@ -195,11 +205,12 @@ def test_unpack_client_heartbeat():
 
 
 def test_pack_server_heartbeat():
-    assert server_heartbeat_message == soup.ServerHeartbeat().to_bytes()
+    _len, bytes_ = soup.ServerHeartbeat().to_bytes()
+    assert server_heartbeat_message == bytes_
 
 
 def test_unpack_server_heartbeat():
-    message: soup.ServerHeartbeat = soup.SoupMessage.from_bytes(server_heartbeat_message)
+    _len, message = soup.SoupMessage.from_bytes(server_heartbeat_message)
 
     assert type(message) is soup.ServerHeartbeat
     assert message.Indicator == 'H'
@@ -208,11 +219,12 @@ def test_unpack_server_heartbeat():
 
 
 def test_pack_end_of_session():
-    assert end_of_session_message == soup.EndOfSession().to_bytes()
+    _len, bytes_ = soup.EndOfSession().to_bytes()
+    assert end_of_session_message == bytes_
 
 
 def test_unpack_end_of_session():
-    message: soup.EndOfSession = soup.SoupMessage.from_bytes(end_of_session_message)
+    _len, message = soup.SoupMessage.from_bytes(end_of_session_message)
 
     assert type(message) is soup.EndOfSession
     assert message.Indicator == 'Z'
@@ -221,11 +233,12 @@ def test_unpack_end_of_session():
 
 
 def test_pack_logout_request():
-    assert logout_request_message == soup.LogoutRequest().to_bytes()
+    _len, bytes_ = soup.LogoutRequest().to_bytes()
+    assert logout_request_message == bytes_
 
 
 def test_unpack_logout_request():
-    message: soup.LogoutRequest = soup.SoupMessage.from_bytes(logout_request_message)
+    _len, message = soup.SoupMessage.from_bytes(logout_request_message)
 
     assert type(message) is soup.LogoutRequest
     assert message.Indicator == 'O'

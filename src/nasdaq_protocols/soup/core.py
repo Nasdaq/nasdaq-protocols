@@ -4,10 +4,10 @@ soup messages.
 """
 import enum
 import struct
+from typing import Type
 
 import attrs
 from nasdaq_protocols import common
-
 
 __all__ = [
     'InvalidSoupMessage',
@@ -43,14 +43,14 @@ class LoginRejectReason(enum.Enum):
 
 
 @common.logable
-class SoupMessage(common.Serializable):
+class SoupMessage(common.Serializable['SoupMessage']):
     """
     Base class for all soup messages.
 
-    Give raw bytes use this class to unpack the bytes to the corresponding soup message::
+    Given raw bytes use this class to unpack the bytes to the corresponding soup message::
 
         input_bytes = b'\x00\x1fAtest      2                   '
-        soup_msg = SoupMessage.from_bytes(input_bytes)
+        len, soup_msg = SoupMessage.from_bytes(input_bytes)
         type(soup_msg)
 
     """
@@ -66,15 +66,25 @@ class SoupMessage(common.Serializable):
         cls.Indicator = indicator
         cls.Description = description
 
-    def to_bytes(self) -> bytes:
-        """Pack the soup message to binary format"""
-        return struct.pack(SoupMessage.Format, SoupMessage.Length, self.Indicator.encode('ascii'))
+    def to_bytes(self) -> tuple[int, bytes]:
+        """
+        Pack the soup message to binary format
+
+        :return: tuple of length and bytes
+        """
+        bytes_ = struct.pack(SoupMessage.Format, SoupMessage.Length, self.Indicator.encode('ascii'))
+        return len(bytes_), bytes_
 
     @classmethod
-    def from_bytes(cls, bytes_):
-        """unpacks the bytes to the corresponding soup message"""
+    def from_bytes(cls, bytes_) -> tuple[int, Type['SoupMessage']]:
+        """
+        unpacks the bytes to the corresponding soup message
+
+        :param bytes_: bytes to unpack
+        :return: tuple of length and soup message
+        """
         try:
-            return SoupMessage.ClassByIndicator[chr(bytes_[2])].unpack(bytes_)
+            return len(bytes_), SoupMessage.ClassByIndicator[chr(bytes_[2])].unpack(bytes_)
         except KeyError:
             indicator = chr(bytes_[2])
             raise InvalidSoupMessage(f'unpacking soup message with unknown {indicator=}, received = {bytes_}')
@@ -82,7 +92,7 @@ class SoupMessage(common.Serializable):
             raise InvalidSoupMessage(f'not enough bytes to unpack, received = {bytes_}')
 
     @classmethod
-    def unpack(cls, bytes_: bytes):
+    def unpack(cls, bytes_: bytes) -> Type['SoupMessage'] | 'SoupMessage':
         try:
             _, _ = struct.unpack(SoupMessage.Format, bytes_)
             return cls()
@@ -102,9 +112,16 @@ class LoginRequest(SoupMessage, indicator='L', description='Login Request'):
     SoupBinTCP Login Request Message.
 
     :param user: Username to login
-    :param passwd:  Password to login
+    :type user: str
+
+    :param password:  Password to login
+    :type password: str
+
     :param session: Name of the session to join [Default=''] .
+    :type session: str
+
     :param sequence: The sequence number. [Default=1]
+    :type sequence: str
     """
 
     Format = '!h c 6s 10s 10s 20s'
@@ -115,19 +132,20 @@ class LoginRequest(SoupMessage, indicator='L', description='Login Request'):
     session: str
     sequence: str
 
-    def to_bytes(self) -> bytes:
+    def to_bytes(self) -> tuple[int, bytes]:
         """
         Pack the soup message to binary format
 
-        :return: bytes
+        :return:
         """
-        return struct.pack(LoginRequest.Format,
-                           LoginRequest.Length,
-                           self.Indicator.encode('ascii'),
-                           _pack(self.user, 6),
-                           _pack(self.password, 10),
-                           _pack(self.session, 10),
-                           _pack(str(self.sequence), 20))
+        bytes_ = struct.pack(LoginRequest.Format,
+                             LoginRequest.Length,
+                             self.Indicator.encode('ascii'),
+                             _pack(self.user, 6),
+                             _pack(self.password, 10),
+                             _pack(self.session, 10),
+                             _pack(str(self.sequence), 20))
+        return len(bytes_), bytes_
 
     @classmethod
     def unpack(cls, bytes_):
@@ -152,15 +170,16 @@ class LoginAccepted(SoupMessage, indicator='A', description='Login Accepted'):
     session_id: str
     sequence: int
 
-    def to_bytes(self) -> bytes:
+    def to_bytes(self) -> tuple[int, bytes]:
         """
         Pack the soup message to binary format
         :return: bytes
         """
-        return struct.pack(LoginAccepted.Format,
-                           LoginAccepted.Len, self.Indicator.encode('ascii'),
-                           _pack(self.session_id, 10),
-                           _pack(str(self.sequence), 20))
+        bytes_ = struct.pack(LoginAccepted.Format,
+                             LoginAccepted.Len, self.Indicator.encode('ascii'),
+                             _pack(self.session_id, 10),
+                             _pack(str(self.sequence), 20))
+        return len(bytes_), bytes_
 
     @classmethod
     def unpack(cls, bytes_):
@@ -180,15 +199,16 @@ class LoginRejected(SoupMessage, indicator='J', description='Login Rejected'):
 
     reason: LoginRejectReason = attrs.field(converter=LoginRejectReason.get)
 
-    def to_bytes(self) -> bytes:
+    def to_bytes(self) -> tuple[int, bytes]:
         """
         Pack the soup message to binary format
         :return: bytes
         """
-        return struct.pack(LoginRejected.Format,
-                           LoginRejected.Length,
-                           self.Indicator.encode('ascii'),
-                           self.reason.value.encode('ascii'))
+        bytes_ = struct.pack(LoginRejected.Format,
+                             LoginRejected.Length,
+                             self.Indicator.encode('ascii'),
+                             self.reason.value.encode('ascii'))
+        return len(bytes_), bytes_
 
     @classmethod
     def unpack(cls, bytes_):
@@ -205,15 +225,14 @@ class SequencedData(SoupMessage, indicator='S', description='Sequenced Data'):
     """
     data: bytes
 
-    def to_bytes(self) -> bytes:
+    def to_bytes(self) -> tuple[int, bytes]:
         """
         Pack the soup message to binary format
         :return: bytes
         """
-        msg = struct.pack(SoupMessage.Format,
-                          len(self.data)+1,
-                          self.Indicator.encode('ascii'))
-        return msg + bytes(self.data)
+        msg = struct.pack(SoupMessage.Format, len(self.data) + 1, self.Indicator.encode('ascii'))
+        bytes_ = msg + bytes(self.data)
+        return len(bytes_), bytes_
 
     @classmethod
     def unpack(cls, bytes_):
@@ -230,15 +249,14 @@ class UnSequencedData(SoupMessage, indicator='U', description='UnSequenced Data'
     """
     data: bytes
 
-    def to_bytes(self) -> bytes:
+    def to_bytes(self) -> tuple[int, bytes]:
         """
         Pack the soup message to binary format
         :return: bytes
         """
-        msg = struct.pack(SoupMessage.Format,
-                          len(self.data)+1,
-                          self.Indicator.encode('ascii'))
-        return msg + bytes(self.data)
+        msg = struct.pack(SoupMessage.Format, len(self.data) + 1, self.Indicator.encode('ascii'))
+        bytes_ = msg + bytes(self.data)
+        return len(bytes_), bytes_
 
     @classmethod
     def unpack(cls, bytes_):
@@ -255,15 +273,14 @@ class Debug(SoupMessage, indicator='+', description='Debug'):
     """
     msg: str
 
-    def to_bytes(self) -> bytes:
+    def to_bytes(self) -> tuple[int, bytes]:
         """
         Pack the soup message to binary format
         :return: bytes
         """
-        msg = struct.pack(SoupMessage.Format,
-                          len(self.msg) + 1,
-                          self.Indicator.encode('ascii'))
-        return msg + self.msg.encode('ascii')
+        msg = struct.pack(SoupMessage.Format, len(self.msg) + 1, self.Indicator.encode('ascii'))
+        bytes_ = msg + self.msg.encode('ascii')
+        return len(bytes_), bytes_
 
     @classmethod
     def unpack(cls, bytes_):
@@ -298,6 +315,7 @@ class EndOfSession(SoupMessage, indicator='Z', description='End of Session'):
 
     This message is sent from server to indicate the soup stream is now closed.
     """
+
     def is_logout(self):
         return True
 
@@ -309,6 +327,7 @@ class LogoutRequest(SoupMessage, indicator='O', description='LogoutRequest'):
 
     This message is initiated by the client to sever for graceful session logoff.
     """
+
     def is_logout(self):
         return True
 

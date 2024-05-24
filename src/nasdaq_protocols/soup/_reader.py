@@ -34,7 +34,7 @@ class SoupMessageReader(common.Reader):
             if (siz+2) > buff_len:
                 # entire message not received yet
                 return
-            msg = SoupMessage.from_bytes(self._buffer[:siz + 2])
+            _, msg = SoupMessage.from_bytes(self._buffer[:siz + 2])
 
             if msg.is_logout():
                 await self.on_close_coro()
