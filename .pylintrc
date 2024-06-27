@@ -12,3 +12,4 @@ disable=
     R0903, #too-few-public-methods
     R0902, #too-many-instance-attributes
     W0707, #too-many-statements
+    R0801, #similarities

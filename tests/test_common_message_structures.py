@@ -12,6 +12,7 @@ TEST_RECORD_FIELDS = [
 
 
 class TestRecord(Record):
+    __test__ = False
     Fields = TEST_RECORD_FIELDS
 
     byte_field: int
@@ -20,6 +21,7 @@ class TestRecord(Record):
 
 
 class TestRecordWithPresentBit(RecordWithPresentBit):
+    __test__ = False
     Fields = TEST_RECORD_FIELDS
 
     byte_field: int
@@ -28,6 +30,7 @@ class TestRecordWithPresentBit(RecordWithPresentBit):
 
 
 class TestRecordInRecord(structures.RecordWithPresentBit):
+    __test__ = False
     Fields = [
         structures.Field('record', TestRecordWithPresentBit)
     ]
@@ -36,6 +39,7 @@ class TestRecordInRecord(structures.RecordWithPresentBit):
 
 
 class TestArrayOfRecords(structures.RecordWithPresentBit):
+    __test__ = False
     Fields = [
         structures.Field('records', Array(TestRecordWithPresentBit))
     ]

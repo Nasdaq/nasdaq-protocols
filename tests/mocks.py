@@ -15,7 +15,6 @@ __all__ = [
     'MockServerSession',
     'matches',
     'send',
-    'mock_server_session'
 ]
 Action = Callable[['MockServerSession', Any], None]
 Matcher = Callable[[Any], bool]
@@ -90,11 +89,3 @@ def matches(serializable: Serializable):
 
 def send(serializable: Serializable):
     return lambda session, _data: session.send(serializable)
-
-
-@pytest.fixture(scope='function')
-async def mock_server_session(unused_tcp_port):
-    session = MockServerSession()
-    server, serving_task = await common.start_server(('127.0.0.1', unused_tcp_port), lambda: session)
-    yield unused_tcp_port, session
-    await common.stop_task(serving_task)

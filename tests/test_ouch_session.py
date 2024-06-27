@@ -1,10 +1,9 @@
-import asyncio
 import logging
-import pytest
 
 from nasdaq_protocols.common import *
 from nasdaq_protocols import soup, ouch
 from .mocks import *
+from .soup_client_app_tests import soup_clientapp_common_tests
 
 
 LOG = logging.getLogger(__name__)
@@ -41,6 +40,7 @@ def sequenced(msg: Serializable):
 
 
 class TestEnterOrderMsg(ouch.Message, indicator=1, direction='incoming'):
+    __test__ = False
     class BodyRecord(Record):
         Fields = [
             Field('orderToken', LongBE),
@@ -56,6 +56,7 @@ class TestEnterOrderMsg(ouch.Message, indicator=1, direction='incoming'):
 
 
 class TestEnterOrderMsgResponse(ouch.Message, indicator=2, direction='outgoing'):
+    __test__ = False
     class BodyRecord(Record):
         Fields = [
             Field('status', ShortBE),
@@ -68,98 +69,29 @@ class TestEnterOrderMsgResponse(ouch.Message, indicator=2, direction='outgoing')
         return msg
 
 
-async def test__connect_async__invalid_credentials__ouch_session_is_not_created(mock_server_session):
-    port, server_session = mock_server_session
-    server_session.when(
-        matches(LOGIN_REQUEST), 'match-login-request'
-    ).do(
-        send(LOGIN_REJECTED), 'send-login-reject'
+async def test__soup_clientapp_common_tests__all_basic_tests_pass(soup_clientapp_common_tests):
+    await soup_clientapp_common_tests(
+        ouch.connect_async,
+        ouch.OuchClientSession,
+        lambda x: TestEnterOrderMsgResponse.get(x)
     )
 
-    with pytest.raises(ConnectionRefusedError):
-        await ouch.connect_async(
-            ('127.0.0.1', port), 'test-u', 'test-p', '',
-        )
 
+async def test__send_message__session_sends_message_to_server(mock_server_session):
+    port, server_session = mock_server_session
+    enter_order_1 = TestEnterOrderMsg.get(1, 1)
+    enter_order_2 = TestEnterOrderMsg.get(2, 2)
+    received_messages = []
 
-async def test__connect_async__valid_credentials__ouch_session_is_created(mock_server_session):
+    server_session.when(
+        matches(un_sequenced(enter_order_1)), 'match-enter-order-1'
+    ).do(
+        lambda _1, data: received_messages.append(data)
+    )
+
     client_session = await connect_to_mock_ouch_server(mock_server_session)
-
-    await client_session.close()
-    assert client_session.closed is True
-
-
-async def test__ouch_client_session__no_handlers__able_to_receive_message(mock_server_session):
-    port, server_session = mock_server_session
-    enter_order = TestEnterOrderMsg.get(1, 1)
-    enter_order_resp = TestEnterOrderMsgResponse.get(0)
-    client_session = await connect_to_mock_ouch_server(mock_server_session)
-    server_session.when(
-        matches(un_sequenced(enter_order)), 'match-enter-order'
-    ).do(
-        send(sequenced(enter_order_resp)), 'send-enter-order-response'
-    )
-    client_session.send_message(enter_order)
-
-    received_msg = await client_session.receive_message()
-    assert received_msg == enter_order_resp
-
+    client_session.send_message(enter_order_1)
     await client_session.close()
 
-
-async def test__ouch_client_session__on_msg_coro__coro_is_called(mock_server_session):
-    port, server_session = mock_server_session
-    received_msgs = asyncio.Queue()
-    enter_order = TestEnterOrderMsg.get(1, 1)
-    enter_order_resp = TestEnterOrderMsgResponse.get(0)
-
-    async def on_msg(msg):
-        received_msgs.put_nowait(msg == enter_order_resp)
-
-    client_session = await connect_to_mock_ouch_server(
-        mock_server_session,
-        lambda x: ouch.OuchClientSession(x, on_msg_coro=on_msg)
-    )
-
-    server_session.when(
-        matches(un_sequenced(enter_order)), 'match-enter-order'
-    ).do(
-        send(sequenced(enter_order_resp)), 'send-enter-order-response'
-    )
-    client_session.send_message(enter_order)
-
-    assert (await received_msgs.get()) is True
-
-    await client_session.close()
-
-
-async def test__ouch_client_session__on_msg_coro__receive_message_throws_exception(mock_server_session):
-    port, server_session = mock_server_session
-
-    async def on_msg(_msg):
-        ...
-
-    client_session = await connect_to_mock_ouch_server(
-        mock_server_session,
-        lambda x: ouch.OuchClientSession(x, on_msg_coro=on_msg)
-    )
-
-    with pytest.raises(StateError):
-        await client_session.receive_message()
-
-    await client_session.close()
-
-
-async def test__ouch_client_session__on_close_coro__coro_is_called(mock_server_session):
-    close_called = asyncio.Queue()
-
-    async def on_close():
-        close_called.put_nowait(True)
-
-    client_session = await connect_to_mock_ouch_server(
-        mock_server_session,
-        lambda x: ouch.OuchClientSession(x, on_close_coro=on_close)
-    )
-
-    await client_session.close()
-    assert (await close_called.get()) is True
+    assert len(received_messages) == 1
+    assert received_messages[0] == un_sequenced(enter_order_1).to_bytes()[1]

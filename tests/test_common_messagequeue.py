@@ -167,3 +167,25 @@ async def test__dispatchablemessagequeue__active_dispatcher__unable_to_start_dis
         q.start_dispatching(receiver.put)
 
     await q.stop()
+
+
+@pytest.mark.asyncio
+async def test__dispatchablemessagequeue__active_dispatcher__able_to_pause_dispatcher(receiver: asyncio.Queue):
+    q = common.DispatchableMessageQueue(session_id='test', on_msg_coro=receiver.put)
+    assert q.is_dispatching() is True
+
+    async with q.pause_dispatching():
+        assert q.is_dispatching() is False
+
+    assert q.is_dispatching() is True
+
+    await q.stop()
+
+
+@pytest.mark.asyncio
+async def test__dispatchablemessagequeue__no_active_dispatcher__unable_to_pause_dispatcher():
+    q = common.DispatchableMessageQueue(session_id='test')
+
+    with pytest.raises(common.StateError):
+        async with q.pause_dispatching():
+            pass
