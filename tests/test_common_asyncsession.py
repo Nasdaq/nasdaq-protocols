@@ -5,7 +5,6 @@ from typing import Any
 import attrs
 import pytest
 from nasdaq_protocols import common
-from .mocks import mock_server_session
 
 
 LOG = logging.getLogger(__name__)

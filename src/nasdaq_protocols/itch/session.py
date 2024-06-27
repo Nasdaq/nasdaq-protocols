@@ -8,59 +8,53 @@ from .core import Message
 
 
 __all__ = [
-    'OnOuchMessageCoro',
-    'OnOuchCloseCoro',
-    'OuchSessionId',
-    'OuchClientSession'
+    'OnItchMessageCoro',
+    'OnItchCloseCoro',
+    'ItchSessionId',
+    'ItchClientSession'
 ]
-OnOuchMessageCoro = Callable[[Type[Message]], Awaitable[None]]
-OnOuchCloseCoro = Callable[[], Awaitable[None]]
+OnItchMessageCoro = Callable[[Type[Message]], Awaitable[None]]
+OnItchCloseCoro = Callable[[], Awaitable[None]]
 
 
 @attrs.define(auto_attribs=True)
-class OuchSessionId:
+class ItchSessionId:
     soup_session_id: soup.SoupSessionId = None
 
     def __str__(self):
         if self.soup_session_id:
-            return f'ouch-{self.soup_session_id}'
-        return 'ouch-nosoup'
+            return f'itch-{self.soup_session_id}'
+        return 'itch-nosoup'
 
 
 @attrs.define(auto_attribs=True)
 @logable
-class OuchClientSession:
+class ItchClientSession:
     soup_session: soup.SoupClientSession
-    on_msg_coro: OnOuchMessageCoro = None
-    on_close_coro: OnOuchCloseCoro = None
+    on_msg_coro: OnItchMessageCoro = None
+    on_close_coro: OnItchCloseCoro = None
     closed: bool = False
-    _session_id: OuchSessionId = None
+    _session_id: ItchSessionId = None
     _close_event: asyncio.Event = None
     _message_queue: DispatchableMessageQueue = None
 
     def __attrs_post_init__(self):
-        self._session_id = OuchSessionId(self.soup_session.session_id)
+        self._session_id = ItchSessionId(self.soup_session.session_id)
         self._message_queue = DispatchableMessageQueue(self._session_id, self.on_msg_coro)
         self.soup_session.set_handlers(on_msg_coro=self._on_soup_message, on_close_coro=self._on_soup_close)
         self.soup_session.start_dispatching()
 
     async def receive_message(self):
         """
-        Asynchronously receive a message from the ouch session.
+        Asynchronously receive a message from the itch session.
 
         This method blocks until a message is received by the session.
         """
         return await self._message_queue.get()
 
-    def send_message(self, msg: Message):
-        """
-        Send a message to the Ouch Server.
-        """
-        self.soup_session.send_unseq_data(msg.to_bytes()[1])
-
     async def close(self):
         """
-        Asynchronously close the ouch session.
+        Asynchronously close the itch session.
         """
         if self._close_event:
             self.log.debug('%s> closing in progress..', self._session_id)

@@ -257,7 +257,11 @@ class CommonMessage(Serializable):
     @classmethod
     def from_bytes(cls, bytes_: bytes) -> tuple[int, 'CommonMessage']:
         len_, msg_id = cls.MsgIdClass.from_bytes(bytes_)
-        msg_cls = CommonMessage.MsgIdToClsMap[cls.Protocol][msg_id]
+        try:
+            msg_cls = CommonMessage.MsgIdToClsMap[cls.Protocol][msg_id]
+        except KeyError:
+            cls.log.error('Unknown message id %s', msg_id)
+            raise
         msg_len, data = msg_cls.BodyRecord.from_bytes(bytes_[len_:])
         return len_ + msg_len, msg_cls(data)
 

@@ -1,6 +1,9 @@
 import os
 import pytest
 
+from nasdaq_protocols import common
+from .mocks import *
+
 
 @pytest.fixture(scope='function')
 def tmp_file_writer(tmp_path):
@@ -21,3 +24,11 @@ def tmp_file_writer(tmp_path):
     yield write_file
 
     os.remove(tmp_xml_file)
+
+
+@pytest.fixture(scope='function')
+async def mock_server_session(unused_tcp_port):
+    session = MockServerSession()
+    server, serving_task = await common.start_server(('127.0.0.1', unused_tcp_port), lambda: session)
+    yield unused_tcp_port, session
+    await common.stop_task(serving_task)
