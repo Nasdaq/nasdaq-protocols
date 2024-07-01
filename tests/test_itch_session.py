@@ -23,6 +23,6 @@ class TestOrderBookMessage(itch.Message, indicator=1):
 async def test__soup_clientapp_common_tests__all_basic_tests_pass(soup_clientapp_common_tests):
     await soup_clientapp_common_tests(
         itch.connect_async,
-        itch.ItchClientSession,
+        itch.ClientSession,
         TestOrderBookMessage.get,
     )

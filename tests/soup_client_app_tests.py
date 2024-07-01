@@ -94,7 +94,7 @@ async def client_session__no_handlers__able_to_receive_message(**kwargs):
 
     for id_ in range(len(expected_messages)):
         received_msg = await client_session.receive_message()
-        assert received_msg == expected_messages[id_]
+        assert received_msg == expected_messages[id_], f'expected {expected_messages[id_]}, got {received_msg}'
 
     LOG.info("closing session")
     await client_session.close()

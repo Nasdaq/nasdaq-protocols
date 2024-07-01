@@ -11,7 +11,7 @@ __all__ = [
     'OnOuchMessageCoro',
     'OnOuchCloseCoro',
     'OuchSessionId',
-    'OuchClientSession'
+    'ClientSession'
 ]
 OnOuchMessageCoro = Callable[[Type[Message]], Awaitable[None]]
 OnOuchCloseCoro = Callable[[], Awaitable[None]]
@@ -29,7 +29,7 @@ class OuchSessionId:
 
 @attrs.define(auto_attribs=True)
 @logable
-class OuchClientSession:
+class ClientSession:
     soup_session: soup.SoupClientSession
     on_msg_coro: OnOuchMessageCoro = None
     on_close_coro: OnOuchCloseCoro = None
@@ -73,7 +73,7 @@ class OuchClientSession:
     async def _on_soup_message(self, message: soup.SoupMessage):
         if isinstance(message, soup.SequencedData):
             self.log.debug('%s> incoming sequenced bytes_', self._session_id)
-            await self._message_queue.put(Message.from_bytes(message.data)[1])
+            await self._message_queue.put(self.decode(message.data)[1])
 
     async def _on_soup_close(self):
         await self._message_queue.stop()
@@ -82,3 +82,9 @@ class OuchClientSession:
         if self._close_event:
             self._close_event.set()
         self.closed = True
+
+    def decode(self, bytes_: bytes):
+        """
+        Decode the given bytes into an itch message.
+        """
+        return Message.from_bytes(bytes_)

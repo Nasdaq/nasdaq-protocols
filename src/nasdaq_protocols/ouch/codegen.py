@@ -8,22 +8,22 @@ __all__ = [
 
 
 @click.command()
-@click.argument('file', type=click.Path(exists=True))
-@click.argument('gen_dir', type=click.Path(exists=True, writable=True))
-@click.argument('customer', type=click.STRING)
-@click.argument('package_name', type=click.STRING)
-@click.option("--generate-init-file", is_flag=True, show_default=True, default=True)
-def generate(file, gen_dir, customer, package_name, generate_init_file):
+@click.option('--spec-file', type=click.Path(exists=True))
+@click.option('--app-name', type=click.STRING)
+@click.option('--prefix', type=click.STRING, default='')
+@click.option('--op-dir', type=click.Path(exists=True, writable=True))
+@click.option('--init-file/--no-init-file', show_default=True, default=True)
+def generate(spec_file, app_name, op_dir, prefix, init_file):
     context = {
         'record_type': 'Record',
     }
     generator = Generator(
-        Parser.parse(file),
+        Parser.parse(spec_file),
         'ouch',
-        gen_dir,
-        customer,
-        package_name,
+        app_name,
+        op_dir,
         'message_ouch_itch.mustache',
-        generate_init_file
+        prefix,
+        generate_init_file=init_file
     )
     generator.generate(extra_context=context)

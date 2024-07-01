@@ -6,7 +6,7 @@ __all__ = [
     'ItchMessageId',
     'Message'
 ]
-PROTOCOL = 'ITCH'
+APP_NAME = 'ITCH'
 
 
 @attrs.define(auto_attribs=True, hash=True)
@@ -23,13 +23,16 @@ class ItchMessageId(Serializable):
 
 @attrs.define
 @logable
-class Message(CommonMessage, msg_id_cls=ItchMessageId, protocol=PROTOCOL):
+class Message(CommonMessage, msg_id_cls=ItchMessageId, app_name=APP_NAME):
     def __init_subclass__(cls, *args, **kwargs):
-        if 'indicator' not in kwargs:
-            raise ValueError('indicator is required when subclassing (itch) Message')
-        cls.log.debug(f'{cls.__name__} subclassed from ouch.core.message')
-        super().__init_subclass__(
-            msg_id_cls=ItchMessageId,
-            protocol=kwargs.get('protocol', PROTOCOL),
-            msg_id=ItchMessageId(kwargs['indicator'])
-        )
+        cls.log.debug('itch.core.Message subclassing %s, params = %s', cls.__name__, str(kwargs))
+
+        if 'app_name' not in kwargs:
+            kwargs['app_name'] = APP_NAME
+
+        kwargs['msg_id_cls'] = ItchMessageId
+
+        if 'indicator' in kwargs:
+            kwargs['msg_id'] = ItchMessageId(kwargs['indicator'])
+
+        super().__init_subclass__(**kwargs)

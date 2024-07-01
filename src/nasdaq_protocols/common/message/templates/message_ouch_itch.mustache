@@ -1,9 +1,15 @@
 from enum import Enum
+from typing import Callable, Awaitable, Type
+
+from nasdaq_protocols.common import logable
 from nasdaq_protocols.common.message import *
-from nasdaq_protocols import {{impl}}
+from nasdaq_protocols import soup, {{impl}}
 
 
 __all__ = [
+    'Message',
+    'ClientSession',
+    'connect_async',
 {{#enums}}
     '{{name}}',
 {{/enums}}
@@ -16,11 +22,46 @@ __all__ = [
 ]
 
 
+@logable
+class Message({{impl}}.Message, app_name='{{app_name}}'):
+    def __init_subclass__(cls, **kwargs):
+        cls.log.debug('subclassing %s, params = %s', cls.__name__, str(kwargs))
+        if 'indicator' not in kwargs:
+            raise ValueError('expected "indicator" when subclassing {{app_name}}.Message')
+
+        kwargs['app_name'] = '{{app_name}}'
+        super().__init_subclass__(**kwargs)
+
+
+class ClientSession({{impl}}.ClientSession):
+    @classmethod
+    def decode(cls, bytes_: bytes) -> [int, Message]:
+        return Message.from_bytes(bytes_)
+
+
+async def connect_async(remote: tuple[str, int], user: str, passwd: str, session_id,
+                        sequence: int = 0,
+                        session_factory: Callable[[soup.SoupClientSession], ClientSession] = None,
+                        on_msg_coro: Callable[[Type[Message]], Awaitable[None]] = None,
+                        on_close_coro: Callable[[], Awaitable[None]] = None,
+                        client_heartbeat_interval: int = 10,
+                        server_heartbeat_interval: int = 10) -> ClientSession:
+    if session_factory is None:
+        def session_factory(x):
+            return ClientSession(x, on_msg_coro=on_msg_coro, on_close_coro=on_close_coro)
+
+    return await {{impl}}.connect_async(
+        remote, user, passwd, session_id, sequence,
+        session_factory, on_msg_coro, on_close_coro,
+        client_heartbeat_interval, server_heartbeat_interval
+    )
+
+
 {{> enum}}
 {{> record}}
 # Messages
 {{#messages}}
-class {{name}}({{impl}}.Message, indicator={{indicator}}, direction='{{direction}}'):
+class {{name}}(Message, indicator={{indicator}}, direction='{{direction}}'):
     class BodyRecord(Record):
         Fields = [
 {{#fields}}

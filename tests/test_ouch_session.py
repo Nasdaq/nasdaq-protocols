@@ -12,7 +12,7 @@ LOGIN_ACCEPTED = soup.LoginAccepted('test', 1)
 LOGIN_REJECTED = soup.LoginRejected(soup.LoginRejectReason.NOT_AUTHORIZED)
 
 
-async def connect_to_mock_ouch_server(mock_server_session, session_factory=None) -> ouch.OuchClientSession:
+async def connect_to_mock_ouch_server(mock_server_session, session_factory=None) -> ouch.ClientSession:
     port, server_session = mock_server_session
 
     server_session.when(
@@ -72,7 +72,7 @@ class TestEnterOrderMsgResponse(ouch.Message, indicator=2, direction='outgoing')
 async def test__soup_clientapp_common_tests__all_basic_tests_pass(soup_clientapp_common_tests):
     await soup_clientapp_common_tests(
         ouch.connect_async,
-        ouch.OuchClientSession,
+        ouch.ClientSession,
         lambda x: TestEnterOrderMsgResponse.get(x)
     )
 
@@ -80,7 +80,6 @@ async def test__soup_clientapp_common_tests__all_basic_tests_pass(soup_clientapp
 async def test__send_message__session_sends_message_to_server(mock_server_session):
     port, server_session = mock_server_session
     enter_order_1 = TestEnterOrderMsg.get(1, 1)
-    enter_order_2 = TestEnterOrderMsg.get(2, 2)
     received_messages = []
 
     server_session.when(
