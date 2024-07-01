@@ -18,8 +18,12 @@ dependencies = [
     'chevron>=0.14.0',
     'click>=8.1'
 ]
-
 dynamic = ["version"]
+
+[project.scripts]
+nasdaq-ouch-codegen="nasdaq_protocols.ouch.codegen:generate"
+nasdaq-itch-codegen="nasdaq_protocols.itch.codegen:generate"
+
 
 [tool.setuptools_scm]
 

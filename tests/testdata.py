@@ -125,24 +125,40 @@ TEST_XML_MESSAGES_1 = """
 TEST_XML_OUCH_MESSAGE = """
 <root>
     <messages-root>
-        <message id="OuchEnterOrder" message-id="79" direction="incoming">
+        <message id="TestMessage1" message-id="1" direction="incoming">
             <fields>
-                <field name="orderToken" type="int_8_be"/>
-                <field name="orderBookId" type="int_4_be"/>
-                <field name="side" type="char_iso-8859-1"/>
-                <field name="quantity" type="int_8_be"/>
-                <field name="price" type="int_8_be"/>
-                <field name="timeInForce" type="byte"/>
-                <field name="openClose" type="byte"/>
-                <field name="clientAccount" type="str_iso-8859-1_n" length="16"/>
-                <field name="customerInfo" type="str_iso-8859-1_n" length="15"/>
-                <field name="exchangeInfo" type="str_iso-8859-1_n" length="32"/>
-                <field name="displayQuantity" type="int_8_be"/>
-                <field name="orderType" type="byte"/>
-                <field name="timeInForceData" type="int_2_be"/>
-                <field name="orderCapacity" type="byte"/>
-                <field name="selfMatchPreventionKey" type="int_4_be"/>
-                <field name="attributes" type="int_2_be"/>
+                <field name="field1" type="int_8_be"/>
+                <field name="field2" type="char_iso-8859-1"/>
+                <field name="field3" type="str_iso-8859-1_n" length="16"/>
+            </fields>
+        </message>
+        <message id="TestMessage2" message-id="2" direction="outgoing">
+            <fields>
+                <field name="field1_1" type="int_8_be"/>
+                <field name="field2_1" type="char_iso-8859-1"/>
+                <field name="field3_1" type="str_iso-8859-1_n" length="16"/>
+            </fields>
+        </message>
+    </messages-root>
+</root>
+"""
+
+
+TEST_XML_ITCH_MESSAGE = """
+<root>
+    <messages-root>
+        <message id="TestMessage1" message-id="1" direction="outgoing">
+            <fields>
+                <field name="field1" type="int_8_be"/>
+                <field name="field2" type="char_iso-8859-1"/>
+                <field name="field3" type="str_iso-8859-1_n" length="16"/>
+            </fields>
+        </message>
+        <message id="TestMessage2" message-id="2" direction="outgoing">
+            <fields>
+                <field name="field1_1" type="int_8_be"/>
+                <field name="field2_1" type="char_iso-8859-1"/>
+                <field name="field3_1" type="str_iso-8859-1_n" length="16"/>
             </fields>
         </message>
     </messages-root>

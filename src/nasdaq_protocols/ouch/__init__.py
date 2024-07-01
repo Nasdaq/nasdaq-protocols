@@ -8,7 +8,7 @@ from .codegen import *
 
 async def connect_async(remote: tuple[str, int], user: str, passwd: str, session_id,  # pylint: disable=R0913
                         sequence: int = 0,
-                        session_factory: Callable[[soup.SoupClientSession], OuchClientSession] = None,
+                        session_factory: Callable[[soup.SoupClientSession], ClientSession] = None,
                         on_msg_coro: OnOuchMessageCoro = None,
                         on_close_coro: OnOuchCloseCoro = None,
                         client_heartbeat_interval: int = 10,
@@ -40,4 +40,4 @@ async def connect_async(remote: tuple[str, int], user: str, passwd: str, session
     if session_factory:
         return session_factory(soup_session)
 
-    return OuchClientSession(soup_session, on_msg_coro=on_msg_coro, on_close_coro=on_close_coro)
+    return ClientSession(soup_session, on_msg_coro=on_msg_coro, on_close_coro=on_close_coro)

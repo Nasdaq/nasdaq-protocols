@@ -4,7 +4,7 @@ This module contains the structures used to represent the messages in the protoc
 import inspect
 from enum import Enum
 from itertools import chain
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from typing import Any, Type, ClassVar, Callable
 import attrs
 
@@ -26,7 +26,7 @@ __all__ = [
 @attrs.define(auto_exc=True)
 class DuplicateMessageException(Exception):
     """
-    Exception raised when a message is already defined in the protocol.
+    Exception raised when a message is already defined in the app.
 
     :param existing_msg: Already registered message with the same id.
     :param new_msg: New message that is being registered.
@@ -44,7 +44,7 @@ class Field:
 
     """
     name: str
-    type: Type[TypeDefinition]
+    type: Type[TypeDefinition] | TypeDefinition
     default_value: Any = None
 
 
@@ -216,34 +216,29 @@ class Array(TypeDefinition):
 @attrs.define
 @logable
 class CommonMessage(Serializable):
-    MsgIdToClsMap: ClassVar[dict] = {}
-    MsgNameToMsgMap: ClassVar[dict] = {}
+    MsgIdToClsMap: ClassVar[dict] = defaultdict(dict)
+    MsgNameToMsgMap: ClassVar[dict] = defaultdict(dict)
     MsgId: ClassVar[Serializable] = None
     MsgIdClass: ClassVar[Serializable] = None
     BodyRecord: ClassVar[Type[Record]] = None
-    Protocol: ClassVar[str] = None
+    AppName: ClassVar[str] = None
 
     record = attrs.field(default=None)
 
     def __init_subclass__(cls, **kwargs):
+        cls.log.debug('CommonMessage: subclassing %s, params = %s', cls.__name__, str(kwargs))
         cls.MsgIdClass = kwargs.get('msg_id_cls', cls.MsgIdClass)
-        cls.Protocol = kwargs.get('protocol', cls.Protocol)
+        cls.AppName = kwargs.get('app_name', cls.AppName)
         cls.MsgId = kwargs.get('msg_id', cls.MsgId)
 
-        if not all(_ in kwargs for _ in ['protocol', 'msg_id_cls', 'msg_id']):
-            cls.log.debug('%s subclassed, intermediate class', cls.__name__)
-            return
-
-        if cls.Protocol not in CommonMessage.MsgIdToClsMap:
-            CommonMessage.MsgIdToClsMap[cls.Protocol] = {}
-            CommonMessage.MsgNameToMsgMap[cls.Protocol] = {}
-
-        if cls.MsgId in CommonMessage.MsgIdToClsMap[cls.Protocol]:
-            raise DuplicateMessageException(existing_msg=CommonMessage.MsgIdToClsMap[cls.Protocol][cls.MsgId], new_msg=cls)
-
-        CommonMessage.MsgIdToClsMap[cls.Protocol][cls.MsgId] = cls
-        CommonMessage.MsgNameToMsgMap[cls.Protocol][cls.__name__] = cls
-        cls.log.debug('%s subclassed, MsgId = %s', cls.__name__, str(cls.MsgId))
+        if all(_ in kwargs for _ in ['app_name', 'msg_id_cls', 'msg_id']):
+            if cls.MsgId in CommonMessage.MsgIdToClsMap[cls.AppName]:
+                raise DuplicateMessageException(
+                    existing_msg=CommonMessage.MsgIdToClsMap[cls.AppName][cls.MsgId],
+                    new_msg=cls
+                )
+            CommonMessage.MsgIdToClsMap[cls.AppName][cls.MsgId] = cls
+            CommonMessage.MsgNameToMsgMap[cls.AppName][cls.__name__] = cls
 
     def __attrs_post_init__(self):
         if self.record is None:
@@ -258,7 +253,7 @@ class CommonMessage(Serializable):
     def from_bytes(cls, bytes_: bytes) -> tuple[int, 'CommonMessage']:
         len_, msg_id = cls.MsgIdClass.from_bytes(bytes_)
         try:
-            msg_cls = CommonMessage.MsgIdToClsMap[cls.Protocol][msg_id]
+            msg_cls = CommonMessage.MsgIdToClsMap[cls.AppName][msg_id]
         except KeyError:
             cls.log.error('Unknown message id %s', msg_id)
             raise
@@ -281,12 +276,12 @@ class CommonMessage(Serializable):
 
     @classmethod
     def get_msg_classes(cls) -> list[Type['CommonMessage']]:
-        return CommonMessage.MsgIdToClsMap[cls.protocol].values()
+        return CommonMessage.MsgIdToClsMap[cls.AppName].values()
 
     @classmethod
     def get_msg_cls_by_name(cls, name: str):
-        return CommonMessage.MsgNameToMsgMap[cls.protocol][name]
+        return CommonMessage.MsgNameToMsgMap[cls.AppName][name]
 
     @classmethod
     def get_msg_cls_by_indicator(cls, indicator: Any):
-        return CommonMessage.MsgIdToClsMap[cls.protocol][indicator]
+        return CommonMessage.MsgIdToClsMap[cls.AppName][indicator]

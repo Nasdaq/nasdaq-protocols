@@ -7,7 +7,7 @@ __all__ = [
     'Message'
 ]
 DEFAULT_DIRECTION = 'outgoing'
-PROTOCOL = 'OUCH'
+APP_NAME = 'OUCH'
 
 
 @attrs.define(auto_attribs=True, hash=True)
@@ -25,16 +25,23 @@ class OuchMessageId(Serializable):
 
 @attrs.define
 @logable
-class Message(CommonMessage, msg_id_cls=OuchMessageId, protocol=PROTOCOL):
+class Message(CommonMessage, msg_id_cls=OuchMessageId, app_name=APP_NAME):
 
     IncomingMsgClasses = []
     OutgoingMsgsClasses = []
 
-    def __init_subclass__(cls, indicator, direction, **kwargs):  # pylint: disable=unexpected-special-method-signature
-        msg_id = OuchMessageId(indicator, direction)
-        if direction == 'incoming':
-            Message.IncomingMsgClasses.append(cls)
-        elif direction == 'outgoing':
-            Message.OutgoingMsgsClasses.append(cls)
-        cls.log.debug(f'{cls.__name__} subclassed from ouch.core.message')
-        super().__init_subclass__(msg_id_cls=OuchMessageId, protocol=PROTOCOL, msg_id=msg_id)
+    def __init_subclass__(cls, *args, **kwargs):
+        cls.log.debug('ouch.core.Message subclassing %s, params = %s', cls.__name__, str(kwargs))
+
+        if 'app_name' not in kwargs:
+            kwargs['app_name'] = APP_NAME
+
+        kwargs['msg_id_cls'] = OuchMessageId
+
+        if all(k in kwargs for k in ['direction', 'indicator']):
+            kwargs['msg_id'] = OuchMessageId(kwargs['indicator'], kwargs['direction'])
+            if kwargs['direction'] == 'incoming':
+                Message.IncomingMsgClasses.append(cls)
+            elif kwargs['direction'] == 'outgoing':
+                Message.OutgoingMsgsClasses.append(cls)
+        super().__init_subclass__(**kwargs)

@@ -8,13 +8,13 @@ from .codegen import *
 
 async def connect_async(remote: tuple[str, int], user: str, passwd: str, session_id,  # pylint: disable=R0913
                         sequence: int = 0,
-                        session_factory: Callable[[soup.SoupClientSession], ItchClientSession] = None,
+                        session_factory: Callable[[soup.SoupClientSession], ClientSession] = None,
                         on_msg_coro: OnItchMessageCoro = None,
                         on_close_coro: OnItchCloseCoro = None,
                         client_heartbeat_interval: int = 10,
                         server_heartbeat_interval: int = 10):
     """
-    Connect to the OUCH server.
+    Connect to the ITCH server.
 
     :param remote: tuple of host and port
     :param user: Username to login
@@ -40,4 +40,4 @@ async def connect_async(remote: tuple[str, int], user: str, passwd: str, session
     if session_factory:
         return session_factory(soup_session)
 
-    return ItchClientSession(soup_session, on_msg_coro=on_msg_coro, on_close_coro=on_close_coro)
+    return ClientSession(soup_session, on_msg_coro=on_msg_coro, on_close_coro=on_close_coro)
