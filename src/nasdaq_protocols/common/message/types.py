@@ -1,9 +1,9 @@
 from functools import partial
-from typing import Callable, Any, Type, Tuple
+from typing import Callable, Tuple
+from nasdaq_protocols.common.types import TypeDefinition
 
 
 __all__ = [
-    'TypeDefinition',
     'Boolean',
     'Int',
     'IntBE',
@@ -62,44 +62,6 @@ class TypeSize:
     SHORT = 2
     INT = 4
     LONG = 8
-
-
-class TypeDefinition:
-    """
-    Class to hold all type definitions
-
-    :param to_str: Function to convert value to string
-    :type to_str: Callable[[Any], str]
-    :return: str
-
-    :param from_str: Function to convert string to value
-    :type from_str: Callable[[str], Any]
-    :return: Any
-
-    :param to_bytes: Function to convert value to bytes
-    :type to_bytes: Callable[[Any], bytes]
-    :return: Tuple[int, bytes]
-
-    :param from_bytes: Function to convert bytes to value
-    :type from_bytes: Callable[[bytes], Tuple[int, Any]]
-    :return: Tuple[int, Any]
-    """
-    to_str: Callable[[Any], str]
-    from_str: Callable[[str], Any]
-    to_bytes: Callable[[Any], Tuple[int, bytes]]
-    from_bytes: Callable[[bytes], Tuple[int, Any]]
-    hint: 'str'
-    type_cls: Type
-    default_value: Any
-
-    Definitions = {}
-
-    @staticmethod
-    def add_type(type_id):
-        def _wrapper(target):
-            TypeDefinition.Definitions[type_id] = target
-            return target
-        return _wrapper
 
 
 @TypeDefinition.add_type('boolean')

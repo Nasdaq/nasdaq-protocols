@@ -1,4 +1,5 @@
 import asyncio
+
 import pytest
 
 from nasdaq_protocols import common
@@ -12,6 +13,9 @@ class SoupServerTestSession(soup.SoupServerSession, session_type='server'):
             return LoginAccepted('session', int(msg.sequence))
         else:
             return LoginRejected(soup.LoginRejectReason.NOT_AUTHORIZED)
+
+    async def on_debug(self, msg: soup.Debug) -> None:
+        self.send_msg(soup.SequencedData(f'{msg.msg}-ack'.encode('ascii')))
 
     async def on_unsequenced(self, msg: soup.UnSequencedData):
         reply = msg.data.decode('ascii') + '-ack'
@@ -85,6 +89,27 @@ async def test__soup_session__able_to_communicate(soup_server_session):
         reply = await client_session.receive_msg()
         assert isinstance(reply, soup.SequencedData)
         assert reply.data == test_data + b'-ack'
+
+    client_session.logout()
+
+
+@pytest.mark.asyncio
+async def test__soup_session__sending_debug_from_client(soup_server_session):
+    port, server_session = soup_server_session
+
+    client_session = await soup.connect_async(
+        ('127.0.0.1', port),
+        'test-u',
+        'test-p',
+        'session'
+    )
+    assert client_session is not None
+
+    test_data = 'sending debug msg'
+    client_session.send_debug(test_data)
+    reply = await client_session.receive_msg()
+    assert isinstance(reply, soup.SequencedData)
+    assert reply.data == f'{test_data}-ack'.encode('ascii')
 
     client_session.logout()
 

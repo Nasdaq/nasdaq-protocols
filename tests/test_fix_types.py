@@ -4,8 +4,8 @@ from nasdaq_protocols.fix import *
 
 
 def test__fix_bool__to_str():
-    assert types.FixBool.to_str(True) is 'Y'
-    assert types.FixBool.to_str(False) is 'N'
+    assert types.FixBool.to_str(True) == 'Y'
+    assert types.FixBool.to_str(False) == 'N'
 
 
 def test__fix_bool__from_str():
