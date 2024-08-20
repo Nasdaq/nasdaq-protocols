@@ -65,11 +65,12 @@ class FixString(TypeDefinition):
 @TypeDefinition.add_type('fix_bool')
 class FixBool(TypeDefinition):
     to_str: Callable[[bool], str] = lambda x: 'Y' if x else 'N'
-    from_str: Callable[[str], bool] = lambda x: x == 'Y' or x == 'y'
+    from_str: Callable[[str], bool] = lambda x: x in ('Y', 'y')
     to_bytes: Callable[[bool], tuple[int, bytes]] = lambda x: (1, b'Y') if x else (1, b'N')
     from_bytes: Callable[[bytes], tuple[int, bool]] = lambda x: (len(x), x == b'Y')
     hint = 'bool'
     type_cls = bool
+    default_value = False
 
 
 @TypeDefinition.add_type('fix_bool')
@@ -80,6 +81,7 @@ class FixInt(TypeDefinition):
     from_bytes: Callable[[bytes], tuple[int, int]] = _unpack_int
     hint = 'int'
     type_cls = int
+    default_value = 0
 
 
 @TypeDefinition.add_type('fix_float')
@@ -90,6 +92,7 @@ class FixFloat(TypeDefinition):
     from_bytes: Callable[[bytes], tuple[int, float]] = _unpack_float
     hint = 'float'
     type_cls = float
+    default_value = 0
 
 
 @TypeDefinition.add_type('fix_char')
