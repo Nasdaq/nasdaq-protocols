@@ -29,3 +29,11 @@ ________
 - `tox -e build` - Builds the package sdist and wheel
 - `tox -e doc` - Builds the documentation
 
+
+FAQ
+___
+- **Why is pycharm debugger not stopping at breakpoints?**
+  Disable the coverage statement from pytest.ini. Refer https://stackoverflow.com/a/56235965/4248850
+
+- **Why is the coverage not reported in pycharm?**
+  Disable the coverage statement from pytest.ini

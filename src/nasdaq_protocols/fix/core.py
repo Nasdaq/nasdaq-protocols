@@ -280,7 +280,14 @@ class DataSegment(FixSerializable):
 
 @attrs.define
 class Group(DataSegment):
-    ...
+    def to_bytes(self) -> tuple[int, bytes]:
+        # The order of the fields in the groups should be as per definition
+        bytes_ = SOH.join(
+            [self.values[_.entry_def.Tag].to_bytes()[1]
+             for _ in self.Entries
+             if _.entry_def.Tag in self.values]
+        )
+        return len(bytes_), bytes_
 
 
 GroupItem = TypeVar('GroupItem', bound=Group)

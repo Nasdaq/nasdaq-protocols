@@ -1,85 +1,7 @@
 from operator import index
 
 import pytest
-
-from nasdaq_protocols import fix
-
-
-class Field_1_Int(fix.Field, Tag=1, Name="Field_1_Int", Type=fix.FixInt):
-    ...
-
-
-class Field_11_Int(fix.Field, Tag=11, Name="Field_11_Int", Type=fix.FixInt):
-    ...
-
-
-class Field_2_Str(fix.Field, Tag=2, Name="Field_2_Str", Type=fix.FixString):
-    ...
-
-
-class Field_22_Int(fix.Field, Tag=22, Name="Field_22_Int", Type=fix.FixInt):
-    ...
-
-
-class Field_35_Str(fix.Field, Tag=35, Name="Field_35_Str", Type=fix.FixString):
-    ...
-
-
-class Group_1(fix.Group):
-    Entries = [
-        fix.Entry(Field_1_Int, True),
-        fix.Entry(Field_2_Str, False),
-    ]
-
-    Field_1_Int: int
-    Field_2_Str: str
-
-
-class GroupContainer_1(fix.GroupContainer, CountCls=Field_11_Int, GroupCls=Group_1):
-    def __getitem__(self, idx) -> Group_1:
-        return super(GroupContainer_1, self).__getitem__(idx)
-
-
-class Group_2(fix.Group):
-    Entries = [
-        fix.Entry(Field_1_Int, True),
-        fix.Entry(Field_2_Str, False),
-    ]
-
-    Field_1_Int: int
-    Field_2_Str: str
-
-
-class GroupContainer_2(fix.GroupContainer, CountCls=Field_22_Int, GroupCls=Group_2):
-    def __getitem__(self, idx) -> Group_1:
-        return super(GroupContainer_2, self).__getitem__(idx)
-
-
-class DataSegment_1(fix.DataSegment):
-    Entries = [
-        fix.Entry(Field_1_Int, True),
-        fix.Entry(Field_2_Str, True),
-        fix.Entry(Field_11_Int, False),
-        fix.Entry(GroupContainer_2, False),
-        fix.Entry(Field_35_Str, False)
-    ]
-
-    Field_1_Int: int
-    Field_2_Str: str
-    Field_11_Int: int
-    GroupContainer_2: GroupContainer_2
-    Field_35_Str: str
-
-
-class Message_1(fix.Message, Name='Message_1', Type='TF', Category='B', HeaderCls=DataSegment_1, BodyCls=DataSegment_1, TrailerCls=DataSegment_1):
-    Header: DataSegment_1
-    Body: DataSegment_1
-    Trailer: DataSegment_1
-
-    Field_1_Int: int
-    Field_2_Str: str
-    Field_11_Int: int
-    GroupContainer_2: GroupContainer_2
+from .fix_messages import *
 
 
 def test__to_bytes__field__invalid_format():
@@ -376,6 +298,19 @@ def test__to_bytes__group_container_with_one_group__container_is_deserialized():
     assert group_container.to_bytes() == (len(expected_bytes), expected_bytes)
 
 
+def test__to_bytes__group_container_with_reordered_fields__container_is_deserialized_as_per_order():
+    expected_bytes = b'11=1' + fix.SOH + b'1=10' + fix.SOH + b'2=test'
+
+    group = Group_1()
+    group.Field_2_Str = 'test'
+    group.Field_1_Int = 10
+
+    group_container = GroupContainer_1(values=[group])
+
+    assert len(group_container) == 1
+    assert group_container.to_bytes() == (len(expected_bytes), expected_bytes)
+
+
 def test__to_bytes__group_container_with_two_group__container_is_deserialized():
     group_1_bytes = b'1=10' + fix.SOH + b'2=test'
     group_2_bytes = b'1=20' + fix.SOH + b'2=test1'
@@ -537,9 +472,10 @@ def test__to_bytes__message_constructed_using_from_value__message_is_serialized(
 
 
 def test__as_collection__message__entire_message_is_returned_as_collection():
-    header = DataSegment_1.from_value({
-        1: 1,
-        2: 'header'
+    header = DataSegment_Header.from_value({
+        8: 'beginstring',
+        9: 50,
+        35: 'M'
     })
     body = DataSegment_1.from_value({
         1: 2,
@@ -551,9 +487,8 @@ def test__as_collection__message__entire_message_is_returned_as_collection():
             }
         ]
     })
-    trailer = DataSegment_1.from_value({
-        1: 3,
-        2: 'trailer'
+    trailer = DataSegment_Trailer.from_value({
+        10: 100
     })
     message = Message_1({
         fix.MessageSegments.HEADER: header,
@@ -563,8 +498,9 @@ def test__as_collection__message__entire_message_is_returned_as_collection():
 
     assert message.as_collection() == {
         'Header': {
-            1: 1,
-            2: 'header'
+            8: 'beginstring',
+            9: 50,
+            35: 'M'
         },
         'Body': {
             1: 2,
@@ -577,8 +513,7 @@ def test__as_collection__message__entire_message_is_returned_as_collection():
             ]
         },
         'Trailer': {
-            1: 3,
-            2: 'trailer'
+            10: 100
         }
     }
 
@@ -590,7 +525,6 @@ def test__getattr__message__able_to_resolve_segment_fields():
     # Body fields can be directly accessed using message.
     message.Field_1_Int = 10
     assert message.Body.Field_1_Int == 10
-    assert message.Header.Field_1_Int == 0
     assert message.Trailer.Field_1_Int == 0
     assert message.GroupContainer_2 is None
 
@@ -604,9 +538,10 @@ def test__getattr__message__fall_back_to_object_attributes_on_non_segment_fields
 
 
 def test__equals__message__messages_are_equal():
-    header = DataSegment_1.from_value({
-        1: 1,
-        2: 'header'
+    header = DataSegment_Header.from_value({
+        8: 'beginstring',
+        9: 50,
+        35: 'M'
     })
     body = DataSegment_1.from_value({
         1: 2,
@@ -618,9 +553,8 @@ def test__equals__message__messages_are_equal():
             }
         ]
     })
-    trailer = DataSegment_1.from_value({
-        1: 3,
-        2: 'trailer'
+    trailer = DataSegment_Trailer.from_value({
+        10: 100
     })
     message1 = Message_1({
         fix.MessageSegments.HEADER: header,
@@ -639,9 +573,10 @@ def test__equals__message__messages_are_equal():
 
 
 def test__equals__message__messages_are_not_equal():
-    header = DataSegment_1.from_value({
-        1: 1,
-        2: 'header'
+    header = DataSegment_Header.from_value({
+        8: 'beginstring',
+        9: 50,
+        35: 'M'
     })
     body = DataSegment_1.from_value({
         1: 2,
@@ -653,20 +588,19 @@ def test__equals__message__messages_are_not_equal():
             }
         ]
     })
-    trailer = DataSegment_1.from_value({
-        1: 3,
-        2: 'trailer'
+    trailer = DataSegment_Trailer.from_value({
+        10: 100
     })
     message1 = Message_1({
-        fix.MessageSegments.HEADER: DataSegment_1.from_value(header),
+        fix.MessageSegments.HEADER: DataSegment_Header.from_value(header),
         fix.MessageSegments.BODY: DataSegment_1.from_value(body),
-        fix.MessageSegments.TRAILER: DataSegment_1.from_value(trailer)
+        fix.MessageSegments.TRAILER: DataSegment_Trailer.from_value(trailer)
     })
 
     message2 = Message_1({
-        fix.MessageSegments.HEADER: DataSegment_1.from_value(header),
+        fix.MessageSegments.HEADER: DataSegment_Header.from_value(header),
         fix.MessageSegments.BODY: DataSegment_1.from_value(body),
-        fix.MessageSegments.TRAILER: DataSegment_1.from_value(trailer)
+        fix.MessageSegments.TRAILER: DataSegment_Trailer.from_value(trailer)
     })
     message2.Field_1_Int = 100
     message2.Field_2_Str = 'message2'
@@ -676,9 +610,10 @@ def test__equals__message__messages_are_not_equal():
 
 
 def test__equals__message__non_related_object_messages_are_not_equal():
-    header = DataSegment_1.from_value({
-        1: 1,
-        2: 'header'
+    header = DataSegment_Header.from_value({
+        8: 'beginstring',
+        9: 50,
+        35: 'M'
     })
     body = DataSegment_1.from_value({
         1: 2,
@@ -690,24 +625,23 @@ def test__equals__message__non_related_object_messages_are_not_equal():
             }
         ]
     })
-    trailer = DataSegment_1.from_value({
-        1: 3,
-        2: 'trailer'
+    trailer = DataSegment_Trailer.from_value({
+        10: 100
     })
     message1 = Message_1({
-        fix.MessageSegments.HEADER: DataSegment_1.from_value(header),
+        fix.MessageSegments.HEADER: DataSegment_Header.from_value(header),
         fix.MessageSegments.BODY: DataSegment_1.from_value(body),
-        fix.MessageSegments.TRAILER: DataSegment_1.from_value(trailer)
+        fix.MessageSegments.TRAILER: DataSegment_Trailer.from_value(trailer)
     })
 
     assert message1 != 100
 
 
 def test__from_bytes__message__use_base_message_class_to_deserialize():
-    header = DataSegment_1.from_value({
-        1: 1,
-        2: 'header',
-        35: 'TF'
+    header = DataSegment_Header.from_value({
+        8: 'FIXT1.1',
+        9: 37,
+        35: 'M'
     })
     body = DataSegment_1.from_value({
         1: 2,
@@ -719,9 +653,8 @@ def test__from_bytes__message__use_base_message_class_to_deserialize():
             }
         ]
     })
-    trailer = DataSegment_1.from_value({
-        1: 3,
-        2: 'trailer'
+    trailer = DataSegment_Trailer.from_value({
+        10: 100
     })
     message1 = Message_1({
         fix.MessageSegments.HEADER: header,
@@ -764,10 +697,10 @@ def test__is_heartbeat__message():
 
 
 def test__str__message__message_is_pretty_printed():
-    header = DataSegment_1.from_value({
-        1: 1,
-        2: 'header',
-        35: 'TF'
+    header = DataSegment_Header.from_value({
+        8: 'beginstring',
+        9: 50,
+        35: 'M'
     })
     body = DataSegment_1.from_value({
         1: 2,
@@ -779,9 +712,8 @@ def test__str__message__message_is_pretty_printed():
             }
         ]
     })
-    trailer = DataSegment_1.from_value({
-        1: 3,
-        2: 'trailer'
+    trailer = DataSegment_Trailer.from_value({
+        10: 100
     })
     message1 = Message_1({
         fix.MessageSegments.HEADER: header,
