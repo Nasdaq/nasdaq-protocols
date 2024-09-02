@@ -1,0 +1,3 @@
+include src/nasdaq_protocols/common/message/templates/*.mustache
+include src/nasdaq_protocols/tools/templates/*.mustache
+include src/nasdaq_protocols/tools/templates/*.xml

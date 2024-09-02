@@ -1,0 +1,18 @@
+[tox]
+requires =
+    tox>4
+    virtualenv>20.2
+env_list =
+    build
+
+[testenv:build]
+description = Build package
+deps =
+    nasdaq-protocols
+    build
+commands =
+{{#apps}}
+    nasdaq-generate-{{proto_name}}-classes src/{{project_src_name}}/{{app_name}}/{{app_name}}.xml src/{{project_src_name}}/{{app_name}} {{app_name}} {{project_src_name}}.{{app_name}}
+{{/apps}}
+    python -m build
+

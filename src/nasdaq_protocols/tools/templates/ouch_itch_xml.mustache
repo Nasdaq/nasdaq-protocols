@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+    <enums-root>
+        <!-- Add your enums here -->
+    </enums-root>
+    <messages-root>
+        <!-- Add your messages here -->
+    </messages-root>
+</root>
+
+<!--
+ENUM DEFINITION:
+    <enum id="ENUM_NAME" type="DATATYPE">
+        <value name="VALUE1" description="DESCRIPTION1">VALUE1</value>
+        <value name="VALUE2" description="DESCRIPTION2">VALUE2</value>
+    </enum>
+
+    Example:
+    <enum id="OuchSide" type="char_iso-8859-1">
+        <value name="Buy" description="Buy">B</value>
+        <value name="Sell" description="Sell">S</value>
+    </enum>
+
+MESSAGE DEFINITION:
+    <message id="MESSAGE_NAME" message-id="MSG_TYPE_IN_DECIMAL" direction="incoming | outgoing">
+        <fields>
+            <field name="FIELD_NAME" type="DATATYPE"/>
+        </fields>
+    </message>
+
+    * The direction indicates the flow of message with respect to the server,
+    if the message is sent from the server to the client, the direction is 'outgoing' otherwise 'incoming'
+
+    * MSG_TYPE_IN_DECIMAL: The message type in decimal,
+    this is the value that is used to identify the message in the wire.
+    Use '65' for 'A' and '66' for 'B' and so on.
+
+    * If the DATATYPE of the field contains 'n' at the end,
+     it means the field is a fixed length string and the length is specified in the 'length' attribute
+
+    Example:
+    <message id="EnterOrder" message-id="69" direction="incoming">
+        <fields>
+            <field name="token" type="int_8_be"/>
+            <field name="book" type="int_4_be"/>
+            <field name="side" type="char_iso-8859-1"/>
+            <field name="account" type="str_iso-8859-1_n" length="16"/>
+            <field name="customerInfo" type="str_iso-8859-1_n" length="15"/>
+            <field name="exchangeInfo" type="str_iso-8859-1_n" length="32"/>
+        </fields>
+    </message>
+
+
+DATATYPES:
+These are the possible data types you can use for fields or enums
+
+    boolean: boolean type indicated by b'\x00' or b'\x01'
+
+    byte: 1 byte integer
+
+    int_2: 2 byte integer in little endian
+    int_2_be: 2 byte integer in big endian
+    uint_2: 2 byte unsigned integer in little endian
+    uint_2_be: 2 byte unsigned integer in big endian
+
+    int_4: 4 byte integer in little endian
+    int_4_be: 4 byte integer in big endian
+    uint_4: 4 byte unsigned integer in little endian
+    uint_4_be: 4 byte unsigned integer in big endian
+
+    int_8: 8 byte integer in little endian
+    int_8_be: 8 byte integer in big endian
+    uint_8: 8 byte unsigned integer in little endian
+    uint_8_be: 8 byte unsigned integer in big endian
+
+    char_ascii: 1 byte ascii character
+    char_iso-8859-1: 1 byte iso-8859-1 character
+    str_ascii: ascii string
+    str_iso-8859-1: iso-8859-1 string
+    str_ascii_n: ascii string with length 'n'
+    str_iso-8859-1_n: iso-8859-1 string with length 'n'
+-->
