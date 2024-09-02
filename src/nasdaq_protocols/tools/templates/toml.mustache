@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=64", "setuptools_scm[toml]>=8"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "{{project_name}}"
+description = "Nasdaq protocols python implementation ({{project_name}})"
+
+# LICENSE
+# ADD license here
+# uncomment one of the following line if you want to specify the license of the package
+# license = { text = "" }
+# license = { file = "" }
+
+
+# VERSION
+# Comment the following line if you want to use the dynamic versioning based on git tags
+version = "0.0.1"
+
+# DEPENDENCIES
+# add your dependencies to the below list
+dependencies = [
+    'nasdaq-protocols>=0.0.1',
+]
+
+# VERSION
+# uncomment the following lines if you want to specify the version of this package to be based on git tag
+#dynamic = ["version"]
+#[tool.setuptools_scm]
+
+
+# SCRIPTS
+# uncomment the following line if you want to specify the scripts of the package
+# [project.scripts]
+# Add project scripts here
+
+
+[tool.setuptools.packages.find]
+where = ["src"]  # list of folders that contain the packages (["."] by default)
+include = ["{{project_src_name}}*"]  # package names should match these glob patterns (["*"] by default)
+namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
+
+
+# DATA FILES
+# uncomment the following line if you want to package the asn1 files.
+#[tool.setuptools.package-data]
+#{{project_src_name}} = ["*.asn1"]
+
+
+[options]
+zip_safe = true
+include_package_data = true
