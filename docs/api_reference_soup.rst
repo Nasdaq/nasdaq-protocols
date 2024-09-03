@@ -1,4 +1,5 @@
-SOUP api reference
+.. _api-reference-soup:
+SOUP API Reference
 ==================
 
 Soup

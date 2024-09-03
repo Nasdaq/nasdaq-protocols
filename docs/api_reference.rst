@@ -5,5 +5,7 @@ API Reference
    :maxdepth: 1
    :caption: Contents:
 
-   common_api_reference
-   soup_api_reference
+   api_reference_soup
+   api_reference_itch
+   api_reference_ouch
+   api_reference_common
