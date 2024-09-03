@@ -10,9 +10,12 @@ description = Build package
 deps =
     nasdaq-protocols
     build
+allowlist_externals =
+{{#apps}}
+    nasdaq-{{proto_name}}-codegen
+{{/apps}}
 commands =
 {{#apps}}
-    nasdaq-generate-{{proto_name}}-classes src/{{project_src_name}}/{{app_name}}/{{app_name}}.xml src/{{project_src_name}}/{{app_name}} {{app_name}} {{project_src_name}}.{{app_name}}
+    nasdaq-{{proto_name}}-codegen --spec-file=src/{{project_src_name}}/{{app_name}}/{{app_name}}.xml --app-name={{app_name}} --op-dir=src/{{project_src_name}}/{{app_name}} --init-file
 {{/apps}}
     python -m build
-

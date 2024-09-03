@@ -27,6 +27,7 @@ class AppInfo:
 class Context:
     project_name: str
     project_src_name: str
+    project_module_dir: Path
     target_dir: Path
     pyproject_toml: Path
     tox_ini: Path
@@ -61,9 +62,11 @@ def create(name, target_dir, application):
     click.echo(f'Creating project {name} in {target_dir}')
 
     target_dir = Path(target_dir) / Path(name)
+    project_src_name = name.replace('-', '_')
     context = Context(
         project_name=name,
-        project_src_name=name.replace('-', '_'),
+        project_src_name=project_src_name,
+        project_module_dir=Path(target_dir) / Path('src') / Path(project_src_name),
         target_dir=Path(target_dir),
         pyproject_toml=Path(target_dir) / Path('pyproject.toml'),
         tox_ini=Path(target_dir) / Path('tox.ini'),
@@ -72,7 +75,7 @@ def create(name, target_dir, application):
 
     for app_proto in application:
         app_name, proto_name = app_proto.split(':')
-        app_dir = Path(target_dir) / Path('src') / Path(context.project_src_name) / Path(app_name)
+        app_dir = context.project_module_dir / Path(app_name)
         app_info = AppInfo(
             app_name=app_name,
             app_dir=app_dir,
@@ -81,10 +84,10 @@ def create(name, target_dir, application):
         )
         app_info.app_dir.mkdir(parents=True, exist_ok=True)
         _write_app_xml(app_info)
-        click.echo(f'Created application directory: {app_dir}')
         context.apps.append(app_info)
+        click.echo(f'Created application directory: {app_dir}')
 
-    Path(target_dir / Path('__init__.py')).touch()
+    Path(context.project_module_dir / Path('__init__.py')).touch()
     _write_pyproject(context)
     _write_tox(context)
 
