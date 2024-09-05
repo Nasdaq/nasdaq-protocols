@@ -44,7 +44,6 @@ class FixSerializable(Serializable):
         ...
 
 
-
 class MessageSegments(Enum):
     HEADER = 'Header'
     BODY = 'Body'
