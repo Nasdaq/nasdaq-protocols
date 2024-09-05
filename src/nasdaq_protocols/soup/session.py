@@ -8,8 +8,19 @@ from typing import Any, Awaitable, Callable, ClassVar
 import attrs
 from nasdaq_protocols import common
 from ._reader import SoupMessageReader
-from .core import *  # pylint: disable=wildcard-import,unused-wildcard-import
-
+from .core import (
+    SoupMessage,
+    LoginRequest,
+    LoginAccepted,
+    LoginRejected,
+    SequencedData,
+    UnSequencedData,
+    Debug,
+    ClientHeartbeat,
+    ServerHeartbeat,
+    EndOfSession,
+    LogoutRequest
+)
 
 __all__ = [
     'OnSoupMsgCoro',
