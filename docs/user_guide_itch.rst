@@ -48,6 +48,7 @@ Use the example below to implement a program that will tail itch messages from t
 
 
     stopped = asyncio.Event()
+    port = 1234  # give the proper itch server port
 
 
     async def itch_output(itch_message):
@@ -71,7 +72,6 @@ Use the example below to implement a program that will tail itch messages from t
 
     async def main():
         # Step1: connect
-        port = 1234  # give the proper itch server port
         itch_session = await itch_feed.connect_async(
             ('hostname', port),
             'itch username',  # itch username, max 6 characters
@@ -82,10 +82,7 @@ Use the example below to implement a program that will tail itch messages from t
             sequence=1  # 0 to listen from HEAD, 1 to listen from start, n to listen from n
         )
 
-        # Wait forever until the server closes the connection
-        await asyncio.sleep(5)
-
-        print("Closing the itch session...")
+        print("wait for server to close the session")
         await stopped.wait()
 
 
@@ -94,7 +91,7 @@ Use the example below to implement a program that will tail itch messages from t
 
 *A simple itch tail program*
 
-Slightly modified version where we do not use dispatchers instead explicitely call `receive_message()` method.
+Slightly modified version where we do not use dispatchers instead explicitly call `receive_message()` method.
 
 .. code-block:: python
 
@@ -103,9 +100,11 @@ Slightly modified version where we do not use dispatchers instead explicitely ca
     from nasdaq_protocols_messages import itch_feed
 
 
+    port = 1234  # give the proper itch server port
+
+
     async def main():
         # Step1: connect
-        port = 1234  # give the proper itch server port
         itch_session = await itch_feed.connect_async(
             ('hostname', port),
             'itch username',  # itch username, max 6 characters
