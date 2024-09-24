@@ -1,3 +1,5 @@
+import pytest
+
 from nasdaq_protocols.common.message import parser
 from .testdata import *
 
@@ -176,3 +178,19 @@ def test__parser__messages__codegen_context(tmp_file_writer):
             }
         ],
     }
+
+
+def test__parser__repeats_messages__no_overriding__parse(tmp_file_writer):
+    with pytest.raises(ValueError):
+        definitions = parser.Parser.parse(tmp_file_writer(TEST_XML_MESSAGES_REPEAT), override_messages=False)
+
+
+def test__parser__repeats_messages__overriding__parse(tmp_file_writer):
+
+    definitions = parser.Parser.parse(tmp_file_writer(TEST_XML_MESSAGES_REPEAT), override_messages=True)
+
+    assert len(definitions.messages) == 1
+    assert 'test_message_extn' in [msg.name for msg in definitions.messages]
+
+    message: parser.MessageDef = definitions.messages[0]
+    assert len(message.fields) == 2

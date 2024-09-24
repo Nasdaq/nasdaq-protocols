@@ -157,7 +157,7 @@ class Definitions:
 
 class Parser:
     @staticmethod
-    def parse(file: str) -> Definitions:
+    def parse(file: str, override_messages: bool = False) -> Definitions:
         root = ElementTree.parse(file).getroot()
         elements = list(root)
         definitions = Definitions()
@@ -170,7 +170,7 @@ class Parser:
             elif element.tag == 'records-root':
                 definitions.records = {_.name: _ for _ in Parser._parse_records(element)}
             elif element.tag == 'messages-root':
-                definitions.messages = Parser._parse_messages(element)
+                definitions.messages = Parser._parse_messages(element, override_messages)
 
         return definitions
 
@@ -183,14 +183,21 @@ class Parser:
         return [RecordDef(record.get('id'), Parser._parse_fields(record[0])) for record in list(element)]
 
     @staticmethod
-    def _parse_messages(element) -> list[MessageDef]:
+    def _parse_messages(element, override_messages: bool = False) -> list[MessageDef]:
         def create_msg(child):
             return MessageDef(
                 child.get('id'), child.get('message-id'), child.get('message-group'),
                 Parser._parse_fields(child[0] if len(child) else None),
                 child.get('direction')
             )
-        return [create_msg(child) for child in list(element) if child is not None]
+        messages = {}
+        for child in list(element):
+            msg = create_msg(child)
+            key = f'{msg.id}-{msg.group}-{msg.direction}'
+            if key in messages and not override_messages:
+                raise ValueError(f'Message {key} already exists')
+            messages[key] = msg
+        return list(messages.values())
 
     @staticmethod
     def _parse_fields(element) -> list[FieldDef]:
