@@ -164,3 +164,28 @@ TEST_XML_ITCH_MESSAGE = """
     </messages-root>
 </root>
 """
+
+
+TEST_XML_MESSAGES_REPEAT = """
+<root>
+    <enums-root>
+    </enums-root>
+    <fielddef-root>
+    </fielddef-root>
+    <records-root>
+    </records-root>
+    <messages-root>
+        <message id="test_message" message-id="1" message-group="2" direction="incoming">
+            <fields>
+                <field name="msg_field1" type="uint_4" default="0"/>
+            </fields>
+        </message>
+        <message id="test_message_extn" message-id="1" message-group="2" direction="incoming">
+            <fields>
+                <field name="msg_field1" type="uint_4" default="0"/>
+                <field name="msg_field2" type="uint_4" default="0"/>
+            </fields>
+        </message>
+    </messages-root>
+</root>
+"""

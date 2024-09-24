@@ -1,5 +1,7 @@
 [FORMAT]
 max-line-length=180
+class-naming-style=PascalCase
+attr-naming-style=any
 
 [MASTER]
 ignore-paths=src/nasdaq_protocols/_version.py
@@ -13,3 +15,5 @@ disable=
     R0902, #too-many-instance-attributes
     W0707, #too-many-statements
     R0801, #similarities
+    R0913, #too-many-arguments
+    R0917, #too-many-positional-arguments
