@@ -157,6 +157,20 @@ def test__load_generated_code__code_loads_without_issue(load_generated_itch_code
     assert load_generated_itch_code is not None
 
 
+def test__tools_codegen__code_generated(tools_codegen_invoker):
+    package = 'test'
+    app_name = 'test'
+    expected_file_name = f'itch_{app_name}_tools.py'
+    generated_files = tools_codegen_invoker(
+        codegen.generate_itch_tools,
+        app_name,
+        package
+    )
+
+    assert len(generated_files) == 1
+    assert expected_file_name in generated_files
+
+
 async def test__connect__using_generated_code(load_generated_itch_code, soup_clientapp_common_tests):
     module = load_generated_itch_code
 

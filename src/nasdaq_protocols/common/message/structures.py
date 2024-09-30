@@ -2,6 +2,7 @@
 This module contains the structures used to represent the messages in the protocol.
 """
 import inspect
+import json
 from enum import Enum
 from itertools import chain
 from collections import OrderedDict, defaultdict
@@ -10,7 +11,8 @@ import attrs
 
 from nasdaq_protocols.common.utils import logable
 from nasdaq_protocols.common.types import Serializable
-from .types import TypeDefinition, Short, Boolean
+from nasdaq_protocols.common.types import TypeDefinition
+from .types import Short, Boolean
 
 
 __all__ = [
@@ -88,6 +90,9 @@ class _Record(TypeDefinition):
 
     def __str__(self):
         return f"{{'{self.__class__.__name__}':{{{self.values}}}}}"
+
+    def as_collection(self):
+        return self.values
 
     @classmethod
     def from_str(cls, _str):
@@ -232,7 +237,8 @@ class CommonMessage(Serializable):
         cls.MsgId = kwargs.get('msg_id', cls.MsgId)
 
         if all(_ in kwargs for _ in ['app_name', 'msg_id_cls', 'msg_id']):
-            if cls.MsgId in CommonMessage.MsgIdToClsMap[cls.AppName]:
+            if (cls.MsgId in CommonMessage.MsgIdToClsMap[cls.AppName] and
+                    cls.MsgIdToClsMap[cls.AppName][cls.MsgId] != cls):
                 raise DuplicateMessageException(
                     existing_msg=CommonMessage.MsgIdToClsMap[cls.AppName][cls.MsgId],
                     new_msg=cls
@@ -273,6 +279,13 @@ class CommonMessage(Serializable):
             setattr(self.record, key, value)
         except KeyError:
             self.__dict__[key] = value
+
+    def __str__(self):
+        data = {
+            'message': f'{self.__class__.__name__}[{self.MsgId}]',
+            'body': self.record.as_collection()
+        }
+        return json.dumps(data, indent=2)
 
     @classmethod
     def get_msg_classes(cls) -> list[Type['CommonMessage']]:

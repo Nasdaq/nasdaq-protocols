@@ -1,0 +1,31 @@
+import asyncio
+import click
+
+from nasdaq_protocols.common import utils
+from nasdaq_protocols.itch import tools
+
+import {{package}} as app
+
+
+@click.command()
+@click.option('-h', '--host', required=True)
+@click.option('-p', '--port', required=True)
+@click.option('-U', '--user', required=True)
+@click.option('-P', '--password', required=True)
+@click.option('-S', '--session', default='', show_default=True)
+@click.option('-s', '--sequence', default=1, show_default=True)
+@click.option('-b', '--client-heartbeat-interval', default=1, show_default=True)
+@click.option('-B', '--server-heartbeat-interval', default=1, show_default=True)
+@click.option('-v', '--verbose', count=True)
+def {{app}}_tail(host, port, user, password, session, sequence,
+                 client_heartbeat_interval, server_heartbeat_interval,
+                 verbose):
+    """ Simple command that tails itch messages"""
+    utils.enable_logging_tools(verbose)
+    asyncio.run(
+        tools.tail_itch(
+            (host, port), user, password, session, sequence,
+            app.connect_async,
+            client_heartbeat_interval, server_heartbeat_interval
+        )
+    )
