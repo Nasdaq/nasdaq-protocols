@@ -1,3 +1,4 @@
+import json
 from enum import Enum
 
 import pytest
@@ -45,6 +46,10 @@ class TestArrayOfRecords(structures.RecordWithPresentBit):
     ]
 
     records: list[TestRecordWithPresentBit]
+
+
+class TestMessage(structures.CommonMessage):
+    BodyRecord = TestRecord
 
 
 def test__record__to_bytes():
@@ -338,3 +343,12 @@ def test__record_with_present_bit__empty_record__to_bytes():
 
 def test__record_with_present_bit__empty_record2__from_bytes():
     assert TestRecordWithPresentBit.from_bytes(b'\x00') == (1, None)
+
+
+def test__common_message__as_collection():
+    message = TestMessage()
+    data = {
+        'message': 'TestMessage[None]',
+        'body': {}
+    }
+    assert str(message) == json.dumps(data, indent=2)

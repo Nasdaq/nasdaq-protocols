@@ -10,7 +10,8 @@ __all__ = [
     'logable',
     'stop_task',
     'start_server',
-    'Validators'
+    'Validators',
+    'enable_logging_tools'
 ]
 _StopTaskTypes = asyncio.Task | Stoppable
 _logger = logging.getLogger(__name__)
@@ -71,6 +72,15 @@ async def start_server(remote, session_factory, spin_timeout=0.001, *, name='ser
         await asyncio.sleep(spin_timeout)
 
     return server, task
+
+
+def enable_logging_tools(verbose: int, format_: str = '%(asctime)s> %(levelname)s %(message)s'):
+    level = logging.WARN
+    if verbose == 1:
+        level = logging.INFO
+    elif verbose >= 2:
+        level = logging.DEBUG
+    logging.basicConfig(format=format_, level=level, datefmt='%Y-%m-%d %H:%M:%S')
 
 
 class Validators:

@@ -40,11 +40,14 @@ class SoupMessageReader(common.Reader):
                 await self.on_close_coro()
                 return
 
-            self.log.debug('%s> dispatching message %s', self.session_id, str(msg))
-            try:
-                await self.on_msg_coro(msg)
-            except Exception:  # pylint: disable=broad-except
-                await self.on_close_coro()
+            if not msg.is_heartbeat():
+                self.log.debug('%s> dispatching message %s', self.session_id, str(msg))
+                try:
+                    await self.on_msg_coro(msg)
+                except Exception:  # pylint: disable=broad-except
+                    await self.on_close_coro()
+            else:
+                self.log.debug('%s> received heartbeat', self.session_id)
 
             self._buffer = self._buffer[siz + 2:]
             buff_len -= (siz+2)

@@ -22,6 +22,9 @@ class OuchMessageId(Serializable):
     def to_bytes(self) -> tuple[int, bytes]:
         return Byte.to_bytes(self.indicator)
 
+    def __str__(self):
+        return f'indicator={self.indicator}'
+
 
 @attrs.define
 @logable

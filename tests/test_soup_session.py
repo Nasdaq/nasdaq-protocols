@@ -140,3 +140,10 @@ async def test__soup_session__with_dispatcher__dispatcher_invoked(soup_server_se
     server_session.generate_load(100)
 
     await asyncio.wait_for(closed.wait(), 1)
+
+
+def test__soup_session__session_with_no_session_type():
+    class BaseSessionType(soup.SoupSession):
+        pass
+
+    assert BaseSessionType.SessionType is 'base'

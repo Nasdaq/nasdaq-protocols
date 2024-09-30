@@ -1,6 +1,7 @@
 import importlib.util
 from pathlib import Path
 import os
+import sys
 import pytest
 
 from click.testing import CliRunner
@@ -66,11 +67,37 @@ def codegen_invoker(tmp_path):
     return generator
 
 
+@pytest.fixture(scope='function')
+def tools_codegen_invoker(tmp_path):
+    def generator(codegen, app_name, package):
+        runner = CliRunner()
+        with runner.isolated_filesystem(temp_dir=tmp_path):
+            Path('output').mkdir(parents=True, exist_ok=True)
+            result = runner.invoke(
+                codegen,
+                [
+                    '--op-dir', 'output',
+                    '--app-name', app_name,
+                    '--package', package
+                ]
+            )
+            assert result.exit_code == 0
+
+            # Read the generated files
+            generated_file_contents = {}
+            for file in os.listdir('output'):
+                with open(os.path.join('output', file)) as f:
+                    generated_file_contents[file] = f.read()
+            return generated_file_contents
+    return generator
+
+
 @pytest.fixture(scope='session')
 def code_loader():
     def loader_(module_name, code_as_string):
         spec = importlib.util.spec_from_loader(module_name, loader=None)
-        module = importlib.util.module_from_spec(spec)
-        exec(code_as_string, module.__dict__)
-        return module
+        module_ = importlib.util.module_from_spec(spec)
+        exec(code_as_string, module_.__dict__)
+        sys.modules[module_name] = module_
+        return module_
     return loader_
