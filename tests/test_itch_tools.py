@@ -122,13 +122,12 @@ async def test__itch_tools__tail_itch__login_failed(mock_server_session, load_it
     assert tailer.done()
 
 
-async def test__itch_tools__tail_itch__wrong_server(mock_server_session, load_itch_tools):
+async def test__itch_tools__tail_itch__wrong_server(load_itch_tools):
     definitions, tools = load_itch_tools('test__itch_tools__tail_itch__wrong_server')
-    port, server_session = mock_server_session
 
     # start tailing
     tailer = asyncio.create_task(tail_itch(
-        ('no.such.host', port), 'test-u', 'test-p', '', 1,
+        ('no.such.host', 15000), 'test-u', 'test-p', '', 1,
         definitions.connect_async, 10, 10
     ))
     # give some time for tail

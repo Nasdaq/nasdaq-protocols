@@ -46,12 +46,13 @@ class HeartbeatMonitor(Stoppable):
     on_no_activity_coro: OnMonitorNoActivityCoro = attrs.field(validator=Validators.not_none())
     stop_when_no_activity: bool = attrs.field(kw_only=True, default=True)
     tolerate_missed_heartbeats: int = attrs.field(kw_only=True, default=1)
+    name: str = attrs.field(kw_only=True, default='monitor')
     _pinged: bool = attrs.field(init=False, default=True)
     _monitor_task: asyncio.Task | None = attrs.field(init=False, default=None)
 
     def __attrs_post_init__(self):
-        self._monitor_task = asyncio.create_task(self._start_monitor(), name=f'{self.session_id}-monitor')
-        self.log.debug('%s> monitor started.', self.session_id)
+        self._monitor_task = asyncio.create_task(self._start_monitor(), name=f'{self.session_id}-{self.name}')
+        self.log.debug('%s> %s started.', self.session_id, self.name)
 
     def ping(self) -> None:
         """Ping the monitor."""
@@ -75,11 +76,13 @@ class HeartbeatMonitor(Stoppable):
                 await asyncio.sleep(self.interval)
 
                 if self._pinged:
+                    self.log.debug('%s> %s pinged.', self.session_id, self.name)
                     self._pinged = False
                     missed_heartbeats = count(1)
                     continue
 
                 if next(missed_heartbeats) >= self.tolerate_missed_heartbeats:
+                    self.log.debug('%s> %s no activity detected.', self.session_id, self.name)
                     await self.on_no_activity_coro()
                     if self.stop_when_no_activity:
                         break
@@ -226,9 +229,14 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
         - if the local heartbeat timer expires, then `send_heartbeat` is called.
         """
         self._local_hb_monitor = HeartbeatMonitor(
-            self.session_id, local_hb_interval, self.send_heartbeat, stop_when_no_activity=False
+            f'{self.session_id}-local-monitor',
+            local_hb_interval,
+            self.send_heartbeat,
+            stop_when_no_activity=False
         )
-        self._remote_hb_monitor = HeartbeatMonitor(self.session_id, remote_hb_interval, self.close)
+        self._remote_hb_monitor = HeartbeatMonitor(
+            f'{self.session_id}-remote-monitor', remote_hb_interval, self.close
+        )
         self.log.debug('%s> started heartbeats', self.session_id)
 
     def set_handlers(self, on_msg_coro: OnMsgCoro = None, on_close_coro: OnCloseCoro = None):

@@ -35,7 +35,7 @@ message0 = Message_5({
     }),
     fix.MessageSegments.BODY: body0,
     fix.MessageSegments.TRAILER: DataSegment_Trailer.from_value({
-        10: 100
+        10: '100'
     })
 })
 message1 = Message_1({
@@ -46,7 +46,7 @@ message1 = Message_1({
     }),
     fix.MessageSegments.BODY: body1,
     fix.MessageSegments.TRAILER: DataSegment_Trailer.from_value({
-        10: 100
+        10: '100'
     })
 })
 message2 = Message_1({
@@ -57,7 +57,7 @@ message2 = Message_1({
     }),
     fix.MessageSegments.BODY: body2,
     fix.MessageSegments.TRAILER: DataSegment_Trailer.from_value({
-        10: 100
+        10: '100'
     })
 })
 messages = {
