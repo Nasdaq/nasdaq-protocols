@@ -428,18 +428,18 @@ def test__to_bytes__message__empty_message():
 
 
 def test__to_bytes__message__message_is_serialized():
-    expected_bytes = b'1=1\x012=header\x011=2\x012=body\x011=3\x012=trailer\x01'
-    header = DataSegment_1.from_value({
-        1: 1,
-        2: 'header'
+    expected_bytes = b'8=begin\x019=10\x0135=L\x011=2\x012=body\x0110=30\x01'
+    header = DataSegment_Header.from_value({
+        8: "begin",
+        9: 10,
+        35: 'L'
     })
     body = DataSegment_1.from_value({
         1: 2,
         2: 'body'
     })
-    trailer = DataSegment_1.from_value({
-        1: 3,
-        2: 'trailer'
+    trailer = DataSegment_Trailer.from_value({
+        10: '30'
     })
     message = Message_1({
         fix.MessageSegments.HEADER: header,
@@ -450,24 +450,45 @@ def test__to_bytes__message__message_is_serialized():
 
 
 def test__to_bytes__message_constructed_using_from_value__message_is_serialized():
-    expected_bytes = b'1=1\x012=header\x011=2\x012=body\x011=3\x012=trailer\x01'
-    header = DataSegment_1.from_value({
-        1: 1,
-        2: 'header'
+    expected_bytes = b'8=test\x019=1\x0135=Hello\x011=2\x012=body\x0110=3\x01'
+    header = DataSegment_Header.from_value({
+        8: "test",
+        9: 1,
+        35: "Hello"
     })
     body = DataSegment_1.from_value({
         1: 2,
         2: 'body'
     })
-    trailer = DataSegment_1.from_value({
-        1: 3,
-        2: 'trailer'
+    trailer = DataSegment_Trailer.from_value({
+        10: '3',
     })
     message = Message_1.from_value({
         fix.MessageSegments.HEADER: header,
         fix.MessageSegments.BODY: body,
         fix.MessageSegments.TRAILER: trailer
     })
+    assert message.to_bytes() == (len(expected_bytes), expected_bytes)
+
+
+def test__to_bytes__message_constructed_fully_using_dict__message_is_serialized():
+    expected_bytes = b'8=test\x019=1\x0135=Hello\x011=2\x012=body\x0110=3\x01'
+    message = Message_1(
+        {
+            fix.MessageSegments.HEADER: {
+                8: "test",
+                "BodyLength": 1,
+                35: "Hello",
+            },
+            fix.MessageSegments.TRAILER: {
+                10: '3',
+            },
+            fix.MessageSegments.BODY: {
+                1: 2,
+                2: 'body'
+            }
+        }
+    )
     assert message.to_bytes() == (len(expected_bytes), expected_bytes)
 
 
@@ -488,7 +509,7 @@ def test__as_collection__message__entire_message_is_returned_as_collection():
         ]
     })
     trailer = DataSegment_Trailer.from_value({
-        10: 100
+        10: '100'
     })
     message = Message_1({
         fix.MessageSegments.HEADER: header,
@@ -513,7 +534,7 @@ def test__as_collection__message__entire_message_is_returned_as_collection():
             ]
         },
         'Trailer': {
-            10: 100
+            10: '100'
         }
     }
 
@@ -554,7 +575,7 @@ def test__equals__message__messages_are_equal():
         ]
     })
     trailer = DataSegment_Trailer.from_value({
-        10: 100
+        10: '100'
     })
     message1 = Message_1({
         fix.MessageSegments.HEADER: header,
@@ -589,7 +610,7 @@ def test__equals__message__messages_are_not_equal():
         ]
     })
     trailer = DataSegment_Trailer.from_value({
-        10: 100
+        10: '100'
     })
     message1 = Message_1({
         fix.MessageSegments.HEADER: DataSegment_Header.from_value(header),
@@ -626,7 +647,7 @@ def test__equals__message__non_related_object_messages_are_not_equal():
         ]
     })
     trailer = DataSegment_Trailer.from_value({
-        10: 100
+        10: '100'
     })
     message1 = Message_1({
         fix.MessageSegments.HEADER: DataSegment_Header.from_value(header),
@@ -654,7 +675,7 @@ def test__from_bytes__message__use_base_message_class_to_deserialize():
         ]
     })
     trailer = DataSegment_Trailer.from_value({
-        10: 100
+        10: '100'
     })
     message1 = Message_1({
         fix.MessageSegments.HEADER: header,
@@ -684,13 +705,7 @@ def test__is_logout__message():
 
 
 def test__is_heartbeat__message():
-    class HeartBeat(fix.Message, Name='HeartBeat', Type='0', Category='B', HeaderCls=DataSegment_1,
-                    BodyCls=DataSegment_1, TrailerCls=DataSegment_1):
-        Header: DataSegment_1
-        Body: DataSegment_1
-        Trailer: DataSegment_1
-
-    heartbeat = HeartBeat()
+    heartbeat = Heartbeat()
 
     assert heartbeat.is_heartbeat()
     assert not heartbeat.is_logout()
@@ -713,7 +728,7 @@ def test__str__message__message_is_pretty_printed():
         ]
     })
     trailer = DataSegment_Trailer.from_value({
-        10: 100
+        10: '100'
     })
     message1 = Message_1({
         fix.MessageSegments.HEADER: header,

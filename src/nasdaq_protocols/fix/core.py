@@ -220,7 +220,7 @@ class DataSegment(FixSerializable):
         if isinstance(value, dict):
             data_container = cls()
             for key, value_ in value.items():
-                data_container.__setattr__(key, value_)  # pylint: disable=C2801
+                data_container[key] = value_
             return data_container
         raise TypeError(f'Expected type {cls} or dict.')
 
@@ -396,10 +396,15 @@ class Message(FixSerializable):
         Message.Def[cls.Name] = cls
         Message.Def[cls.Type] = cls
 
-    def __init__(self, data: dict[MessageSegments, DataSegment] = None):
-        if data is None:
-            data = {segment: self.SegmentCls[segment]() for segment in MessageSegments}
-        self.data = data
+    def __init__(self, data: dict[MessageSegments, Any] = None):
+        self.data = {}
+        data = data or {}
+
+        for segment in MessageSegments:
+            value = data.get(segment, self.SegmentCls[segment]())
+            if not isinstance(value, self.SegmentCls[segment]):
+                value = self.SegmentCls[segment].from_value(value)
+            self.data[segment] = value
 
     @classmethod
     def from_value(cls, value: dict[MessageSegments, DataSegment]) -> Union[type['Message'], 'Message']:
