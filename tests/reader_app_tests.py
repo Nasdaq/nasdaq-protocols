@@ -35,7 +35,7 @@ def reader_test(target):
     return target
 
 
-def test_params(*args, **kwargs):
+def tst_params(*args, **kwargs):
     for arg in args:
         if arg not in kwargs:
             raise ValueError(f'Argument {arg} is required')
@@ -45,12 +45,12 @@ def test_params(*args, **kwargs):
 
 
 def all_test_params(**kwargs):
-    return test_params('handler', 'reader', 'input_factory', 'output_factory', **kwargs)
+    return tst_params('handler', 'reader', 'input_factory', 'output_factory', **kwargs)
 
 
 @reader_test
 async def reader__stop__reader_is_stopped(**kwargs):
-    handler, reader = test_params('handler', 'reader', **kwargs)
+    handler, reader = tst_params('handler', 'reader', **kwargs)
 
     assert not handler.closed.is_set()
 

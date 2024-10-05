@@ -12,7 +12,7 @@ TEST_RECORD_FIELDS = [
 ]
 
 
-class TestRecord(Record):
+class SampleTestRecord(Record):
     __test__ = False
     Fields = TEST_RECORD_FIELDS
 
@@ -21,7 +21,7 @@ class TestRecord(Record):
     string_field: str
 
 
-class TestRecordWithPresentBit(RecordWithPresentBit):
+class SampleTestRecordWithPresentBit(RecordWithPresentBit):
     __test__ = False
     Fields = TEST_RECORD_FIELDS
 
@@ -30,31 +30,31 @@ class TestRecordWithPresentBit(RecordWithPresentBit):
     string_field: str
 
 
-class TestRecordInRecord(structures.RecordWithPresentBit):
+class SampleTestRecordInRecord(structures.RecordWithPresentBit):
     __test__ = False
     Fields = [
-        structures.Field('record', TestRecordWithPresentBit)
+        structures.Field('record', SampleTestRecordWithPresentBit)
     ]
 
-    record: TestRecordWithPresentBit
+    record: SampleTestRecordWithPresentBit
 
 
-class TestArrayOfRecords(structures.RecordWithPresentBit):
+class SampleTestArrayOfRecords(structures.RecordWithPresentBit):
     __test__ = False
     Fields = [
-        structures.Field('records', Array(TestRecordWithPresentBit))
+        structures.Field('records', Array(SampleTestRecordWithPresentBit))
     ]
 
-    records: list[TestRecordWithPresentBit]
+    records: list[SampleTestRecordWithPresentBit]
 
 
-class TestMessage(structures.CommonMessage):
-    BodyRecord = TestRecord
+class SampleTestMessage(structures.CommonMessage):
+    BodyRecord = SampleTestRecord
 
 
 def test__record__to_bytes():
     expected_bytes = b'\x02\x05\x00\x04\x00test'
-    record = TestRecord()
+    record = SampleTestRecord()
     record.byte_field = 2
     record.short_field = 5
     record.string_field = 'test'
@@ -63,13 +63,13 @@ def test__record__to_bytes():
     assert record.short_field == 5
     assert record.string_field == 'test'
 
-    len_, bytes_ = TestRecord.to_bytes(record)
+    len_, bytes_ = SampleTestRecord.to_bytes(record)
     assert len_ == len(expected_bytes)
     assert bytes_ == expected_bytes
 
 
 def test__record__from_bytes():
-    record = TestRecord.from_bytes(b'\x02\x05\x00\x04\x00test')[1]
+    record = SampleTestRecord.from_bytes(b'\x02\x05\x00\x04\x00test')[1]
 
     assert record.byte_field == 2
     assert record.short_field == 5
@@ -78,7 +78,7 @@ def test__record__from_bytes():
 
 def test__record_with_present_bit__to_bytes():
     expected_bytes = b'\x01\x02\x05\x00\x04\x00test'
-    record = TestRecordWithPresentBit()
+    record = SampleTestRecordWithPresentBit()
     record.byte_field = 2
     record.short_field = 5
     record.string_field = 'test'
@@ -87,13 +87,13 @@ def test__record_with_present_bit__to_bytes():
     assert record.short_field == 5
     assert record.string_field == 'test'
 
-    len_, bytes_ = TestRecordWithPresentBit.to_bytes(record)
+    len_, bytes_ = SampleTestRecordWithPresentBit.to_bytes(record)
     assert len_ == len(expected_bytes)
     assert bytes_ == expected_bytes
 
 
 def test__record_with_present_bit__from_bytes():
-    record = TestRecordWithPresentBit.from_bytes(b'\x01\x02\x05\x00\x04\x00test')[1]
+    record = SampleTestRecordWithPresentBit.from_bytes(b'\x01\x02\x05\x00\x04\x00test')[1]
 
     assert record.byte_field == 2
     assert record.short_field == 5
@@ -102,8 +102,8 @@ def test__record_with_present_bit__from_bytes():
 
 def test__record___record_in_record__to_bytes():
     expected_bytes = b'\x01\x01\x02\x05\x00\x04\x00test'
-    record = TestRecordInRecord()
-    record.record = TestRecordWithPresentBit()
+    record = SampleTestRecordInRecord()
+    record.record = SampleTestRecordWithPresentBit()
     record.record.byte_field = 2
     record.record.short_field = 5
     record.record.string_field = 'test'
@@ -112,13 +112,13 @@ def test__record___record_in_record__to_bytes():
     assert record.record.short_field == 5
     assert record.record.string_field == 'test'
 
-    len_, bytes_ = TestRecordInRecord.to_bytes(record)
+    len_, bytes_ = SampleTestRecordInRecord.to_bytes(record)
     assert len_ == len(expected_bytes)
     assert bytes_ == expected_bytes
 
 
 def test__record__record_in_record__from_bytes():
-    record = TestRecordInRecord.from_bytes(b'\x01\x01\x02\x05\x00\x04\x00test')[1]
+    record = SampleTestRecordInRecord.from_bytes(b'\x01\x01\x02\x05\x00\x04\x00test')[1]
 
     assert record.record.byte_field == 2
     assert record.record.short_field == 5
@@ -127,10 +127,10 @@ def test__record__record_in_record__from_bytes():
 
 def test__record__array_of_records__to_bytes():
     expected_bytes = b'\x01\x02\x00' + (b'\x02\x05\x00\x04\x00test' * 2)
-    record = TestArrayOfRecords()
+    record = SampleTestArrayOfRecords()
     record.records = [
-        TestRecordWithPresentBit(),
-        TestRecordWithPresentBit(),
+        SampleTestRecordWithPresentBit(),
+        SampleTestRecordWithPresentBit(),
     ]
     record.records[0].byte_field = 2
     record.records[0].short_field = 5
@@ -146,13 +146,13 @@ def test__record__array_of_records__to_bytes():
     assert record.records[1].short_field == 5
     assert record.records[1].string_field == 'test'
 
-    len_, bytes_ = TestArrayOfRecords.to_bytes(record)
+    len_, bytes_ = SampleTestArrayOfRecords.to_bytes(record)
     assert len_ == len(expected_bytes)
     assert bytes_ == expected_bytes
 
 
 def test__record__array_of_records__from_bytes():
-    record = TestArrayOfRecords.from_bytes(b'\x01\x02\x00' + (b'\x02\x05\x00\x04\x00test' * 2))[1]
+    record = SampleTestArrayOfRecords.from_bytes(b'\x01\x02\x00' + (b'\x02\x05\x00\x04\x00test' * 2))[1]
 
     assert record.records[0].byte_field == 2
     assert record.records[0].short_field == 5
@@ -163,12 +163,12 @@ def test__record__array_of_records__from_bytes():
 
 
 def test__record__equal():
-    record1 = TestRecord()
+    record1 = SampleTestRecord()
     record1.byte_field = 2
     record1.short_field = 5
     record1.string_field = 'test'
 
-    record2 = TestRecord()
+    record2 = SampleTestRecord()
     record2.byte_field = 2
     record2.short_field = 5
     record2.string_field = 'test'
@@ -176,16 +176,16 @@ def test__record__equal():
     assert record1 == record2
     assert record1 != 1
     assert record1 != 'test'
-    assert record1 != TestRecordWithPresentBit()
+    assert record1 != SampleTestRecordWithPresentBit()
 
 
 def test__record__not_equal():
-    record1 = TestRecord()
+    record1 = SampleTestRecord()
     record1.byte_field = 2
     record1.short_field = 5
     record1.string_field = 'test'
 
-    record2 = TestRecord()
+    record2 = SampleTestRecord()
     record2.byte_field = 2
     record2.short_field = 5
     record2.string_field = 'test2'
@@ -194,18 +194,18 @@ def test__record__not_equal():
 
 
 def test__record__to_str():
-    record = TestRecord()
+    record = SampleTestRecord()
     record.byte_field = 2
     record.short_field = 5
     record.string_field = 'test'
 
-    assert (TestRecord.to_str(record) ==
+    assert (SampleTestRecord.to_str(record) ==
             str(record) ==
-            "{'TestRecord':{{'byte_field': 2, 'short_field': 5, 'string_field': 'test'}}}")
+            "{'SampleTestRecord':{{'byte_field': 2, 'short_field': 5, 'string_field': 'test'}}}")
 
 
 def test__record__is_record():
-    assert Record.is_record(TestRecord)
+    assert Record.is_record(SampleTestRecord)
 
 
 def test__record__create_with_all_values():
@@ -214,7 +214,7 @@ def test__record__create_with_all_values():
         'short_field': 5,
         'string_field': 'test'
     }
-    record = TestRecord(values)
+    record = SampleTestRecord(values)
 
     assert record.byte_field == 2
     assert record.short_field == 5
@@ -224,7 +224,7 @@ def test__record__create_with_all_values():
 def test__record__nested_record__default_values_initialised():
     values = {
     }
-    record = TestRecordInRecord(values)
+    record = SampleTestRecordInRecord(values)
 
     assert record.record.byte_field == 0
     assert record.record.short_field == 0
@@ -233,7 +233,7 @@ def test__record__nested_record__default_values_initialised():
 
 def test__record__from_str__not_implemented():
     with pytest.raises(NotImplementedError):
-        TestRecord.from_str('test')
+        SampleTestRecord.from_str('test')
 
 
 def test__record__enum_type_field():
@@ -241,7 +241,7 @@ def test__record__enum_type_field():
         A = 1
         B = 2
 
-    record = TestRecord()
+    record = SampleTestRecord()
     record.byte_field = TestEnum.A
     record.short_field = TestEnum.B
     record.string_field = 'test'
@@ -251,7 +251,7 @@ def test__record__enum_type_field():
 
 
 def test__record__invalid_type__exception_is_raised():
-    record = TestRecord()
+    record = SampleTestRecord()
     record.byte_field = 2
     record.short_field = 5
     record.string_field = 'test'
@@ -260,26 +260,26 @@ def test__record__invalid_type__exception_is_raised():
         record.string_field = 3
 
     with pytest.raises(ValueError):
-        record_in_record = TestRecordInRecord()
+        record_in_record = SampleTestRecordInRecord()
         record_in_record.record = record
 
 
 def test__record_with_present_bit__get_value():
-    record = TestRecordWithPresentBit()
+    record = SampleTestRecordWithPresentBit()
     record.byte_field = 2
     record.short_field = 5
     record.string_field = 'test'
 
-    record_in_record = TestRecordInRecord()
+    record_in_record = SampleTestRecordInRecord()
     record_in_record.record = record
 
-    array_of_records = TestArrayOfRecords()
+    array_of_records = SampleTestArrayOfRecords()
     array_of_records.records = [record, record]
 
     assert Record.get_value(record_in_record) == {
-        'TestRecordInRecord': {
+        'SampleTestRecordInRecord': {
             'record': {
-                'TestRecordWithPresentBit': {
+                'SampleTestRecordWithPresentBit': {
                     'byte_field': 2,
                     'short_field': 5,
                     'string_field': 'test'
@@ -289,17 +289,17 @@ def test__record_with_present_bit__get_value():
     }
 
     assert Record.get_value(array_of_records) == {
-        'TestArrayOfRecords': {
+        'SampleTestArrayOfRecords': {
             'records': [
                 {
-                    'TestRecordWithPresentBit': {
+                    'SampleTestRecordWithPresentBit': {
                         'byte_field': 2,
                         'short_field': 5,
                         'string_field': 'test'
                     }
                 },
                 {
-                    'TestRecordWithPresentBit': {
+                    'SampleTestRecordWithPresentBit': {
                         'byte_field': 2,
                         'short_field': 5,
                         'string_field': 'test'
@@ -337,18 +337,18 @@ def test__array__basic_types__from_bytes():
 
 
 def test__record_with_present_bit__empty_record__to_bytes():
-    assert TestRecordWithPresentBit.to_bytes(None) == (1, b'\x00')
-    assert TestRecordWithPresentBit.to_bytes(TestRecordWithPresentBit()) == (1, b'\x00')
+    assert SampleTestRecordWithPresentBit.to_bytes(None) == (1, b'\x00')
+    assert SampleTestRecordWithPresentBit.to_bytes(SampleTestRecordWithPresentBit()) == (1, b'\x00')
 
 
 def test__record_with_present_bit__empty_record2__from_bytes():
-    assert TestRecordWithPresentBit.from_bytes(b'\x00') == (1, None)
+    assert SampleTestRecordWithPresentBit.from_bytes(b'\x00') == (1, None)
 
 
 def test__common_message__as_collection():
-    message = TestMessage()
+    message = SampleTestMessage()
     data = {
-        'message': 'TestMessage[None]',
+        'message': 'SampleTestMessage[None]',
         'body': {}
     }
     assert str(message) == json.dumps(data, indent=2)
