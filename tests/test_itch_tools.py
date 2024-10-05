@@ -84,7 +84,7 @@ async def test__itch_tools__tail_itch(mock_server_session, load_itch_tools):
 
     # start tailing
     tailer = asyncio.create_task(tail_itch(
-        ('127.0.0.1', port), 'test-u', 'test-p', '', 1,
+        ('', port), 'test-u', 'test-p', '', 1,
         definitions.connect_async, 10, 10
     ))
     assert not tailer.done()
@@ -114,7 +114,7 @@ async def test__itch_tools__tail_itch__login_failed(mock_server_session, load_it
 
     # start tailing
     tailer = asyncio.create_task(tail_itch(
-        ('127.0.0.1', port), 'test-u', 'test-p', '', 1,
+        ('', port), 'test-u', 'test-p', '', 1,
         definitions.connect_async, 10, 10
     ))
     # give some time for tail
@@ -135,6 +135,7 @@ async def test__itch_tools__tail_itch__wrong_server(load_itch_tools):
     assert tailer.done()
 
 
+@pytest.mark.xfail(reason='https://github.com/Nasdaq/nasdaq-protocols/issues/21')
 async def test__itch_tools__tail_itch__ctrl_c(mock_server_session, load_itch_tools):
     definitions, tools = load_itch_tools('test__itch_tools__tail_itch__ctrl_c')
     port, server_session = mock_server_session
@@ -148,7 +149,7 @@ async def test__itch_tools__tail_itch__ctrl_c(mock_server_session, load_itch_too
 
     # start tailing
     tailer = asyncio.create_task(tail_itch(
-        ('127.0.0.1', port), 'test-u', 'test-p', '', 1,
+        ('', port), 'test-u', 'test-p', '', 1,
         definitions.connect_async, 10, 10
     ))
     # give some time for tail
