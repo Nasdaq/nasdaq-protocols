@@ -23,7 +23,7 @@ async def connect_to_mock_ouch_server(mock_server_session, session_factory=None)
 
     LOG.debug('connecting to server...')
     client_session = await ouch.connect_async(
-        ('127.0.0.1', port), 'test-u', 'test-p', '',
+        ('', port), 'test-u', 'test-p', '',
         session_factory=session_factory
     )
     assert client_session is not None

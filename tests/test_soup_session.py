@@ -48,7 +48,7 @@ async def test__soup_session__invalid_credentials__login_rejected(soup_server_se
 
     with pytest.raises(ConnectionRefusedError):
         client_session = await soup.connect_async(
-            ('127.0.0.1', port),
+            ('', port),
             'nouser',
             'nopwd',
             'session'
@@ -61,7 +61,7 @@ async def test__soup_session__valid_credentials__login_accepted(soup_server_sess
     port, server_session = soup_server_session
 
     client_session = await soup.connect_async(
-        ('127.0.0.1', port),
+        ('', port),
         'test-u',
         'test-p',
         'session'
@@ -76,7 +76,7 @@ async def test__soup_session__able_to_communicate(soup_server_session):
     port, server_session = soup_server_session
 
     client_session = await soup.connect_async(
-        ('127.0.0.1', port),
+        ('', port),
         'test-u',
         'test-p',
         'session'
@@ -98,7 +98,7 @@ async def test__soup_session__sending_debug_from_client(soup_server_session):
     port, server_session = soup_server_session
 
     client_session = await soup.connect_async(
-        ('127.0.0.1', port),
+        ('', port),
         'test-u',
         'test-p',
         'session'
@@ -128,7 +128,7 @@ async def test__soup_session__with_dispatcher__dispatcher_invoked(soup_server_se
         closed.set()
 
     client_session = await soup.connect_async(
-        ('127.0.0.1', port),
+        ('', port),
         'test-u',
         'test-p',
         'session',

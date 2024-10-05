@@ -50,7 +50,7 @@ async def test__fix_session__login_successful(mock_server_session, session_facto
     )
 
     fix_session = await fix.connect_async(
-        ('localhost', port), ENTER_LOGIN_MSG, session_factory
+        ('', port), ENTER_LOGIN_MSG, session_factory
     )
 
     await fix_session.close()
@@ -71,7 +71,7 @@ async def test__fix_session__login_failed(mock_server_session, session_factory):
 
     with pytest.raises(ConnectionRefusedError):
         await fix.connect_async(
-            ('localhost', port), ENTER_LOGIN_MSG, session_factory
+            ('', port), ENTER_LOGIN_MSG, session_factory
         )
 
 
@@ -82,12 +82,12 @@ async def test__fix_session__login_failed__server_closes_connection(mock_server_
     server_session.when(
         if_logon("test_user"), 'match-login-request'
     ).do(
-        lambda s: s.close(), 'close-connection'
+        lambda s, _d: s.close(), 'close-connection'
     )
 
     with pytest.raises(ConnectionRefusedError):
         await fix.connect_async(
-            ('localhost', port), ENTER_LOGIN_MSG, session_factory
+            ('', port), ENTER_LOGIN_MSG, session_factory
         )
 
 
@@ -103,7 +103,7 @@ async def test__fix_session__no_server_heartbeats__session_closed(mock_server_se
     )
 
     session = await fix.connect_async(
-        ('localhost', port), ENTER_LOGIN_MSG,
+        ('', port), ENTER_LOGIN_MSG,
         lambda : session_factory(
             client_heartbeat_interval=100,
             server_heartbeat_interval=server_heartbeat_interval
@@ -129,7 +129,7 @@ async def test__fix_session__client_heartbeats__session_is_active(mock_server_se
     )
 
     session = await fix.connect_async(
-        ('localhost', port), ENTER_LOGIN_MSG,
+        ('', port), ENTER_LOGIN_MSG,
         lambda : session_factory(
             client_heartbeat_interval=heart_beat_interval,
             server_heartbeat_interval=100
@@ -170,7 +170,7 @@ async def test__fix_session__active_message_flow__no_heartbeats_sent(mock_server
     )
 
     session = await fix.connect_async(
-        ('localhost', port), ENTER_LOGIN_MSG,
+        ('', port), ENTER_LOGIN_MSG,
         lambda : session_factory(
             client_heartbeat_interval=heart_beat_interval,
             server_heartbeat_interval=100
