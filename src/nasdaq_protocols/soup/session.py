@@ -233,7 +233,7 @@ class SoupServerSession(SoupSession, session_type='server'):
         :param msg: UnSequencedData message.
         """
 
-    def send_seq_msg(self, data: bytes) -> None:
+    def send_seq_msg(self, data: bytes | SequencedData) -> None:
         """
         Send sequenced data to the client.
 
@@ -251,7 +251,7 @@ class SoupServerSession(SoupSession, session_type='server'):
         self.initiate_close()
 
     async def on_debug(self, msg: Debug) -> None:
-        self.log.info('%s> ++ client debug : %s', msg)
+        self.log.info('%s> ++ client debug : %s', self.session_id, msg)
 
     async def send_heartbeat(self):
         """

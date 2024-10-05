@@ -55,7 +55,7 @@ async def client_session(mock_server_session) -> SampleTestClientSession:
     event_loop = asyncio.get_running_loop()
     port, server_session = mock_server_session
     session_ = SampleTestClientSession(session_id=common.SessionId())
-    await event_loop.create_connection(lambda: session_, '', port)
+    _, session_ = await event_loop.create_connection(lambda: session_, '127.0.0.1', port=port)
 
     # test server-client communication works
     server_session.when(lambda x: x == b'echo').do(lambda session, _: session.send('echoed'))
