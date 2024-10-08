@@ -189,3 +189,48 @@ TEST_XML_MESSAGES_REPEAT = """
     </messages-root>
 </root>
 """
+
+
+TEST_FIX_44_XML = """
+<fix major="4" minor="4">
+    <components>
+        <component name="InstrmtLegGrp">
+            <field name="PossResend" required="N"/>
+            <field name="QuoteStatus" required="N"/>
+        </component>
+        <component name="GroupOfComponents">
+            <group name="InstrmtLegGrp_Group" required="N">
+                <component name="InstrmtLegGrp" required="Y"/>
+            </group>
+            <group name="Instrument_Group" required="Y">
+                <component name="Instrument" required="Y"/>
+            </group>
+        </component>
+        <component name="Instrument">
+            <field name="PossResend" required="Y"/>
+            <field name="QuoteStatus" required="Y"/>
+        </component>
+        <component name="InstrumentExtensionNoInstrAttribSubGroup">
+            <field name="PossResend" required="Y"/>
+            <field name="QuoteStatus" required="N"/>
+        </component>
+    </components>
+    <fields>
+        <field number="8" name="BeginString" type="STRING" />
+        <field number="9" name="BodyLength" type="LENGTH" />
+        <field number="35" name="MsgType" type="STRING" >
+            <value enum="0" description="Heartbeat" />
+            <value enum="1" description="Logout" />
+        </field>
+        <field number="97" name="PossResend" type="BOOLEAN" >
+            <value enum="N" description="OrigTrans" />
+            <value enum="Y" description="PossResend" />
+        </field>
+        <field number="297" name="QuoteStatus" type="INT" >
+            <value enum="0" description="Accpt" />
+            <value enum="1" description="CxlSym" />
+            <value enum="10" description="Pending" />
+        </field>
+    </fields>
+</fix>
+"""
