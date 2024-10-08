@@ -54,4 +54,5 @@ class Component(EntryContainer):
 @attrs.define
 class Definitions:
     fields: dict[str, FieldDef] = attrs.field(init=False, factory=dict)
-    components: dict[str, Component] = attr.field(kw_only=True, factory=dict)
+    components: dict[str, Component] = attrs.field(kw_only=True, factory=dict)
+    header: EntryContainer = attrs.field(kw_only=True, factory=EntryContainer)
