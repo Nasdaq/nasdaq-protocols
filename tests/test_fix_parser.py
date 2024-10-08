@@ -120,14 +120,6 @@ def test__fix_parser__components_are_parsed(fix_44_definitions):
             assert field.required == field_defn[1]
             assert field.field.name == field_defn[0]
 
-    def assert_group(name, group, *fields_defn):
-        assert name == group.name
-        assert len(group.entries) == len(fields_defn)
-        for i, field_defn in enumerate(fields_defn):
-            field = group.entries[i]
-            assert field.field.name == field_defn[0]
-            assert field.required == field_defn[1]
-
     assert_component('InstrmtLegGrp', ('PossResend', False), ('QuoteStatus', False))
     assert_component('Instrument', ('PossResend', True), ('QuoteStatus', True))
     assert_component('InstrumentExtensionNoInstrAttribSubGroup', ('PossResend', True), ('QuoteStatus', False))
@@ -162,3 +154,34 @@ def test__fix_parser__trailer_is_parsed(fix_44_definitions):
     assert fix_44_definitions.trailer.entries[0].field.tag == '10'
     assert fix_44_definitions.trailer.entries[0].field.type == FixString
     assert fix_44_definitions.trailer.entries[0].required
+
+
+def test__fix_parser__message_is_parsed(fix_44_definitions):
+    assert len(fix_44_definitions.messages) == 1
+    message = fix_44_definitions.messages[0]
+
+    assert message.tag == 'A'
+    assert message.name == 'Logon'
+    assert message.category == 'Session'
+
+    assert len(message.entries) == 4
+    assert message.entries[0].field.name == 'HeartBtInt'
+    assert message.entries[0].required
+    assert message.entries[1].field.name == 'PossResend'
+    assert not message.entries[1].required
+    assert message.entries[2].field.name == 'QuoteStatus'
+    assert not message.entries[2].required
+    assert_group(
+        'Instrument_Group',
+        message.entries[3],
+        ('PossResend', True), ('QuoteStatus', True)
+    )
+
+
+def assert_group(name, group, *fields_defn):
+    assert name == group.name
+    assert len(group.entries) == len(fields_defn)
+    for i, field_defn in enumerate(fields_defn):
+        field = group.entries[i]
+        assert field.field.name == field_defn[0]
+        assert field.required == field_defn[1]

@@ -200,6 +200,15 @@ TEST_FIX_44_XML = """
     <trailer>
         <field name="CheckSum" required="Y"/>
     </trailer>
+    <messages>
+        <message name="Logon" msgtype="A" msgcat="Session">
+            <field name="HeartBtInt" required="Y"/>
+            <component name="InstrmtLegGrp" required="Y"/>
+            <group name="Instrument_Group" required="Y">
+                <component name="Instrument" required="Y"/>
+            </group>
+        </message>
+    </messages>
     <components>
         <component name="InstrmtLegGrp">
             <field name="PossResend" required="N"/>
@@ -223,6 +232,7 @@ TEST_FIX_44_XML = """
         </component>
     </components>
     <fields>
+        <field number="108" name="HeartBtInt" type="INT" />
         <field number="10" name="CheckSum" type="STRING" />
         <field number="8" name="BeginString" type="STRING" />
         <field number="9" name="BodyLength" type="LENGTH" />

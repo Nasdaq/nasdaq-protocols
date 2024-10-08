@@ -7,7 +7,9 @@ from .definitions import (
     FieldDef,
     Component,
     Field,
-    EntryContainer, Group
+    EntryContainer,
+    Group,
+    Message
 )
 from .version_types import (
     get_supported_types,
@@ -36,7 +38,8 @@ def parse(file: str) -> Definitions:
         'fields': partial(_handle_fields, get_supported_types(version)),
         'components': _handle_components,
         'header': _handle_header,
-        'trailer': _handle_trailer
+        'trailer': _handle_trailer,
+        'messages': _handle_messages
     }
     definitions = Definitions()
 
@@ -56,6 +59,19 @@ def _handle_trailer(definitions: Definitions, root, element) -> None:
     LOG.debug('parsing <trailer>')
     for entry in element:
         _handle_entry(definitions, definitions.trailer, root, entry)
+
+
+def _handle_messages(definitions: Definitions, root, element) -> None:
+    LOG.debug('parsing <messages>')
+    for msg in element:
+        message = Message(
+            tag=msg.get('msgtype'),
+            name=msg.get('name'),
+            category=msg.get('msgcat')
+        )
+        for entry in msg:
+            _handle_entry(definitions, message, root, entry)
+        definitions.messages.append(message)
 
 
 def _handle_fields(types: SupportedTypes,
