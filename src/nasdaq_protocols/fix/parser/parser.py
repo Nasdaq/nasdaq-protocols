@@ -36,6 +36,7 @@ def parse(file: str) -> Definitions:
         'fields': partial(_handle_fields, get_supported_types(version)),
         'components': _handle_components,
         'header': _handle_header,
+        'trailer': _handle_trailer
     }
     definitions = Definitions()
 
@@ -49,6 +50,12 @@ def _handle_header(definitions: Definitions, root, element) -> None:
     LOG.debug('parsing <header>')
     for entry in element:
         _handle_entry(definitions, definitions.header, root, entry)
+
+
+def _handle_trailer(definitions: Definitions, root, element) -> None:
+    LOG.debug('parsing <trailer>')
+    for entry in element:
+        _handle_entry(definitions, definitions.trailer, root, entry)
 
 
 def _handle_fields(types: SupportedTypes,

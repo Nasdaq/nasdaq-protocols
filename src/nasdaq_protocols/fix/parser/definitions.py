@@ -56,3 +56,4 @@ class Definitions:
     fields: dict[str, FieldDef] = attrs.field(init=False, factory=dict)
     components: dict[str, Component] = attrs.field(kw_only=True, factory=dict)
     header: EntryContainer = attrs.field(kw_only=True, factory=EntryContainer)
+    trailer: EntryContainer = attrs.field(kw_only=True, factory=EntryContainer)
