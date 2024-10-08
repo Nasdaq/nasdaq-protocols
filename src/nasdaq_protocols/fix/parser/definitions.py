@@ -1,6 +1,5 @@
 from typing import Any
 
-import attr
 import attrs
 
 from nasdaq_protocols.common import TypeDefinition
@@ -13,6 +12,7 @@ __all__ = [
     'Field',
     'Group',
     'Component',
+    'Message',
     'Definitions'
 ]
 
@@ -52,8 +52,16 @@ class Component(EntryContainer):
 
 
 @attrs.define
+class Message(EntryContainer):
+    tag: str
+    name: str
+    category: str
+
+
+@attrs.define
 class Definitions:
     fields: dict[str, FieldDef] = attrs.field(init=False, factory=dict)
     components: dict[str, Component] = attrs.field(kw_only=True, factory=dict)
     header: EntryContainer = attrs.field(kw_only=True, factory=EntryContainer)
     trailer: EntryContainer = attrs.field(kw_only=True, factory=EntryContainer)
+    messages: list[Message] = attrs.field(kw_only=True, factory=list)
