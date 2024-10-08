@@ -154,3 +154,11 @@ def test__fix_parser__header_is_parsed(fix_44_definitions):
     assert fix_44_definitions.header.entries[1].field.tag == '9'
     assert fix_44_definitions.header.entries[1].field.type == FixInt
     assert not fix_44_definitions.header.entries[1].required
+
+
+def test__fix_parser__trailer_is_parsed(fix_44_definitions):
+    assert len(fix_44_definitions.trailer.entries) == 1
+    assert fix_44_definitions.trailer.entries[0].field.name == 'CheckSum'
+    assert fix_44_definitions.trailer.entries[0].field.tag == '10'
+    assert fix_44_definitions.trailer.entries[0].field.type == FixString
+    assert fix_44_definitions.trailer.entries[0].required

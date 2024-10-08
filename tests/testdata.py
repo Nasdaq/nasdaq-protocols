@@ -197,6 +197,9 @@ TEST_FIX_44_XML = """
         <field name="BeginString" required="Y"/>
         <field name="BodyLength" required="N"/>
     </header>
+    <trailer>
+        <field name="CheckSum" required="Y"/>
+    </trailer>
     <components>
         <component name="InstrmtLegGrp">
             <field name="PossResend" required="N"/>
@@ -220,6 +223,7 @@ TEST_FIX_44_XML = """
         </component>
     </components>
     <fields>
+        <field number="10" name="CheckSum" type="STRING" />
         <field number="8" name="BeginString" type="STRING" />
         <field number="9" name="BodyLength" type="LENGTH" />
         <field number="35" name="MsgType" type="STRING" >
