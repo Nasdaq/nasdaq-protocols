@@ -22,6 +22,8 @@ __all__ = [
     'FixTzTime',
     'FixTzTimestamp',
     'FixDayOfMonth',
+    'FixUTCTimeOnly',
+    'FixTzTimeonly'
 ]
 
 
@@ -163,3 +165,11 @@ class FixTzTimestamp(FixString):
 @TypeDefinition.add_type('fix_day_of_month')
 class FixDayOfMonth(FixInt):
     ...
+
+
+class FixUTCTimeOnly(FixString):
+    pass
+
+
+class FixTzTimeonly(FixString):
+    pass
