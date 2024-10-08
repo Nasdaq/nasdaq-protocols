@@ -193,6 +193,10 @@ TEST_XML_MESSAGES_REPEAT = """
 
 TEST_FIX_44_XML = """
 <fix major="4" minor="4">
+    <header>
+        <field name="BeginString" required="Y"/>
+        <field name="BodyLength" required="N"/>
+    </header>
     <components>
         <component name="InstrmtLegGrp">
             <field name="PossResend" required="N"/>

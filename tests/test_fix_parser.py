@@ -142,3 +142,15 @@ def test__fix_parser__components_are_parsed(fix_44_definitions):
         fix_44_definitions.components['GroupOfComponents'].entries[1],
         ('PossResend', True), ('QuoteStatus', True)
     )
+
+
+def test__fix_parser__header_is_parsed(fix_44_definitions):
+    assert len(fix_44_definitions.header.entries) == 2
+    assert fix_44_definitions.header.entries[0].field.name == 'BeginString'
+    assert fix_44_definitions.header.entries[0].field.tag == '8'
+    assert fix_44_definitions.header.entries[0].field.type == FixString
+    assert fix_44_definitions.header.entries[0].required
+    assert fix_44_definitions.header.entries[1].field.name == 'BodyLength'
+    assert fix_44_definitions.header.entries[1].field.tag == '9'
+    assert fix_44_definitions.header.entries[1].field.type == FixInt
+    assert not fix_44_definitions.header.entries[1].required
