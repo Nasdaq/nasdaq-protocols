@@ -204,7 +204,7 @@ TEST_FIX_44_XML = """
         <message name="Logon" msgtype="A" msgcat="Session">
             <field name="HeartBtInt" required="Y"/>
             <component name="InstrmtLegGrp" required="Y"/>
-            <group name="Instrument_Group" required="Y">
+            <group name="NoStreams" required="Y">
                 <component name="Instrument" required="Y"/>
             </group>
         </message>
@@ -215,10 +215,10 @@ TEST_FIX_44_XML = """
             <field name="QuoteStatus" required="N"/>
         </component>
         <component name="GroupOfComponents">
-            <group name="InstrmtLegGrp_Group" required="N">
+            <group name="NoLegs" required="N">
                 <component name="InstrmtLegGrp" required="Y"/>
             </group>
-            <group name="Instrument_Group" required="Y">
+            <group name="NoStreams" required="Y">
                 <component name="Instrument" required="Y"/>
             </group>
         </component>
@@ -249,6 +249,8 @@ TEST_FIX_44_XML = """
             <value enum="1" description="CxlSym" />
             <value enum="10" description="Pending" />
         </field>
+        <field number="555" name="NoLegs" type="NUMINGROUP" />
+        <field number="40049" name="NoStreams" type="NUMINGROUP" />
     </fields>
 </fix>
 """

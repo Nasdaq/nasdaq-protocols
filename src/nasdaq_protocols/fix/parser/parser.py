@@ -18,6 +18,9 @@ from .version_types import (
 )
 
 
+__all__ = [
+    'parse'
+]
 LOG = logging.getLogger(__name__)
 
 

@@ -125,12 +125,12 @@ def test__fix_parser__components_are_parsed(fix_44_definitions):
     assert_component('InstrumentExtensionNoInstrAttribSubGroup', ('PossResend', True), ('QuoteStatus', False))
     assert 'GroupOfComponents' in fix_44_definitions.components
     assert_group(
-        'InstrmtLegGrp_Group',
+        'NoLegs',
         fix_44_definitions.components['GroupOfComponents'].entries[0],
         ('PossResend', False), ('QuoteStatus', False)
     )
     assert_group(
-        'Instrument_Group',
+        'NoStreams',
         fix_44_definitions.components['GroupOfComponents'].entries[1],
         ('PossResend', True), ('QuoteStatus', True)
     )
@@ -172,7 +172,7 @@ def test__fix_parser__message_is_parsed(fix_44_definitions):
     assert message.entries[2].field.name == 'QuoteStatus'
     assert not message.entries[2].required
     assert_group(
-        'Instrument_Group',
+        'NoStreams',
         message.entries[3],
         ('PossResend', True), ('QuoteStatus', True)
     )

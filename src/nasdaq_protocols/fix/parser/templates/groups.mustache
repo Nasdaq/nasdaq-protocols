@@ -1,0 +1,33 @@
+from nasdaq_protocols import fix
+from . import {{module_prefix}}_fields as fields
+
+
+{{#groups}}
+class {{unique_name}}(fix.Group):
+    Entries = [
+{{#entries}}
+    {{^is_group}}
+        fix.Entry(fields.{{field.name}}, {{required}}),
+    {{/is_group}}
+    {{#is_group}}
+        fix.Entry({{unique_name}}_List, {{required}}),
+    {{/is_group}}
+{{/entries}}
+    ]
+
+{{#entries}}
+    {{^is_group}}
+    {{field.name}}: {{field.type_hint}}
+    {{/is_group}}
+    {{#is_group}}
+    {{name}}: {{unique_name}}_List
+    {{/is_group}}
+{{/entries}}
+
+
+class {{unique_name}}_List(fix.GroupContainer, CountCls=fields.{{name}}, GroupCls={{unique_name}}):
+    def __getitem__(self, idx) -> {{unique_name}}:
+        return super({{unique_name}}_List, self).__getitem__(idx)
+
+
+{{/groups}}
