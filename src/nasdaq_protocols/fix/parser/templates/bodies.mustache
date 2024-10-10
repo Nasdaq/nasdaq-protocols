@@ -1,0 +1,29 @@
+from nasdaq_protocols import fix
+from . import {{module_prefix}}_fields as fields
+from . import {{module_prefix}}_groups as groups
+
+
+{{#bodies}}
+class {{body_name}}(fix.DataSegment):
+    Entries = [
+{{#entries}}
+    {{^is_group}}
+        fix.Entry(fields.{{field.name}}, {{required}}),
+    {{/is_group}}
+    {{#is_group}}
+        fix.Entry(groups.{{unique_name}}_List, {{required}}),
+    {{/is_group}}
+{{/entries}}
+    ]
+
+{{#entries}}
+    {{^is_group}}
+    {{field.name}}: {{field.type_hint}}
+    {{/is_group}}
+    {{#is_group}}
+    {{name}}: groups.{{unique_name}}_List
+    {{/is_group}}
+{{/entries}}
+
+
+{{/bodies}}

@@ -39,19 +39,20 @@ async def mock_server_session(unused_tcp_port):
 
 
 @pytest.fixture(scope='function')
-def codegen_invoker(tmp_path):
-    def generator(codegen, xml_content, app_name, generate_init_file, prefix):
+def codegen_invoker(capsys, tmp_path):
+    def generator(codegen, xml_content, app_name, generate_init_file, prefix, output_dir=None):
         runner = CliRunner()
-        with runner.isolated_filesystem(temp_dir=tmp_path):
+        with capsys.disabled(), runner.isolated_filesystem(temp_dir=tmp_path):
             with open('spec.xml', 'w') as spec_file:
                 spec_file.write(xml_content)
-            Path('output').mkdir(parents=True, exist_ok=True)
+            output_dir = output_dir or 'output'
+            Path(output_dir).mkdir(parents=True, exist_ok=True)
             result = runner.invoke(
                 codegen,
                 [
                     '--spec-file', 'spec.xml',
                     '--app-name', app_name,
-                    '--op-dir', 'output',
+                    '--op-dir', output_dir,
                     '--prefix', prefix,
                     '--init-file' if generate_init_file else '--no-init-file'
                 ]
@@ -60,18 +61,18 @@ def codegen_invoker(tmp_path):
 
             # Read the generated files
             generated_file_contents = {}
-            for file in os.listdir('output'):
-                with open(os.path.join('output', file)) as f:
+            for file in os.listdir(output_dir):
+                with open(os.path.join(output_dir, file)) as f:
                     generated_file_contents[file] = f.read()
             return generated_file_contents
     return generator
 
 
 @pytest.fixture(scope='function')
-def tools_codegen_invoker(tmp_path):
+def tools_codegen_invoker(capsys, tmp_path):
     def generator(codegen, app_name, package):
         runner = CliRunner()
-        with runner.isolated_filesystem(temp_dir=tmp_path):
+        with capsys.disabled(), runner.isolated_filesystem(temp_dir=tmp_path):
             Path('output').mkdir(parents=True, exist_ok=True)
             result = runner.invoke(
                 codegen,
@@ -101,3 +102,15 @@ def code_loader():
         sys.modules[module_name] = module_
         return module_
     return loader_
+
+
+@pytest.fixture(scope='session')
+def module_loader():
+    def load_module(module_name, file):
+        spec = importlib.util.spec_from_file_location(module_name, file)
+        assert spec is not None
+        generated_package = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = generated_package
+        spec.loader.exec_module(generated_package)
+        return generated_package
+    return load_module
