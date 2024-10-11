@@ -17,11 +17,9 @@ This library provides a Python implementation of the Nasdaq protocols and FIX pr
 
 Currently, the library supports the following protocols:
 1. SOUP
-
-Following protocols are planned to be implemented in this repository:
-1. OUCH
-2. ITCH
-3. FIX
+2. OUCH
+3. ITCH
+4. FIX
 
 
 Indices and tables
