@@ -75,11 +75,12 @@ class FixSession(common.AsyncSession):
         msg.validate(segments=[core.MessageSegments.BODY])
         msg.Header.SenderSubID = self.sender_sub_id
         msg.Header.TargetCompID = self.target_comp_id
+        msg.Header.SenderCompID = self.sender_comp_id
         msg.Header.MsgSeqNum = next(self.sequence)
         msg.Header.SendingTime = datetime.now(timezone.utc).strftime("%Y%m%d-%H:%M:%S")
 
         data = self._prepare_complete_msg(msg)
-        self.log.info(data)
+        self.log.debug('%s> sent message[%s]: %s', self.session_id, msg.Name, data)
         self._transport.write(data)
         self.log.debug('%s> sent message[%s]: %s', self.session_id, msg.Name, msg.as_collection())
 

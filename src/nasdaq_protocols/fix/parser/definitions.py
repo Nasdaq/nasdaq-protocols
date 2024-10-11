@@ -1,3 +1,4 @@
+import keyword
 from collections import defaultdict
 from itertools import count
 from typing import Any
@@ -18,6 +19,8 @@ __all__ = [
     'Definitions'
 ]
 
+from nasdaq_protocols.fix.parser.version_types import Version
+
 
 @attrs.define
 class FieldDef:
@@ -30,6 +33,7 @@ class FieldDef:
         output = []
         if self.possible_values:
             for key, value in self.possible_values.items():
+                value = f'{value}' if not keyword.iskeyword(value) else f'{value}_'
                 output.append({
                     'f_name': key,
                     'f_value': value,
@@ -123,6 +127,7 @@ class Message(EntryContainer):
 
 @attrs.define
 class Definitions:
+    version: Version
     fields: dict[str, FieldDef] = attrs.field(init=False, factory=dict)
     components: dict[str, Component] = attrs.field(kw_only=True, factory=dict)
     header: EntryContainer = attrs.field(kw_only=True, factory=EntryContainer)
@@ -137,6 +142,7 @@ class Definitions:
             for message in self.messages
         ]
         return {
+            'client_session': self._client_session(),
             'fields': [field.get_codegen_context(self) for field in self.fields.values()],
             'bodies': [
                           self.header.get_codegen_context(self) | {
@@ -149,3 +155,10 @@ class Definitions:
             'messages': message_context,
             'groups': Group.Contexts,  # always last, as it is dependent on other entries
         }
+
+    def _client_session(self):
+        if self.version == Version.FIX_4_4:
+            return 'Fix44Session'
+        if self.version in (Version.FIX_5_0, Version.FIX_5_0_2):
+            return 'Fix50Session'
+        raise ValueError(f'Version {self.version} is not supported')

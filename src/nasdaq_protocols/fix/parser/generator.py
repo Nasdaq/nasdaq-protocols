@@ -54,9 +54,20 @@ class Generator:
             generated_modules.append(module_name)
             generated_files.append(generated_file)
 
+        # Generate the app module
+        Generator._generate(
+            self._context,
+            os.path.join(str(TEMPLATES_PATH), 'app.mustache'),
+            os.path.join(self.op_dir, 'app.py')
+        )
+        generated_modules.append('app')
+        generated_files.append(os.path.join(self.op_dir, 'app.py'))
+
         # Generate the __init__.py file
         if self.generate_init_file:
             context = {
+                'app_name': self.app_name,
+                'client_session': self._context['client_session'],
                 'modules': [
                     {'name': module} for module in generated_modules
                 ]

@@ -31,7 +31,12 @@ def parse(file: str) -> Definitions:
     if root.tag != 'fix':
         raise ValueError('root tag is not fix')
 
-    version = int(f'{root.get("major")}{root.get("minor")}')
+    version_str = f'{root.get("major")}{root.get("minor")}'
+    servicepack = int(root.get('servicepack', '0'))
+    if servicepack > 0:
+        version_str += f'{servicepack}'
+    version = int(version_str)
+
     try:
         version = Version(version)
     except ValueError as v_error:
@@ -44,7 +49,7 @@ def parse(file: str) -> Definitions:
         'trailer': _handle_trailer,
         'messages': _handle_messages
     }
-    definitions = Definitions()
+    definitions = Definitions(version)
 
     for element in list(root)[::-1]:
         handlers[element.tag](definitions, root, element)

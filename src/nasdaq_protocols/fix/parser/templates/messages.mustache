@@ -1,16 +1,20 @@
 from nasdaq_protocols import fix
 from . import {{module_prefix}}_groups as groups
 from . import {{module_prefix}}_bodies as bodies
+from .app import Message as Message
 
 
 {{#messages}}
-class {{name}}(fix.Message,
+class {{name}}(Message,
                Name="{{name}}",
                Type="{{tag}}",
                Category="{{category}}",
                HeaderCls=bodies.Header,
                BodyCls=bodies.{{name}}Body,
                TrailerCls=bodies.Trailer):
+    Header: bodies.Header
+    Body: bodies.{{name}}Body
+    Trailer: bodies.Trailer
 {{#entries}}
     {{^is_group}}
     {{field.name}}: {{field.type_hint}}

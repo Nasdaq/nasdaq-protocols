@@ -29,7 +29,7 @@ def test__no_init_file__no_prefix__code_generated(codegen_invoker):
         prefix=prefix
     )
 
-    assert len(generated_files) == 4
+    assert len(generated_files) == 5
 
 
 def test__init_file__no_prefix__code_generated(fix_44_definitions, codegen_invoker, tmp_path, module_loader):
@@ -45,7 +45,7 @@ def test__init_file__no_prefix__code_generated(fix_44_definitions, codegen_invok
         output_dir=output_dir
     )
 
-    assert len(generated_files) == 5
+    assert len(generated_files) == 6
 
     # This ensures the generated code is correct
     generated_package = module_loader('test__init_file__no_prefix__code_generated', output_dir / '__init__.py')

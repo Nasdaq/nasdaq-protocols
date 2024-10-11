@@ -192,7 +192,7 @@ TEST_XML_MESSAGES_REPEAT = """
 
 
 TEST_FIX_44_XML = """
-<fix major="4" minor="4">
+<fix major="4" minor="4" servicepack="0">
     <header>
         <field name="BeginString" required="Y"/>
         <field name="BodyLength" required="N"/>
