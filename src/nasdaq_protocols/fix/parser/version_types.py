@@ -16,7 +16,7 @@ class Version(enum.IntEnum):
     FIX_4_2 = 42
     FIX_4_4 = 44
     FIX_5_0 = 50
-    FIX_5_2 = 52
+    FIX_5_0_2 = 502
 
 
 def get_supported_types(version: Version) -> SupportedTypes:
@@ -24,7 +24,7 @@ def get_supported_types(version: Version) -> SupportedTypes:
         Version.FIX_4_2: fix_42_version_types,
         Version.FIX_4_4: fix_44_version_types,
         Version.FIX_5_0: fix_50_version_types,
-        Version.FIX_5_2: fix_52_version_types
+        Version.FIX_5_0_2: fix_502_version_types
     }
     try:
         return version_map[version]()
@@ -81,10 +81,11 @@ def fix_50_version_types():
     return fix_50_types
 
 
-def fix_52_version_types():
+def fix_502_version_types():
     fix_52_types = fix_50_version_types()
     fix_52_types.update({
         'LOCALMKTDATE': types.FixLocalMktDate,
-        'TZTIMEONLY': types.FixTzTimeonly
+        'TZTIMEONLY': types.FixTzTimeonly,
+        'MULTIPLESTRINGVALUE': types.FixMultipleValueString,
     })
     return fix_52_types

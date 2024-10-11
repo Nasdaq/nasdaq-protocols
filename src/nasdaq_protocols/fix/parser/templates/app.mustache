@@ -1,0 +1,34 @@
+from nasdaq_protocols.common import logable
+from nasdaq_protocols import fix
+
+
+@logable
+class Message(fix.Message, app_name='{{app_name}}'):
+    def __init_subclass__(cls, **kwargs):
+        cls.log.debug("{{app_name}} Message subclassed")
+        for field in fix.Message.MandatoryFields:
+            if field not in kwargs:
+                raise ValueError(f"{field} missing when subclassing Message[{{app_name}}]")
+        kwargs['app_name'] = '{{app_name}}'
+        super().__init_subclass__(**kwargs)
+
+
+class ClientSession(fix.{{client_session}}):
+    @classmethod
+    def decode(cls, data: bytes) -> fix.Message:
+        return Message.from_bytes(data)
+
+
+async def connect_async(remote: tuple[str, int],
+                        login_msg: Message,
+                        on_msg_coro = None,
+                        on_close_coro = None,
+                        client_heartbeat_interval: int = 10,
+                        server_heartbeat_interval: int = 10) -> fix.FixSession:
+    session = ClientSession(
+        on_msg_coro=on_msg_coro,
+        on_close_coro=on_close_coro,
+        client_heartbeat_interval=client_heartbeat_interval,
+        server_heartbeat_interval=server_heartbeat_interval
+    )
+    return await fix.connect_async(remote, login_msg, lambda: session)

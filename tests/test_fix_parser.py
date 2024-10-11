@@ -96,6 +96,37 @@ def test__fix_parser__parse__field_not_found(tmp_file_writer):
     assert str(e.value) == 'Field definition for NotFound not found'
 
 
+def test__fix_parser__parse__xml_with_service_pack(tmp_file_writer):
+    fix_502 = '''
+    <fix major="5" minor="0" servicepack="2">
+    </fix>
+    '''
+    file = tmp_file_writer(fix_502)
+
+    definitions = parse(file)
+    assert definitions.version == 502
+
+
+def test__fix_parser__parse__xml_with_keywords__keywords_are_transformed(tmp_file_writer):
+    fix_502 = '''
+    <fix major="5" minor="0" servicepack="2">
+        <fields>
+            <field number="35" name="MsgType" type="STRING" >
+                <value enum="0" description="None" />
+                <value enum="1" description="if" />
+            </field>
+        </fields>
+    </fix>
+    '''
+    file = tmp_file_writer(fix_502)
+
+    definitions = parse(file)
+    assert definitions.version == 502
+    context = definitions.fields['MsgType'].get_codegen_context(None)
+    assert context['values'][0]['f_value'] == 'None_'
+    assert context['values'][1]['f_value'] == 'if_'
+
+
 def test__fix_parser__fields_are_parsed(fix_44_definitions):
     def assert_field(name, tag, typ, total_possible_values):
         assert name in fix_44_definitions.fields

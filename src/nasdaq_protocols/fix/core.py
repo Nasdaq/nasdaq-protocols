@@ -1,6 +1,6 @@
 import abc
 import pprint
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from enum import Enum
 from typing import ClassVar, Any, Type, TypeVar, Union
 
@@ -376,15 +376,31 @@ class GroupContainer(FixSerializable):
 
 
 class Message(FixSerializable):
+    MsgIdToClsMap: ClassVar[dict] = defaultdict(dict)
+    MsgNameToMsgMap: ClassVar[dict] = defaultdict(dict)
     Type: ClassVar[int]
     Name: ClassVar[str]
     Category: ClassVar[str]
     SegmentCls: ClassVar[dict[MessageSegments, type[DataSegment]]]
+    AppName: ClassVar[str]
 
     Def = {}
+    MandatoryFields = [
+        'Name',
+        'Type',
+        'Category',
+        'HeaderCls',
+        'TrailerCls',
+        'BodyCls',
+    ]
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
+        for field in cls.MandatoryFields:
+            if field not in kwargs:
+                return
+        app_name = kwargs.get('app_name', 'fix')
+        cls.AppName = app_name
         cls.Name = kwargs['Name']
         cls.Type = kwargs['Type']
         cls.Category = kwargs['Category']
