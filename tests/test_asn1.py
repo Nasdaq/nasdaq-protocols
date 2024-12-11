@@ -1,0 +1,64 @@
+import logging
+from nasdaq_protocols.common import asn1
+
+LOG = logging.getLogger(__name__)
+example_po = bytearray([
+    0xA0, 0x6E, 0x0C, 0x08, 0x32, 0x30, 0x32, 0x33,
+    0x30, 0x35, 0x30, 0x31, 0xA1, 0x3E, 0x0C, 0x0A,
+    0x4D, 0x79, 0x43, 0x6F, 0x6D, 0x70, 0x61, 0x6E,
+    0x79, 0xA2, 0x3C, 0x0C, 0x0C, 0x31, 0x32, 0x33,
+    0x20, 0x4D, 0x61, 0x69, 0x6E, 0x20, 0x53, 0x74,
+    0x0C, 0x0C, 0x54, 0x6F, 0x77, 0x6E, 0x73, 0x76,
+    0x69, 0x6C, 0x6C, 0x65, 0x0C, 0x02, 0x4E, 0x59,
+    0x0C, 0x05, 0x31, 0x32, 0x33, 0x34, 0x35, 0x0C,
+    0x07, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
+    0xA3, 0x0A, 0xA4, 0x2A, 0x02, 0x02, 0x30, 0x39,
+    0x0C, 0x05, 0x42, 0x6C, 0x61, 0x63, 0x6B, 0x02,
+    0x01, 0xDC, 0x02, 0x01, 0x0A, 0x02, 0x01, 0x02,
+    0x09, 0x02, 0x99, 0x99, 0x01, 0x01, 0x01
+])
+
+
+class PurchaseOrder(asn1.Asn1Spec,
+                    spec_name='purchase_order',
+                    spec_pkg_dir='nasdaq_protocols.common.asn1.example'):
+
+    @classmethod
+    def from_bytes(cls, bytes_: bytes):
+        return cls.Spec.decode("MyCompanyAutomation", bytes_)
+
+
+def to_hex(bytes_: bytes):
+    return ''.join('{:02x}'.format(x) for x in bytes_)
+
+
+def test_example():
+    #po = PurchaseOrder.from_bytes(bytes(example_po))
+    #assert po is not None
+    #LOG.info(po)
+    dict_ = ('purchaseOrder', {
+            'dateOfOrder': '20230501',
+            'customer': {
+                'companyName': 'MyCompany',
+                'billingAddress': {
+                    'street': '123 Main',
+                    'city': 'Townsville',
+                    'state': 'NY',
+                    'zipCode': '12345',
+                },
+                'contactPhone': '1234567',
+            },
+            'items': [
+                {
+                    'itemCode': 1,
+                    'color': 'Black',
+                    'power': 110
+                }
+            ]
+        })
+
+
+    po = PurchaseOrder.Spec.encode('MyCompanyAutomation', dict_)
+    LOG.info(to_hex(po))
+    decoded = PurchaseOrder.from_bytes(po)
+    LOG.info(decoded)

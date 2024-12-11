@@ -1,0 +1,15 @@
+class {{name}}(asn1.Asn1Choice):
+    Fields = {
+{{#members}}
+        '{{name}}': {{type}},
+{{/members}}
+    }
+
+{{#members}}
+    def has_{{name}}(self) -> bool:
+        return '{{name}}' in self
+
+{{/members}}
+{{#members}}
+    {{name}}: {{type}}
+{{/members}}

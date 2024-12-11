@@ -1,0 +1,4 @@
+class {{name}}(asn1.Asn1Enum):
+{{#values}}
+    {{name}} = {{#quote}}'{{/quote}}{{value}}{{#quote}}'{{/quote}}
+{{/values}}
