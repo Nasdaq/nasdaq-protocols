@@ -1,0 +1,64 @@
+from typing import Callable, Awaitable, Type
+
+from nasdaq_protocols.common import logable, asn1
+from nasdaq_protocols import asn1_app
+
+__all__ = [
+{{#types}}
+    '{{name}}',
+{{/types}}
+    'Message',
+    'SoupClientSession',
+    'connect_async_soup'
+]
+
+
+{{#types}}
+{{#enum}}
+{{> enum}}
+
+
+{{/enum}}
+{{#choice}}
+{{> choice}}
+
+
+{{/choice}}
+{{#sequence}}
+{{> sequence}}
+
+
+{{/sequence}}
+{{#bitstring}}
+{{> bitstring}}
+
+
+{{/bitstring}}
+{{/types}}
+{{> spec}}
+
+
+@logable
+class Message(asn1.Asn1Message, spec={{spec.capitalised_name}}, pdu_name='{{pdu_name}}'):
+    ...
+
+
+class SoupClientSession(asn1_app.Asn1SoupClientSession, asn1_message=Message):
+    ...
+
+
+async def connect_async_soup(remote: tuple[str, int], user: str, passwd: str, session_id,
+                             sequence: int = 0,
+                             on_msg_coro: Callable[[Type[asn1.Asn1Message]], Awaitable[None]] = None,
+                             on_close_coro: Callable[[], Awaitable[None]] = None,
+                             client_heartbeat_interval: int = 10,
+                             server_heartbeat_interval: int = 10) -> SoupClientSession:
+    def session_factory(x):
+        return SoupClientSession(x, on_msg_coro=on_msg_coro, on_close_coro=on_close_coro)
+
+    return await asn1_app.connect_async_soup(
+        remote, user, passwd, session_id, session_factory,
+        sequence,
+        client_heartbeat_interval, server_heartbeat_interval
+    )
+

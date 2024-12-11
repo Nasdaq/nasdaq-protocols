@@ -288,3 +288,50 @@ TEST_SQF_MESSAGES = """
     </messages-root>
 </root>
 """
+
+
+TEST_ASN1_SPEC = """
+MyShopPurchaseOrders DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+
+
+MyCompanyAutomation ::= CHOICE {
+  purchaseOrder  [0] PurchaseOrder,
+  purchaseQuote  [1] PurchaseQuote
+}
+
+
+PurchaseQuote ::= SEQUENCE {
+    quoteId    INTEGER,
+    itemName   VisibleString (SIZE (1..50)),
+    itemPrice  INTEGER (1..99999),
+    itemQty    INTEGER (1..100)
+}
+
+PurchaseOrder ::= SEQUENCE {
+  dateOfOrder NumericString,
+  customer    CustomerInfo,
+  items       ListOfItems
+}
+
+CustomerInfo ::= SEQUENCE {
+  companyName    VisibleString (SIZE (3..50)),
+  billingAddress Address,
+  contactPhone   NumericString (SIZE (7..12))
+}
+
+Address::= SEQUENCE {
+  street  VisibleString (SIZE (5 .. 50)) OPTIONAL,
+  city    VisibleString (SIZE (2..30)),
+  state   VisibleString (SIZE(2) ^ FROM ("A".."Z")),
+  zipCode NumericString (SIZE(5 | 9))
+}
+
+ListOfItems ::= SEQUENCE (SIZE (1..100)) OF Item
+
+Item ::= SEQUENCE {
+  itemCode        INTEGER (1..99999),
+  color           VisibleString ("Black" | "Blue" | "Brown"),
+  power           INTEGER (110 | 220)
+}
+END
+"""
