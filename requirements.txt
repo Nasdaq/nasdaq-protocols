@@ -3,4 +3,6 @@ chevron>=0.14.0
 click>=8.1
 pytest>=8.3
 pytest-cov>=4
+asn1>=2.6
+asn1tools==0.164.0
 pytest-asyncio>=0.23

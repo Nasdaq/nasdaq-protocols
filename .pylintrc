@@ -17,3 +17,4 @@ disable=
     R0801, #similarities
     R0913, #too-many-arguments
     R0917, #too-many-positional-arguments
+    W1203, #logging-fstring-interpolation

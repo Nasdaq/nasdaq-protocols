@@ -30,7 +30,9 @@ class SyncExecutor:
 
     def __attrs_post_init__(self):
         self._event_loop = asyncio.new_event_loop()
-        self._thread = threading.Thread(name=f'sync-executor-{self.name}', target=SyncExecutor._work, args=(self._event_loop,))
+        self._thread = threading.Thread(
+            name=f'sync-executor-{self.name}', target=SyncExecutor._work, args=(self._event_loop,)
+        )
         self._thread.start()
         self.log.info(f'SyncExecutor[{self.name}] started, thread: {self._thread.ident}')
 

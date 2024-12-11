@@ -16,7 +16,9 @@ classifiers = [
 dependencies = [
     'attrs>=23.1',
     'chevron>=0.14.0',
-    'click>=8.1'
+    'click>=8.1',
+    'asn1>=2.6',
+    'asn1tools==0.164.0'
 ]
 dynamic = ["version"]
 

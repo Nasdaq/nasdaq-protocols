@@ -22,7 +22,8 @@ class TestParams:
     server_session: MockServerSession
     connector: callable
     session_factory: callable
-    msg_factory: callable
+    in_msg_factory: callable
+    out_msg_factory: callable
 
 
 def test_params(*args, **kwargs):
@@ -90,11 +91,12 @@ async def connect_async__valid_credentials__session_is_created(params: TestParam
 
 @soup_test
 async def client_session__no_handlers__able_to_receive_message(params: TestParams):
-    expected_messages = [params.msg_factory(i) for i in range(10)]
+    input_messages = [params.in_msg_factory(i) for i in range(10)]
+    expected_messages = [params.out_msg_factory(i) for i in range(10)]
 
     client_session = await connect_to_soup_server(params.port, params.server_session, params.connector)
 
-    for i, msg in enumerate(expected_messages):
+    for i, msg in enumerate(input_messages):
         params.server_session.send(sequenced(msg))
 
     for id_ in range(len(expected_messages)):
@@ -107,7 +109,8 @@ async def client_session__no_handlers__able_to_receive_message(params: TestParam
 
 @soup_test
 async def client_session__on_msg_coro__coro_is_called(params: TestParams):
-    expected_messages = [params.msg_factory(i) for i in range(1)]
+    input_messages = [params.in_msg_factory(i) for i in range(1)]
+    expected_messages = [params.out_msg_factory(i) for i in range(1)]
     closed = asyncio.Event()
     all_messages_received = asyncio.Event()
 
@@ -126,7 +129,7 @@ async def client_session__on_msg_coro__coro_is_called(params: TestParams):
         session_factory=lambda x: params.session_factory(x, on_msg_coro=on_msg, on_close_coro=on_close)
     )
 
-    for msg in expected_messages:
+    for msg in input_messages:
         params.server_session.send(sequenced(msg))
 
     await asyncio.wait_for(all_messages_received.wait(), 5)
@@ -177,10 +180,10 @@ async def client_session__on_close_coro__coro_is_called(params: TestParams):
 
 @soup_test
 async def client_session__server_closed__session_is_closed(params: TestParams):
-    close_called = asyncio.Queue()
+    close_called = asyncio.Event()
 
     async def on_close():
-        close_called.put_nowait(True)
+        close_called.set()
 
     client_session = await connect_to_soup_server(
         params.port,
@@ -191,8 +194,62 @@ async def client_session__server_closed__session_is_closed(params: TestParams):
 
     params.server_session.close()
 
-    closed = await asyncio.wait_for(close_called.get(), 5)
+    closed = await asyncio.wait_for(close_called.wait(), 5)
     assert closed is True
+    assert client_session.closed is True
+
+
+@soup_test
+async def client_session__attempting_to_double_close__session_is_closed(params: TestParams):
+    close_called = asyncio.Event()
+    can_complete_close = asyncio.Event()
+
+    async def on_close():
+        close_called.set()
+        await can_complete_close.wait()
+
+    client_session = await connect_to_soup_server(
+        params.port,
+        params.server_session,
+        params.connector,
+        session_factory=lambda x: params.session_factory(x, on_close_coro=on_close)
+    )
+
+    closing_task = asyncio.create_task(client_session.close())
+
+    # make sure client is blocked in on_close
+    # basically, client is in closing state
+    await close_called.wait()
+
+    # try to close again
+    # this is the actual test, this should not block
+    await client_session.close()
+
+    # unblock the client and wait for the first close to finish
+    can_complete_close.set()
+    await closing_task
+
+    assert client_session.closed is True
+
+@soup_test
+async def client_session__closing_an_closed_session__close_coro_is_not_called_again(params: TestParams):
+    close_called = asyncio.Event()
+
+    async def on_close():
+        assert not close_called.is_set(), 'close coro called twice'
+        close_called.set()
+
+    client_session = await connect_to_soup_server(
+        params.port,
+        params.server_session,
+        params.connector,
+        session_factory=lambda x: params.session_factory(x, on_close_coro=on_close)
+    )
+
+    await client_session.close()
+    assert client_session.closed is True
+
+    await client_session.close()
     assert client_session.closed is True
 
 
@@ -200,7 +257,7 @@ async def client_session__server_closed__session_is_closed(params: TestParams):
 async def soup_clientapp_common_tests(request, mock_server_session):
     port, server_session = mock_server_session
 
-    async def _test(connector, session_factory, msg_factory):
+    async def _test(connector, session_factory, msg_factory, out_msg_factory=None):
         # every test is executed here.
         await request.param(
             params=TestParams(
@@ -208,7 +265,8 @@ async def soup_clientapp_common_tests(request, mock_server_session):
                 server_session=server_session,
                 connector=connector,
                 session_factory=session_factory,
-                msg_factory=msg_factory
+                in_msg_factory=msg_factory,
+                out_msg_factory=out_msg_factory or msg_factory
             )
         )
 
