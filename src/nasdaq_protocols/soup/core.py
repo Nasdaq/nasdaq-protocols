@@ -4,7 +4,7 @@ soup messages.
 """
 import enum
 import struct
-from typing import Type
+from typing import Type, Union
 
 import attrs
 from nasdaq_protocols import common
@@ -76,7 +76,7 @@ class SoupMessage(common.Serializable['SoupMessage']):
         return len(bytes_), bytes_
 
     @classmethod
-    def from_bytes(cls, bytes_) -> tuple[int, Type['SoupMessage']]:
+    def from_bytes(cls, bytes_) -> tuple[int, Union[type['SoupMessage'], 'SoupMessage']]:
         """
         unpacks the bytes to the corresponding soup message
 

@@ -93,6 +93,7 @@ class HeartbeatMonitor(Stoppable):
 
 
 @attrs.define(auto_attribs=True)
+@logable
 class Reader(Stoppable):
     """Abstract Base class for readers.
 
@@ -106,10 +107,61 @@ class Reader(Stoppable):
     session_id: Any = attrs.field(validator=Validators.not_none())
     on_msg_coro: OnMsgCoro = attrs.field(validator=Validators.not_none())
     on_close_coro: OnCloseCoro = attrs.field(validator=Validators.not_none())
+    _buffer: bytearray = attrs.field(init=False, factory=bytearray)
+    _task: asyncio.Task = attrs.field(init=False, default=None)
+    _stopped: bool = attrs.field(init=False, default=False)
+
+    def __attrs_post_init__(self):
+        self._task = asyncio.create_task(self._process(), name=f'reader:{self.session_id}')
+
+    def on_data(self, data: bytes):
+        self.log.debug('%s> on_data: existing = %s, received = %s', self.session_id, self._buffer, data)
+        if len(data) == 0:
+            return
+        self._buffer.extend(data)
+
+    async def stop(self):
+        if self._stopped:
+            return
+        await stop_task(self._task)
+        await self.on_close_coro()
+        self._stopped = True
+        self.log.debug('%s> stopped.', self.session_id)
+
+    def is_stopped(self):
+        return self._stopped
+
+    async def _process(self):
+        while not self._stopped:
+            if len(self._buffer) > 0:
+                await self._process_1()
+            await asyncio.sleep(0.0001)
+
+    async def _process_1(self):
+        msg, stop, skip = self.deserialize()
+
+        if stop:
+            self.log.debug('%s> stopping reader', self.session_id)
+            await self.stop()
+            return
+
+        if msg is None or skip:
+            self.log.debug('%s> skipping message %s', self.session_id, str(msg))
+            return
+
+        self.log.debug('%s> dispatching message %s', self.session_id, str(msg))
+        try:
+            await self.on_msg_coro(msg)
+        except Exception:  # pylint: disable=broad-except
+            await self.stop()
 
     @abc.abstractmethod
-    async def on_data(self, data: bytes):
-        """Called when data is received from the transport."""
+    def deserialize(self) -> tuple[Any, bool, bool]:
+        """
+        Deserialize the buffer and return the message.
+
+        :return: tuple of message, stop reader, skip message
+        """
 
 
 @attrs.define(auto_attribs=True)
@@ -152,7 +204,6 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
     _transport: asyncio.Transport = attrs.field(init=False, default=None)
     _closed: bool = attrs.field(init=False, default=False)
     _closing_task: asyncio.Task = attrs.field(init=False, default=None)
-    _reader_task: asyncio.Task = attrs.field(init=False, default=None)
     _local_hb_monitor: HeartbeatMonitor = attrs.field(init=False, default=None)
     _remote_hb_monitor: HeartbeatMonitor = attrs.field(init=False, default=None)
     _msg_queue: DispatchableMessageQueue = attrs.field(init=False, default=None)
@@ -214,8 +265,7 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
                 self._msg_queue,
                 self._local_hb_monitor,
                 self._remote_hb_monitor,
-                self._reader,
-                self._reader_task
+                self._reader
             ])
             if self._transport:
                 self._transport.close()
@@ -279,8 +329,7 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
         """
         if self._remote_hb_monitor:
             self._remote_hb_monitor.ping()
-        self._reader_task = asyncio.create_task(self._reader.on_data(data),
-                                                name=f'asyncsession-ondata:{self.session_id}')
+        self._reader.on_data(data)
 
     def connection_lost(self, exc):
         """

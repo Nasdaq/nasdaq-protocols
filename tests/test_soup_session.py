@@ -39,6 +39,11 @@ def configure_login_accept(server_session):
     return server_session
 
 
+async def wait_for_session_close(client_session):
+    while not client_session.is_closed():
+        await asyncio.sleep(0.1)
+
+
 async def test__soup_session__invalid_credentials__login_rejected(mock_server_session):
     port, server_session = mock_server_session
 
@@ -72,6 +77,8 @@ async def test__soup_session__valid_credentials__login_accepted(mock_server_sess
 
     client_session.logout()
 
+    await wait_for_session_close(client_session)
+
 
 async def test__soup_session__able_to_communicate(mock_server_session):
     port, server_session = mock_server_session
@@ -102,6 +109,8 @@ async def test__soup_session__able_to_communicate(mock_server_session):
 
     client_session.logout()
 
+    await wait_for_session_close(client_session)
+
 
 async def test__soup_session__sending_debug_from_client(mock_server_session):
     port, server_session = mock_server_session
@@ -128,6 +137,7 @@ async def test__soup_session__sending_debug_from_client(mock_server_session):
     assert reply.data == f'{test_data}-ack'.encode('ascii')
 
     client_session.logout()
+    await wait_for_session_close(client_session)
 
 
 async def test__soup_session__with_dispatcher__dispatcher_invoked(mock_server_session):
@@ -183,6 +193,7 @@ async def test__soup_session__with_dispatcher__dispatcher_invoked(mock_server_se
     client_session.send_debug('end')
     await asyncio.wait_for(closed.wait(), 1)
     assert client_session.is_closed()
+    await wait_for_session_close(client_session)
 
 
 def test__soup_session__session_with_no_session_type():
@@ -202,6 +213,8 @@ async def test__soup_session__login_message_server_session():
     assert len(server_session.output_sent) == 1
     assert isinstance(server_session.output_sent[0], LoginAccepted)
 
+    await server_session.close()
+
 
 async def test__soup_session__unsequenced_msg__server_session():
     server_session = SampleTestSourServerSession()
@@ -217,6 +230,7 @@ async def test__soup_session__unsequenced_msg__server_session():
     )
     assert len(server_session.output_sent) == 2
     assert isinstance(server_session.output_sent[1], soup.SequencedData)
+    await server_session.close()
 
 
 async def test__soup_session__send_debug():
@@ -225,6 +239,7 @@ async def test__soup_session__send_debug():
         soup.Debug('hello')
     )
     assert len(server_session.output_sent) == 0
+    await server_session.close()
 
 
 async def test__soup_session__send_heartbeat():
@@ -232,6 +247,7 @@ async def test__soup_session__send_heartbeat():
     await server_session.send_heartbeat()
     assert len(server_session.output_sent) == 1
     assert isinstance(server_session.output_sent[0], soup.ServerHeartbeat)
+    await server_session.close()
 
 
 async def test__soup_session__end_session():
@@ -239,6 +255,7 @@ async def test__soup_session__end_session():
     server_session.end_session()
     assert len(server_session.output_sent) == 1
     assert isinstance(server_session.output_sent[0], soup.EndOfSession)
+    await server_session.close()
 
 
 async def test__soup_session__send_logout():

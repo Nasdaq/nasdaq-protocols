@@ -22,7 +22,7 @@ def output_factory(id_):
     return MESSAGES[id_]
 
 
-async def test__fix_reader__all_basic_tests_pass(reader_clientapp_common_tests):
+async def test__soup_reader__all_basic_tests_pass(reader_clientapp_common_tests):
     await reader_clientapp_common_tests(
         SoupMessageReader,
         input_factory,

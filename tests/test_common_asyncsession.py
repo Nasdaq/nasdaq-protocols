@@ -12,16 +12,8 @@ LOG = logging.getLogger(__name__)
 
 @attrs.define(auto_attribs=True)
 class SampleTestReader(common.Reader):
-    stopped: bool = False
-
-    async def stop(self):
-        self.stopped = True
-
-    def is_stopped(self):
-        return self.stopped
-
-    async def on_data(self, data: bytes):
-        await asyncio.create_task(self.on_msg_coro(data.decode('ascii')))
+    def deserialize(self) -> Any:
+        return self._buffer.decode('ascii'), False, False
 
     @staticmethod
     def create(session_id, on_msg, on_close):

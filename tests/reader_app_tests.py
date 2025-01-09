@@ -64,10 +64,10 @@ async def reader__one_msg_per_packet__msg_is_read(**kwargs):
     handler, reader, input_factory, output_factory = all_test_params(**kwargs)
 
     bytes_ = input_factory(1)
-    await reader.on_data(bytes_)
+    reader.on_data(bytes_)
 
     bytes_ = input_factory(2)
-    await reader.on_data(bytes_)
+    reader.on_data(bytes_)
 
     msg1 = await handler.received_messages.get()
     assert msg1 == output_factory(1), f'{msg1} != {output_factory(1)}'
@@ -75,19 +75,23 @@ async def reader__one_msg_per_packet__msg_is_read(**kwargs):
     msg2 = await handler.received_messages.get()
     assert msg2 == output_factory(2), f'{msg2} != {output_factory(2)}'
 
+    await reader.stop()
+
 
 @reader_test
 async def _reader__multiple_msgs_per_packet__all_msgs_read(**kwargs):
     handler, reader, input_factory, output_factory = all_test_params(**kwargs)
 
     input_ = input_factory(1) + input_factory(2)
-    await reader.on_data(input_)
+    reader.on_data(input_)
 
     msg1 = await handler.received_messages.get()
     assert msg1 == output_factory(1)
 
     msg2 = await handler.received_messages.get()
     assert msg2 == output_factory(2)
+
+    await reader.stop()
 
 
 @reader_test
@@ -97,17 +101,19 @@ async def reader__one_msg_in_multiple_packets__msg_is_read(**kwargs):
     bytes_ = input_factory(1)
     # Send in the bytes one by one except the last one.
     for byte_ in bytes_[:-1]:
-        await reader.on_data(bytes([byte_]))
+        reader.on_data(bytes([byte_]))
         await asyncio.sleep(0.001)
         with pytest.raises(asyncio.QueueEmpty):
             _ = handler.received_messages.get_nowait()
 
     # Feed in the last byte and the message is formed and dispatched.
     bytes_ = input_factory(1)
-    await reader.on_data(bytes([bytes_[-1]]))
+    reader.on_data(bytes([bytes_[-1]]))
     msg = await handler.received_messages.get()
 
     assert msg == output_factory(1)
+
+    await reader.stop()
 
 
 @reader_test
@@ -115,7 +121,7 @@ async def reader__end_of_session__reader_is_stopped(**kwargs):
     handler, reader, input_factory, output_factory = all_test_params(**kwargs)
 
     bytes_ = input_factory(0)
-    await reader.on_data(bytes_)
+    reader.on_data(bytes_)
 
     await handler.closed.wait()
     assert handler.closed.is_set()
@@ -128,7 +134,7 @@ async def reader__handler_raises_exception__reader_is_stopped(**kwargs):
     # Cross wire reader's on_msg_coro to throw an exception
     reader.on_msg_coro = MagicMock(side_effect=KeyError('test'))
     bytes_ = input_factory(1)
-    await reader.on_data(bytes_)
+    reader.on_data(bytes_)
 
     await handler.closed.wait()
     assert handler.closed.is_set()
@@ -137,7 +143,9 @@ async def reader__handler_raises_exception__reader_is_stopped(**kwargs):
 @reader_test
 async def reader__empty_data__no_effect(**kwargs):
     handler, reader, input_factory, output_factory = all_test_params(**kwargs)
-    await reader.on_data(b'')
+    reader.on_data(b'')
+
+    await reader.stop()
 
 
 @pytest.fixture(scope='function', params=READER_TESTS)

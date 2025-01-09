@@ -106,9 +106,12 @@ async def client_session__on_msg_coro__coro_is_called(**kwargs):
     session_factory, msg_factory = test_params('session_factory', 'msg_factory', **kwargs)
     expected_messages = [msg_factory(i) for i in range(1)]
     closed = asyncio.Event()
+    all_messages_received = asyncio.Event()
 
     async def on_msg(msg):
         assert msg == expected_messages.pop(0)
+        if len(expected_messages) == 0:
+            all_messages_received.set()
 
     async def on_close():
         closed.set()
@@ -122,11 +125,11 @@ async def client_session__on_msg_coro__coro_is_called(**kwargs):
 
     for msg in expected_messages:
         server_session.send(sequenced(msg))
+
+    await asyncio.wait_for(all_messages_received.wait(), 5)
     server_session.close()
 
     await asyncio.wait_for(closed.wait(), 5)
-
-    assert len(expected_messages) == 0
     assert client_session.closed is True
 
 
