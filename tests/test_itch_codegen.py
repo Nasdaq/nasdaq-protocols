@@ -1,11 +1,11 @@
 import pytest
 
 from nasdaq_protocols.itch import codegen
+from .soup_app_codegen_tests import soup_clientapp_codegen_tests
 from .soup_client_app_tests import soup_clientapp_common_tests
 from .testdata import *
 
 
-APP_NAME = 'test'
 EXPECTED_GENERATED_CODE = """
 from enum import Enum
 from typing import Callable, Awaitable, Type
@@ -97,92 +97,33 @@ def load_generated_itch_code(code_loader):
     yield module
 
 
-def test__no_init_file__no_prefix__code_generated(codegen_invoker):
-    prefix = ''
-    expected_file_name = f'itch_{APP_NAME}.py'
-    generated_files = codegen_invoker(
-        codegen.generate,
-        TEST_XML_ITCH_MESSAGE,
-        APP_NAME,
-        generate_init_file=False,
-        prefix=prefix
-    )
-
-    assert len(generated_files) == 1
-    assert expected_file_name in generated_files
-    assert generated_files[expected_file_name].strip() == EXPECTED_GENERATED_CODE.strip()
-
-
-def test__init_file__no_prefix__code_generated(codegen_invoker):
-    prefix = ''
-    expected_file_name = f'itch_{APP_NAME}.py'
-    generated_files = codegen_invoker(
-        codegen.generate,
-        TEST_XML_ITCH_MESSAGE,
-        APP_NAME,
-        generate_init_file=True,
-        prefix=prefix
-    )
-
-    assert len(generated_files) == 2
-
-    assert expected_file_name in generated_files
-    assert generated_files[expected_file_name].strip() == EXPECTED_GENERATED_CODE.strip()
-
-    assert '__init__.py' in generated_files
-    assert generated_files['__init__.py'].strip() == 'from .itch_test import *'
-
-
-def test__init_file__with_prefix__code_generated(codegen_invoker):
-    prefix = 'test'
-    expected_file_name = f'test_itch_{APP_NAME}.py'
-    generated_files = codegen_invoker(
-        codegen.generate,
-        TEST_XML_ITCH_MESSAGE,
-        APP_NAME,
-        generate_init_file=True,
-        prefix=prefix
-    )
-
-    assert len(generated_files) == 2
-
-    assert expected_file_name in generated_files
-    assert generated_files[expected_file_name].strip() == EXPECTED_GENERATED_CODE.strip()
-
-    assert '__init__.py' in generated_files
-    assert generated_files['__init__.py'].strip() == 'from .test_itch_test import *'
-
-
-def test__load_generated_code__code_loads_without_issue(load_generated_itch_code):
-    assert load_generated_itch_code is not None
-
-
-def test__tools_codegen__code_generated(tools_codegen_invoker):
-    package = 'test'
-    app_name = 'test'
-    expected_file_name = f'itch_{app_name}_tools.py'
-    generated_files = tools_codegen_invoker(
-        codegen.generate_itch_tools,
-        app_name,
-        package
-    )
-
-    assert len(generated_files) == 1
-    assert expected_file_name in generated_files
-
-
-async def test__connect__using_generated_code(load_generated_itch_code, soup_clientapp_common_tests):
+@pytest.fixture(scope='session')
+def msg_factory(load_generated_itch_code):
     module = load_generated_itch_code
 
-    def msg_factory(i):
+    def _factory(i):
         msg = module.TestMessage1()
         msg.field1 = i
         msg.field2 = 'a'
         msg.field3 = 'ab'
         return msg
+    yield _factory
 
+
+async def test__itch__soup_clientapp_codegen_tests(load_generated_itch_code, soup_clientapp_codegen_tests):
+    await soup_clientapp_codegen_tests(
+        'itch',
+        'test',
+        codegen.generate,
+        TEST_XML_ITCH_MESSAGE,
+        EXPECTED_GENERATED_CODE,
+        load_generated_itch_code,
+    )
+
+
+async def test__itch__soup_clientapp_common_tests__using_generated_code(load_generated_itch_code, msg_factory, soup_clientapp_common_tests):
     await soup_clientapp_common_tests(
-        module.connect_async,
-        module.ClientSession,
+        load_generated_itch_code.connect_async,
+        load_generated_itch_code.ClientSession,
         msg_factory,
     )

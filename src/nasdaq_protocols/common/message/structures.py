@@ -92,7 +92,13 @@ class _Record(TypeDefinition):
         return f"{{'{self.__class__.__name__}':{{{self.values}}}}}"
 
     def as_collection(self):
-        return self.values
+        transformed = {}
+        for k, v in self.values.items():
+            if isinstance(v, list):
+                transformed[k] = [_.as_collection() for _ in v]
+            else:
+                transformed[k] = v
+        return transformed
 
     @classmethod
     def from_str(cls, _str):

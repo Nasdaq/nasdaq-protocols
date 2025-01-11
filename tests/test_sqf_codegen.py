@@ -1,6 +1,5 @@
 import pytest
-
-from nasdaq_protocols.ouch import codegen
+from nasdaq_protocols.sqf import codegen
 from .soup_app_codegen_tests import soup_clientapp_codegen_tests
 from .soup_client_app_tests import soup_clientapp_common_tests
 from .testdata import *
@@ -12,20 +11,20 @@ from typing import Callable, Awaitable, Type
 
 from nasdaq_protocols.common import logable
 from nasdaq_protocols.common.message import *
-from nasdaq_protocols import soup, ouch
+from nasdaq_protocols import soup, sqf
 
 
 __all__ = [
     'Message',
     'ClientSession',
     'connect_async',
-    'TestMessage1',
-    'TestMessage2',
+    'Quote',
+    'QuoteMessage',
 ]
 
 
 @logable
-class Message(ouch.Message, app_name='test'):
+class Message(sqf.Message, app_name='test'):
     def __init_subclass__(cls, **kwargs):
         cls.log.debug('subclassing %s, params = %s', cls.__name__, str(kwargs))
         if 'indicator' not in kwargs:
@@ -35,7 +34,7 @@ class Message(ouch.Message, app_name='test'):
         super().__init_subclass__(**kwargs)
 
 
-class ClientSession(ouch.ClientSession):
+class ClientSession(sqf.ClientSession):
     @classmethod
     def decode(cls, bytes_: bytes) -> [int, Message]:
         return Message.from_bytes(bytes_)
@@ -52,7 +51,7 @@ async def connect_async(remote: tuple[str, int], user: str, passwd: str, session
         def session_factory(x):
             return ClientSession(x, on_msg_coro=on_msg_coro, on_close_coro=on_close_coro)
 
-    return await ouch.connect_async(
+    return await sqf.connect_async(
         remote, user, passwd, session_id, sequence,
         session_factory, on_msg_coro, on_close_coro,
         client_heartbeat_interval, server_heartbeat_interval
@@ -61,70 +60,79 @@ async def connect_async(remote: tuple[str, int], user: str, passwd: str, session
 
 # Enums
 # Records
+class Quote(Record):
+    Fields = [
+        Field('instrumentId', UnsignedLong),
+        Field('bidPrice', UnsignedLong),
+        Field('askPrice', UnsignedLong),
+        Field('bidQuantity', UnsignedLong),
+        Field('askQuantity', UnsignedLong),
+    ]
+
+    instrumentId: int
+    bidPrice: int
+    askPrice: int
+    bidQuantity: int
+    askQuantity: int
+
+
 # Messages
-class TestMessage1(Message, indicator=1, direction='incoming'):
+class QuoteMessage(Message, indicator=1, direction='incoming'):
     class BodyRecord(Record):
         Fields = [
-            Field('field1', LongBE),
-            Field('field2', CharIso8599),
-            Field('field3', FixedIsoString(length=16)),
+            Field('timestamp', UnsignedLong),
+            Field('someInfo', FixedIsoString(length=32)),
+            Field('quotes', Array(Quote, UnsignedShortBE)),
         ]
 
-    field1: int
-    field2: str
-    field3: str
-
-
-class TestMessage2(Message, indicator=2, direction='outgoing'):
-    class BodyRecord(Record):
-        Fields = [
-            Field('field1_1', LongBE),
-            Field('field2_1', CharIso8599),
-            Field('field3_1', FixedIsoString(length=16)),
-        ]
-
-    field1_1: int
-    field2_1: str
-    field3_1: str
+    timestamp: int
+    someInfo: str
+    quotes: list[Quote]
 """
 
 
 @pytest.fixture(scope='session')
-def load_generated_ouch_code(code_loader):
-    # other test cases will verify if the expected_generated_code
-    # is valid or not.
-    module = code_loader('test_ouch', EXPECTED_GENERATED_CODE)
-    yield module
+def load_generated_sqf_code(code_loader):
+    return code_loader('test_sqf', EXPECTED_GENERATED_CODE)
 
 
 @pytest.fixture(scope='session')
-def msg_factory(load_generated_ouch_code):
-    module = load_generated_ouch_code
+def msg_factory(load_generated_sqf_code):
+    module = load_generated_sqf_code
 
-    def msg_factory(i):
-        msg = module.TestMessage2()
-        msg.field1_1 = i
-        msg.field2_1 = 'a'
-        msg.field3_1 = 'ab'
+    def _factory(key):
+        quotes = []
+        for i in range(1, 2):
+            quote = module.Quote()
+            quote.instrumentId = i
+            quote.bidPrice = i * 100
+            quote.askPrice = i * 1000
+            quote.bidQuantity = i * 10
+            quote.askQuantity = i * 100
+            quotes.append(quote)
+
+        msg = module.QuoteMessage()
+        msg.timestamp = key
+        msg.someInfo = 'a' * 32
+        msg.quotes = quotes
         return msg
+    return _factory
 
-    return msg_factory
 
-
-async def test__ouch__soup_clientapp_codegen_tests(load_generated_ouch_code, soup_clientapp_codegen_tests):
+async def test__sqf__soup_clientapp_codegen_tests(load_generated_sqf_code, soup_clientapp_codegen_tests):
     await soup_clientapp_codegen_tests(
-        'ouch',
+        'sqf',
         'test',
         codegen.generate,
-        TEST_XML_OUCH_MESSAGE,
+        TEST_SQF_MESSAGES,
         EXPECTED_GENERATED_CODE,
-        load_generated_ouch_code,
+        load_generated_sqf_code,
     )
 
 
-async def test__ouch__soup_clientapp_common_tests__using_generated_code(load_generated_ouch_code, msg_factory, soup_clientapp_common_tests):
+async def test__sqf__soup_clientapp_common_tests__using_generated_code(load_generated_sqf_code, msg_factory, soup_clientapp_common_tests):
     await soup_clientapp_common_tests(
-        load_generated_ouch_code.connect_async,
-        load_generated_ouch_code.ClientSession,
+        load_generated_sqf_code.connect_async,
+        load_generated_sqf_code.ClientSession,
         msg_factory,
     )

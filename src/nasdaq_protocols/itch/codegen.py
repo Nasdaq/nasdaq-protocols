@@ -28,7 +28,7 @@ def generate(spec_file, app_name, prefix, op_dir, override_messages, init_file):
         'itch',
         app_name,
         op_dir,
-        'message_ouch_itch.mustache',
+        'message_soup_app.mustache',
         prefix,
         generate_init_file=init_file
     )

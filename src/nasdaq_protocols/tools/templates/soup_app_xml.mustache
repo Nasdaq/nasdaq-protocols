@@ -3,6 +3,9 @@
     <enums-root>
         <!-- Add your enums here -->
     </enums-root>
+    <records-root>
+        <!-- Add your records here -->
+    </records-root>
     <messages-root>
         <!-- Add your messages here -->
     </messages-root>
@@ -20,6 +23,27 @@ ENUM DEFINITION:
         <value name="Buy" description="Buy">B</value>
         <value name="Sell" description="Sell">S</value>
     </enum>
+
+RECORD DEFINITION:
+    Records are used to define the structure of the messages that reused across multiple messages
+    or in an array field.
+
+    <record id="RECORD_NAME">
+        <fields>
+            <field name="FIELD_NAME" def="FIELD_DEFINITION"/>
+        </fields>
+    </record>
+
+    Example:
+        <record id="Order">
+            <fields>
+                <field def="instrumentId"/>
+                <field def="price"/>
+                <field name="quantity" def="quantity"/>
+                <field name="secondLevelPrice" def="price"/>
+            </fields>
+        </record>
+
 
 MESSAGE DEFINITION:
     <message id="MESSAGE_NAME" message-id="MSG_TYPE_IN_DECIMAL" direction="incoming | outgoing">
@@ -79,4 +103,17 @@ These are the possible data types you can use for fields or enums
     str_iso-8859-1: iso-8859-1 string
     str_ascii_n: ascii string with length 'n'
     str_iso-8859-1_n: iso-8859-1 string with length 'n'
+
+    Array: Array of fields
+    When sending an array, the message automatically adds the length
+    of the array before the array itself as a 2 byte short.
+
+    you can control the endian of this length by adding the 'endian' attribute to the field.
+    Example:
+    <field name="example" type="record:<record_name>" array="true" endian="big"/><
+    Adds an array of records with big endian length before the array.
+
+    <field name="prices type="int_4_be" array="true"/>
+    Adds an array of 4 byte integers with little endian length before the array.
+
 -->
