@@ -11,7 +11,7 @@ from . import templates
 __all__ = [
     'create'
 ]
-SUPPORTED_PROTOCOLS = ['ouch', 'itch']
+SUPPORTED_PROTOCOLS = ['ouch', 'itch', 'sqf']
 TEMPLATES_PATH = resources.files(templates)
 
 
@@ -48,7 +48,7 @@ class Context:
     help=f'''include applications in this project.
     format appname:protocol
 
-    e.g. -a oe:ouch -a md:itch -a fix_oe:fix
+    e.g. -a oe:ouch -a md:itch -a qe:sqf -a fix_oe:fix
 
     supported protocols: {SUPPORTED_PROTOCOLS}
     '''
@@ -98,8 +98,8 @@ def _write_app_xml(app_info: AppInfo):
     if app_info.app_xml.exists():
         return
 
-    if app_info.proto_name in ['ouch', 'itch']:
-        xml_template = TEMPLATES_PATH / Path('ouch_itch_xml.mustache')
+    if app_info.proto_name in ['ouch', 'itch', 'sqf']:
+        xml_template = TEMPLATES_PATH / Path('soup_app_xml.mustache')
     else:
         raise ValueError(f'Unsupported protocol: {app_info.proto_name}')
 

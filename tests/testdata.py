@@ -254,3 +254,37 @@ TEST_FIX_44_XML = """
     </fields>
 </fix>
 """
+
+
+TEST_SQF_MESSAGES = """
+<root>
+    <enums-root/>
+    <fielddef-root>
+        <field name="instrumentId" type="uint_8"/>
+        <field name="price" type="uint_8"/>
+        <field name="quantity" type="uint_8"/>
+        <field name="timestamp" type="uint_8"/>
+        <field name="someInfo" type="str_iso-8859-1_n" length="32"/>
+    </fielddef-root>
+    <records-root>
+        <record id="Quote">
+            <fields>
+                <field def="instrumentId"/>
+                <field name="bidPrice" def="price"/>
+                <field name="askPrice" def="price"/>
+                <field name="bidQuantity" def="quantity"/>
+                <field name="askQuantity" def="quantity"/>
+            </fields>
+        </record>
+    </records-root>
+    <messages-root>
+        <message id="QuoteMessage" message-id="1" direction="incoming">
+            <fields>
+                <field def="timestamp"/>
+                <field def="someInfo"/>
+                <field name="quotes" type="record:Quote" array="true" endian="big"/>
+            </fields>
+        </message>
+    </messages-root>
+</root>
+"""

@@ -20,7 +20,7 @@ def generate(spec_file, app_name, op_dir, prefix, override_messages, init_file):
     }
     generator = Generator(
         Parser.parse(spec_file, override_messages=override_messages),
-        'ouch',
+        'sqf',
         app_name,
         op_dir,
         'message_soup_app.mustache',

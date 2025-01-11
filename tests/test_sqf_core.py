@@ -1,30 +1,30 @@
 from nasdaq_protocols.common import *
-from nasdaq_protocols import ouch
+from nasdaq_protocols import sqf
 
 
 @logable
-class App1OuchMessage(ouch.Message, app_name='ouch_app_1'):
+class App1SqfMessage(sqf.Message, app_name='sqf_app_1'):
     def __init_subclass__(cls, **kwargs):
         cls.log.debug('subclassing %s, params = %s', cls.__name__, str(kwargs))
         if 'indicator' not in kwargs:
-            raise ValueError('expected "indicator" when subclassing App1OuchMessage')
+            raise ValueError('expected "indicator" when subclassing App1SqfMessage')
 
-        kwargs['app_name'] = 'ouch_app_1'
+        kwargs['app_name'] = 'sqf_app_1'
         super().__init_subclass__(**kwargs)
 
 
 @logable
-class App2OuchMessage(ouch.Message, app_name='ouch_app_2'):
+class App2SqfMessage(sqf.Message, app_name='sqf_app_2'):
     def __init_subclass__(cls, **kwargs):
         cls.log.debug('subclassing %s, params = %s', cls.__name__, str(kwargs))
         if 'indicator' not in kwargs:
-            raise ValueError('expected "indicator" when subclassing App2OuchMessage')
+            raise ValueError('expected "indicator" when subclassing App2SqfMessage')
 
-        kwargs['app_name'] = 'ouch_app_2'
+        kwargs['app_name'] = 'sqf_app_2'
         super().__init_subclass__(**kwargs)
 
 
-class TestOuchApp1Message1Out(App1OuchMessage, direction='outgoing', indicator=1):
+class TestSqfApp1Message1Out(App1SqfMessage, direction='outgoing', indicator=1):
     __test__ = False
 
     class BodyRecord(Record):
@@ -34,12 +34,12 @@ class TestOuchApp1Message1Out(App1OuchMessage, direction='outgoing', indicator=1
 
     @staticmethod
     def get(key):
-        msg = TestOuchApp1Message1Out()
+        msg = TestSqfApp1Message1Out()
         msg.orderToken = key
         return msg
 
 
-class TestOuchApp1Message2Out(App1OuchMessage, direction='outgoing', indicator=2):
+class TestSqfApp1Message2Out(App1SqfMessage, direction='outgoing', indicator=2):
     __test__ = False
 
     class BodyRecord(Record):
@@ -49,12 +49,12 @@ class TestOuchApp1Message2Out(App1OuchMessage, direction='outgoing', indicator=2
 
     @staticmethod
     def get(key):
-        msg = TestOuchApp1Message2Out()
+        msg = TestSqfApp1Message2Out()
         msg.orderToken = key
         return msg
 
 
-class TestOuchApp1MessageIn(App1OuchMessage, direction='incoming', indicator=3):
+class TestSqfApp1MessageIn(App1SqfMessage, direction='incoming', indicator=3):
     __test__ = False
 
     class BodyRecord(Record):
@@ -64,12 +64,12 @@ class TestOuchApp1MessageIn(App1OuchMessage, direction='incoming', indicator=3):
 
     @staticmethod
     def get(key):
-        msg = TestOuchApp1MessageIn()
+        msg = TestSqfApp1MessageIn()
         msg.orderToken = key
         return msg
 
 
-class TestOuchApp2MessageOut(App2OuchMessage, direction='outgoing', indicator=1):
+class TestSqfApp2MessageOut(App2SqfMessage, direction='outgoing', indicator=1):
     __test__ = False
 
     class BodyRecord(Record):
@@ -79,28 +79,28 @@ class TestOuchApp2MessageOut(App2OuchMessage, direction='outgoing', indicator=1)
 
     @staticmethod
     def get(key):
-        msg = TestOuchApp2MessageOut()
+        msg = TestSqfApp2MessageOut()
         msg.orderToken = key
         return msg
 
 
 def test__from_bytes__different_indicator__decodes_correct_message():
-    app1_msg1_out = TestOuchApp1Message1Out.get(123456789)
-    app1_msg2_out = TestOuchApp1Message2Out.get('c')
+    app1_msg1_out = TestSqfApp1Message1Out.get(123456789)
+    app1_msg2_out = TestSqfApp1Message2Out.get('c')
 
-    decoded_app1_msg1_out = App1OuchMessage.from_bytes(app1_msg1_out.to_bytes()[1])
+    decoded_app1_msg1_out = App1SqfMessage.from_bytes(app1_msg1_out.to_bytes()[1])
     assert decoded_app1_msg1_out[1] == app1_msg1_out
 
-    decoded_app1_msg2_out = App1OuchMessage.from_bytes(app1_msg2_out.to_bytes()[1])
+    decoded_app1_msg2_out = App1SqfMessage.from_bytes(app1_msg2_out.to_bytes()[1])
     assert decoded_app1_msg2_out[1] == app1_msg2_out
 
 
 def test__from_bytes__same_identifier_different_apps_returns_correct_message():
-    app1_msg = TestOuchApp1Message1Out.get(123456789)
-    app2_msg = TestOuchApp2MessageOut.get('AB')
+    app1_msg = TestSqfApp1Message1Out.get(123456789)
+    app2_msg = TestSqfApp2MessageOut.get('AB')
 
-    decoded_app1_msg = App1OuchMessage.from_bytes(app1_msg.to_bytes()[1])
+    decoded_app1_msg = App1SqfMessage.from_bytes(app1_msg.to_bytes()[1])
     assert decoded_app1_msg[1] == app1_msg
 
-    decoded_app2_msg = App2OuchMessage.from_bytes(app2_msg.to_bytes()[1])
+    decoded_app2_msg = App2SqfMessage.from_bytes(app2_msg.to_bytes()[1])
     assert decoded_app2_msg[1] == app2_msg
