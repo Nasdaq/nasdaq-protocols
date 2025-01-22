@@ -9,4 +9,5 @@ API Reference
    api_reference_itch
    api_reference_ouch
    api_reference_fix
+   api_reference_sqf
    api_reference_common
