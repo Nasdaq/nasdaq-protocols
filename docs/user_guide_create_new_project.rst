@@ -33,14 +33,15 @@ Refer to the `tox documentation <https://tox.wiki/en/latest/installation.html>`_
         Replace `<project-name>` with the name of your project and `<target-dir>` with the directory where you want to
         create the project.
 
-        For example, to create a project named `nasdaq-protocols-messages` in the current directory, with 2 applications `ouch_oe`
-        and `itch_feed`, you would run the following command:
+        For example, to create a project named `nasdaq-protocols-messages` in the current directory, with 3 applications `ouch_oe`,
+        `itch_feed` and `sqf_qe`, you would run the following command:
 
         .. code-block:: bash
 
             bash$ nasdaq-protocols-create-new-project --name nasdaq-protocols-messages \
                     --application ouch_oe:ouch \
-                    --application itch_feed:itch
+                    --application itch_feed:itch \
+                    --application sqf_qe:sqf
 
 3. The `nasdaq-protocols-create-new-project` command will create a new python package with the following structure:
 
@@ -56,12 +57,15 @@ Refer to the `tox documentation <https://tox.wiki/en/latest/installation.html>`_
         |    │   │   └── ouch_oe.xml
         |    │   └── itch_feed/
         |    │       └── itch_feed.xml
+        |    │   └── sqf_qe/
+        |    │       └── sqf_qe.xml
         ├── pyproject.toml
         └── tox.ini
 
     .. note::
         - **ouch_oe.xml** is the file where you define all the messages for the `ouch_oe` application.
         - **itch_feed.xml** is the file where you define all the messages for the `itch_feed` application.
+        - **sqf_qe.xml** is the file where you define all the messages for the `sqf_qe` application.
 
         The XML file contains the format and guidelines on how to define the messages.
 
