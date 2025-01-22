@@ -13,7 +13,6 @@ from .definitions import (
 )
 from .version_types import (
     get_supported_types,
-    Version,
     SupportedTypes
 )
 
@@ -24,23 +23,12 @@ __all__ = [
 LOG = logging.getLogger(__name__)
 
 
-def parse(file: str) -> Definitions:
+def parse(file: str, version: str) -> Definitions:
     tree = e_tree.parse(file)
     root = tree.getroot()
 
     if root.tag != 'fix':
         raise ValueError('root tag is not fix')
-
-    version_str = f'{root.get("major")}{root.get("minor")}'
-    servicepack = int(root.get('servicepack', '0'))
-    if servicepack > 0:
-        version_str += f'{servicepack}'
-    version = int(version_str)
-
-    try:
-        version = Version(version)
-    except ValueError as v_error:
-        raise ValueError(f'Version {version} is not supported') from v_error
 
     handlers = {
         'fields': partial(_handle_fields, get_supported_types(version)),

@@ -40,13 +40,14 @@ async def mock_server_session(unused_tcp_port):
 
 @pytest.fixture(scope='function')
 def codegen_invoker(capsys, tmp_path):
-    def generator(codegen, xml_content, app_name, generate_init_file, prefix, output_dir=None):
+    def generator(codegen, xml_content, app_name, generate_init_file, prefix, output_dir=None, extra_args=None):
         runner = CliRunner()
         with capsys.disabled(), runner.isolated_filesystem(temp_dir=tmp_path):
             with open('spec.xml', 'w') as spec_file:
                 spec_file.write(xml_content)
             output_dir = output_dir or 'output'
             Path(output_dir).mkdir(parents=True, exist_ok=True)
+            extra_args = extra_args or []
             result = runner.invoke(
                 codegen,
                 [
@@ -54,7 +55,8 @@ def codegen_invoker(capsys, tmp_path):
                     '--app-name', app_name,
                     '--op-dir', output_dir,
                     '--prefix', prefix,
-                    '--init-file' if generate_init_file else '--no-init-file'
+                    '--init-file' if generate_init_file else '--no-init-file',
+                    *extra_args
                 ]
             )
             assert result.exit_code == 0

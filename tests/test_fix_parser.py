@@ -8,7 +8,7 @@ from tests.testdata import TEST_FIX_44_XML
 @pytest.fixture(scope='function')
 def fix_44_definitions(tmp_file_writer):
     file = tmp_file_writer(TEST_FIX_44_XML)
-    definitions = parse(file)
+    definitions = parse(file, '4.4')
     assert definitions is not None
     yield definitions
 
@@ -21,7 +21,7 @@ def test__fix_parser__parse__invalid_root_tag(tmp_file_writer):
     file = tmp_file_writer(invalid_xml)
 
     with pytest.raises(ValueError) as e:
-        parse(file)
+        parse(file, '4.4')
 
     assert str(e.value) == 'root tag is not fix'
 
@@ -37,7 +37,7 @@ def test__fix_parser__parse__invalid_tag_in_fields(tmp_file_writer):
     file = tmp_file_writer(invalid_xml)
 
     with pytest.raises(ValueError) as e:
-        parse(file)
+        parse(file, '4.4')
 
     assert str(e.value) == 'expected field tag, got invalid'
 
@@ -53,9 +53,9 @@ def test__fix_parser__parse__unsupported_version(tmp_file_writer):
     file = tmp_file_writer(invalid_xml)
 
     with pytest.raises(ValueError) as e:
-        parse(file)
+        parse(file, '2.1')
 
-    assert str(e.value) == 'Version 21 is not supported'
+    assert str(e.value) == 'Version 2.1 not supported'
 
 
 def test__fix_parser__parse__component_not_found(tmp_file_writer):
@@ -73,7 +73,7 @@ def test__fix_parser__parse__component_not_found(tmp_file_writer):
     file = tmp_file_writer(invalid_xml)
 
     with pytest.raises(ValueError) as e:
-        parse(file)
+        parse(file, '4.4')
 
     assert str(e.value) == 'Component definition for NotFoundComponent not found'
 
@@ -91,7 +91,7 @@ def test__fix_parser__parse__field_not_found(tmp_file_writer):
     file = tmp_file_writer(invalid_xml)
 
     with pytest.raises(ValueError) as e:
-        parse(file)
+        parse(file, '4.4')
 
     assert str(e.value) == 'Field definition for NotFound not found'
 
@@ -103,8 +103,8 @@ def test__fix_parser__parse__xml_with_service_pack(tmp_file_writer):
     '''
     file = tmp_file_writer(fix_502)
 
-    definitions = parse(file)
-    assert definitions.version == 502
+    definitions = parse(file, '5.0SP2')
+    assert definitions.version == '5.0SP2'
 
 
 def test__fix_parser__parse__xml_with_keywords__keywords_are_transformed(tmp_file_writer):
@@ -120,8 +120,8 @@ def test__fix_parser__parse__xml_with_keywords__keywords_are_transformed(tmp_fil
     '''
     file = tmp_file_writer(fix_502)
 
-    definitions = parse(file)
-    assert definitions.version == 502
+    definitions = parse(file, '5.0SP2')
+    assert definitions.version == '5.0SP2'
     context = definitions.fields['MsgType'].get_codegen_context(None)
     assert context['values'][0]['f_value'] == 'None_'
     assert context['values'][1]['f_value'] == 'if_'

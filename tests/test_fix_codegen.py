@@ -13,7 +13,7 @@ from tests.testdata import TEST_FIX_44_XML, TEST_XML_ITCH_MESSAGE
 @pytest.fixture(scope='function')
 def fix_44_definitions(tmp_file_writer):
     file = tmp_file_writer(TEST_FIX_44_XML)
-    definitions = parse(file)
+    definitions = parse(file, '4.4')
     assert definitions is not None
     yield definitions
 
@@ -26,7 +26,8 @@ def test__no_init_file__no_prefix__code_generated(codegen_invoker):
         TEST_FIX_44_XML,
         app_name,
         generate_init_file=False,
-        prefix=prefix
+        prefix=prefix,
+        extra_args=['--fix-version', '4.4']
     )
 
     assert len(generated_files) == 5
@@ -42,7 +43,8 @@ def test__init_file__no_prefix__code_generated(fix_44_definitions, codegen_invok
         app_name,
         generate_init_file=True,
         prefix=prefix,
-        output_dir=output_dir
+        output_dir=output_dir,
+        extra_args=['--fix-version', '4.4']
     )
 
     assert len(generated_files) == 6

@@ -19,8 +19,6 @@ __all__ = [
     'Definitions'
 ]
 
-from nasdaq_protocols.fix.parser.version_types import Version
-
 
 @attrs.define
 class FieldDef:
@@ -127,7 +125,7 @@ class Message(EntryContainer):
 
 @attrs.define
 class Definitions:
-    version: Version
+    version: str
     fields: dict[str, FieldDef] = attrs.field(init=False, factory=dict)
     components: dict[str, Component] = attrs.field(kw_only=True, factory=dict)
     header: EntryContainer = attrs.field(kw_only=True, factory=EntryContainer)
@@ -157,8 +155,8 @@ class Definitions:
         }
 
     def _client_session(self):
-        if self.version == Version.FIX_4_4:
+        if self.version == '4.4':
             return 'Fix44Session'
-        if self.version in (Version.FIX_5_0, Version.FIX_5_0_2):
+        if self.version in ('5.0', '5.0SP2'):
             return 'Fix50Session'
         raise ValueError(f'Version {self.version} is not supported')

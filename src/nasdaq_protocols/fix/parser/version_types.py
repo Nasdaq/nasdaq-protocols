@@ -1,30 +1,20 @@
-import enum
-
 from .. import types
 from ...common import TypeDefinition
 
 
 __all__ = [
     'SupportedTypes',
-    'Version',
     'get_supported_types'
 ]
 SupportedTypes = dict[str, TypeDefinition]
 
 
-class Version(enum.IntEnum):
-    FIX_4_2 = 42
-    FIX_4_4 = 44
-    FIX_5_0 = 50
-    FIX_5_0_2 = 502
-
-
-def get_supported_types(version: Version) -> SupportedTypes:
+def get_supported_types(version: str) -> SupportedTypes:
     version_map = {
-        Version.FIX_4_2: fix_42_version_types,
-        Version.FIX_4_4: fix_44_version_types,
-        Version.FIX_5_0: fix_50_version_types,
-        Version.FIX_5_0_2: fix_502_version_types
+        '4.2': _fix_42_version_types,
+        '4.4': _fix_44_version_types,
+        '5.0': _fix_50_version_types,
+        '5.0SP2': _fix_502_version_types
     }
     try:
         return version_map[version]()
@@ -32,7 +22,7 @@ def get_supported_types(version: Version) -> SupportedTypes:
         raise ValueError(f'Version {version} not supported') from k_error
 
 
-def fix_42_version_types():
+def _fix_42_version_types():
     return {
         'AMT': types.FixAmount,
         'BOOLEAN': types.FixBool,
@@ -61,8 +51,8 @@ def fix_42_version_types():
     }
 
 
-def fix_44_version_types():
-    fix_44_types = fix_42_version_types()
+def _fix_44_version_types():
+    fix_44_types = _fix_42_version_types()
     fix_44_types.update({
         'SEQNUM': types.FixInt,
         'NUMINGROUP': types.FixInt,
@@ -70,8 +60,8 @@ def fix_44_version_types():
     return fix_44_types
 
 
-def fix_50_version_types():
-    fix_50_types = fix_42_version_types()
+def _fix_50_version_types():
+    fix_50_types = _fix_42_version_types()
     fix_50_types.update({
         'FIXSTRING': types.FixString,
         'MULTIPLECHARVALUE': types.FixString,
@@ -81,8 +71,8 @@ def fix_50_version_types():
     return fix_50_types
 
 
-def fix_502_version_types():
-    fix_52_types = fix_50_version_types()
+def _fix_502_version_types():
+    fix_52_types = _fix_50_version_types()
     fix_52_types.update({
         'LOCALMKTDATE': types.FixLocalMktDate,
         'TZTIMEONLY': types.FixTzTimeonly,
