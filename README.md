@@ -13,5 +13,5 @@ user of this library. The user has to define the messages as per the protocol sp
 by extending the base message class defined in the package.
 
 
-More documentation can be found in the [github-pages/nasdaq-protocols-python](https://nasdaq-protocols.github.io/nasdaq-protocols-python/)
+More documentation can be found in the [github-pages](https://nasdaq.github.io/nasdaq-protocols/)
 
