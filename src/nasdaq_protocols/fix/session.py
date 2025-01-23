@@ -94,7 +94,7 @@ class FixSession(common.AsyncSession):
 
     def _initialize_session(self, logon_msg):
         self.session_id.username = logon_msg.Username
-        self.sequence = count(logon_msg.Header.MsgSeqNum.value)
+        self.sequence = count(logon_msg.Header.MsgSeqNum)
         self.sender_comp_id = logon_msg.Header.SenderCompID
         self.sender_sub_id = logon_msg.Header.SenderSubID
         self.target_comp_id = logon_msg.Header.TargetCompID
