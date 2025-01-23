@@ -550,6 +550,14 @@ def test__getattr__message__able_to_resolve_segment_fields():
     assert message.GroupContainer_2 is None
 
 
+def test__getattr__message__field_is_decayed_to_its_value():
+    message = Message_1()
+    message.Field_1_Int = 10
+
+    assert message.Field_1_Int == 10
+    assert isinstance(message.Field_1_Int, int)
+
+
 def test__getattr__message__fall_back_to_object_attributes_on_non_segment_fields():
     message = Message_1()
 

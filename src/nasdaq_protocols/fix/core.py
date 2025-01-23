@@ -234,7 +234,8 @@ class DataSegment(FixSerializable):
             return self.__dict__[key]
 
         try:
-            return self.values[key]
+            field_value = self.values[key]
+            return field_value.value if isinstance(field_value, Field) else field_value
         except KeyError:
             field = self.IndexedEntries[key]
             return field.default_value() if issubclass(field, Field) else None
