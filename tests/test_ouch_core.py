@@ -54,7 +54,7 @@ class TestOuchApp1Message2Out(App1OuchMessage, direction='outgoing', indicator=2
         return msg
 
 
-class TestOuchApp1MessageIn(App1OuchMessage, direction='incoming', indicator=3):
+class TestOuchApp1MessageIn(App1OuchMessage, direction='incoming', indicator=1):
     __test__ = False
 
     class BodyRecord(Record):
@@ -93,6 +93,17 @@ def test__from_bytes__different_indicator__decodes_correct_message():
 
     decoded_app1_msg2_out = App1OuchMessage.from_bytes(app1_msg2_out.to_bytes()[1])
     assert decoded_app1_msg2_out[1] == app1_msg2_out
+
+
+def test__from_bytes__same_indicator__always_decodes_only_outgoing_message():
+    # When same indicator is used for both incoming and outgoing,
+    # from client side we always want to decode from_bytes what
+    # the server is sending us...
+    # so messages marked as "outgoing" should be decoded.
+    app1_msg_out = TestOuchApp1Message1Out.get(123456789)
+
+    decoded = App1OuchMessage.from_bytes(app1_msg_out.to_bytes()[1])
+    assert isinstance(decoded[1], TestOuchApp1Message1Out)
 
 
 def test__from_bytes__same_identifier_different_apps_returns_correct_message():
