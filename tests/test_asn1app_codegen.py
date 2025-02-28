@@ -6,6 +6,7 @@ from click.testing import CliRunner
 from nasdaq_protocols.asn1_app import generate_soup_app
 from tests.testdata import TEST_ASN1_SPEC
 
+
 LOG = logging.getLogger(__name__)
 EXPECTED_GENERATED_CODE = """
 from typing import Callable, Awaitable, Type
@@ -14,6 +15,7 @@ from nasdaq_protocols.common import logable, asn1
 from nasdaq_protocols import asn1_app
 
 __all__ = [
+    'OrderType',
     'Address',
     'CustomerInfo',
     'Item',
@@ -25,6 +27,11 @@ __all__ = [
     'SoupClientSession',
     'connect_async_soup'
 ]
+
+
+class OrderType(asn1.Asn1Enum):
+    retail = 0
+    wholesale = 1
 
 
 class Address(asn1.Asn1Sequence):
@@ -110,6 +117,7 @@ class PurchaseOrder(asn1.Asn1Sequence):
     Fields = {
         'dateOfOrder': str,
         'customer': CustomerInfo,
+        'orderType': OrderType,
         'items': ListOfItems,
     }
 
@@ -119,11 +127,15 @@ class PurchaseOrder(asn1.Asn1Sequence):
     def has_customer(self) -> bool:
         return 'customer' in self
 
+    def has_orderType(self) -> bool:
+        return 'orderType' in self
+
     def has_items(self) -> bool:
         return 'items' in self
 
     dateOfOrder: str
     customer: CustomerInfo
+    orderType: OrderType
     items: ListOfItems
 
 
@@ -133,6 +145,7 @@ class PurchaseQuote(asn1.Asn1Sequence):
         'itemName': str,
         'itemPrice': int,
         'itemQty': int,
+        'extension': bytes,
     }
 
     def has_quoteId(self) -> bool:
@@ -147,10 +160,14 @@ class PurchaseQuote(asn1.Asn1Sequence):
     def has_itemQty(self) -> bool:
         return 'itemQty' in self
 
+    def has_extension(self) -> bool:
+        return 'extension' in self
+
     quoteId: int
     itemName: str
     itemPrice: int
     itemQty: int
+    extension: bytes
 
 
 class MyCompanyAutomation(asn1.Asn1Choice):
@@ -216,7 +233,7 @@ def read_dir(dir_path):
 
 @pytest.fixture(scope='function')
 def asn1_codegen_invoker(capsys, tmp_path):
-    def generator(codegen, asn1_content, pdu, app_name, generate_init_file, prefix, extra_args=None):
+    def generator(codegen, asn1_content, pdu, app_name, generate_init_file, prefix, extra_args=None, expected_exit_code=0):
         runner = CliRunner()
         with capsys.disabled(), runner.isolated_filesystem(temp_dir=tmp_path):
             in_spec_dir = tmp_path / 'in_spec'
@@ -240,11 +257,7 @@ def asn1_codegen_invoker(capsys, tmp_path):
                     *extra_args
                 ]
             )
-            if result.exit_code != 0:
-                LOG.info(result.output)
-                LOG.info(result.exception)
-
-            assert result.exit_code == 0
+            assert result.exit_code == expected_exit_code
 
             # Read the generated files
             return read_dir(output_dir)
@@ -273,6 +286,8 @@ def test__asn1_codegen__no_init_file__no_prefix__code_generated(asn1_codegen_inv
     assert generated_files['spec'][generated_asn1].strip() == TEST_ASN1_SPEC.strip()
 
     assert '__init__.py' not in generated_files
+    with open(f'{file_prefix}{generated_py_module}', 'w') as file:
+        file.write(EXPECTED_GENERATED_CODE)
 
 
 @pytest.mark.parametrize('prefix', ['', 'Prefix'])
@@ -298,3 +313,24 @@ def test__asn1_codegen__init_file__no_prefix__code_generated(asn1_codegen_invoke
 
     assert '__init__.py' in generated_files
     assert f'from .{file_prefix}MyAsn1App import *' in generated_files['__init__.py'].strip()
+
+
+def test__asn1_codegen__not_implemented_type__raises_error(asn1_codegen_invoker):
+    spec = """
+    MyShopPurchaseOrders DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+
+    MyCompanyAutomation ::= SET {
+        id INTEGER,
+        name UTF8String
+    }
+    END
+    """
+    asn1_codegen_invoker(
+        generate_soup_app,
+        asn1_content=spec,
+        pdu='MyShopPurchaseOrders',
+        app_name='MyAsn1App',
+        generate_init_file=False,
+        prefix='',
+        expected_exit_code=1
+    )

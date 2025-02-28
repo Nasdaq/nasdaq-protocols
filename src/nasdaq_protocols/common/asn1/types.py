@@ -19,9 +19,9 @@ __all__ = [
     'Asn1Boolean',
     'Asn1Sequence',
     'Asn1SequenceOf',
-    'Asn1Choice',
     'Asn1Set',
     'Asn1SetOf',
+    'Asn1Choice',
     'Asn1NumericString',
     'Asn1VisibleString',
     'Ans1GraphicString',
@@ -101,21 +101,10 @@ class Asn1Type:
             cls.Hint = kwargs['hint']
         Asn1Type.TypeMap[cls.__name__] = cls
 
-    def __getattr__(self, item):
-        try:
-            return self.__dict__[item]
-        except KeyError:
-            if self.Type is 'CHOICE' and item == self.data[0]:
-                # choice is represented as a tuple
-                return self.Fields[item](self.data[1])
-            if self.Type is 'SEQUENCE' and item in self.data:
-                # sequence is represented as a dict
-                return self.Fields[item](self.data[item])
-            return None
-
     @classmethod
     def resolve_type(cls, type_name: str):
-        return cls.TypeMap[type_name]
+        type_ = cls.TypeMap.get(type_name.strip().lower(), None)
+        return type_ or cls.TypeMap[type_name]
 
     def as_collection(self):
         return Asn1Type._json_compatible_collection(self._data)
@@ -136,36 +125,36 @@ class Asn1Type:
 
 
 @attr.s(auto_attribs=True)
-class Asn1Enum(Asn1Type, context='BASIC', type='ENUMERATED', hint='str'):
+class Asn1Enum(Asn1Type, context='BASIC', type='enumerated', hint='str'):
     pass
 
 
 @attr.s(auto_attribs=True)
-class Asn1Integer(Asn1Type, type='INTEGER', hint='int'):
+class Asn1Integer(Asn1Type, type='integer', hint='int'):
     pass
 
 
 @attr.s(auto_attribs=True)
-class Asn1Real(Asn1Type, type='REAL', hint='float'):
+class Asn1Real(Asn1Type, type='real', hint='float'):
     pass
 
 
 @attr.s(auto_attribs=True)
-class Asn1OctetString(Asn1Type, type='OCTET STRING', hint='bytes'):
+class Asn1OctetString(Asn1Type, type='octetstring', hint='bytes'):
     pass
 
 
 @attr.s(auto_attribs=True)
-class Asn1BitString(Asn1Type, type='BIT STRING', hint='bytes'):
+class Asn1BitString(Asn1Type, type='bitstring', hint='bytes'):
     pass
 
 
 @attr.s(auto_attribs=True)
-class Asn1Boolean(Asn1Type, type='BOOLEAN', hint='bool'):
+class Asn1Boolean(Asn1Type, type='boolean', hint='bool'):
     pass
 
 
-class Asn1Sequence(Asn1Type, type='SEQUENCE', hint='dict'):
+class Asn1Sequence(Asn1Type, type='sequence', hint='dict'):
     def __contains__(self, item):
         return item in self.data
 
@@ -176,11 +165,26 @@ class Asn1Sequence(Asn1Type, type='SEQUENCE', hint='dict'):
         return self.__dict__[item]
 
 
-class Asn1SequenceOf(Asn1Sequence, type='SEQUENCE OF', hint='list'):
+class Asn1SequenceOf(Asn1Sequence, type='sequenceof', hint='list'):
     pass
 
 
-class Asn1Choice(Asn1Type, type='CHOICE', hint='tuple'):
+class Asn1Set(Asn1Type, type='set', hint='dict'):
+    def __contains__(self, item):
+        return item in self.data
+
+    def __getattr__(self, item):
+        if item.strip('_') in self.data:
+            return self.__class__.Fields[item](self.data[item])
+
+        return self.__dict__[item]
+
+
+class Asn1SetOf(Asn1Sequence, type='setof', hint='list'):
+    pass
+
+
+class Asn1Choice(Asn1Type, type='choice', hint='tuple'):
     def __contains__(self, item):
         return self.data[0] == item
 
@@ -190,26 +194,23 @@ class Asn1Choice(Asn1Type, type='CHOICE', hint='tuple'):
 
         return self.__dict__[item]
 
+    def get(self):
+        field_name = self.data[0]
+        return self.__class__.Fields[field_name](self.data[1])
 
-class Asn1Set(Asn1Sequence, type='SET', hint='dict'):
+
+
+class Asn1NumericString(Asn1Type, type='numericstring', hint='str'):
     pass
 
 
-class Asn1SetOf(Asn1Sequence, type='SET OF', hint='list'):
+class Ans1PrintableString(Asn1Type, type='printablestring', hint='str'):
     pass
 
 
-class Asn1NumericString(Asn1Type, type='NumericString', hint='str'):
+class Asn1VisibleString(Asn1Type, type='visiblestring', hint='str'):
     pass
 
 
-class Ans1PrintableString(Asn1Type, type='PrintableString', hint='str'):
-    pass
-
-
-class Asn1VisibleString(Asn1Type, type='VisibleString', hint='str'):
-    pass
-
-
-class Ans1GraphicString(Asn1Type, type='GraphicString', hint='str'):
+class Ans1GraphicString(Asn1Type, type='graphicstring', hint='str'):
     pass

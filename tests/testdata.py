@@ -293,6 +293,11 @@ TEST_SQF_MESSAGES = """
 TEST_ASN1_SPEC = """
 MyShopPurchaseOrders DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 
+OrderType ::= ENUMERATED
+{
+    retail(0),
+    wholesale(1)
+}
 
 MyCompanyAutomation ::= CHOICE {
   purchaseOrder  [0] PurchaseOrder,
@@ -304,12 +309,14 @@ PurchaseQuote ::= SEQUENCE {
     quoteId    INTEGER,
     itemName   VisibleString (SIZE (1..50)),
     itemPrice  INTEGER (1..99999),
-    itemQty    INTEGER (1..100)
+    itemQty    INTEGER (1..100),
+    extension BITSTRING
 }
 
 PurchaseOrder ::= SEQUENCE {
   dateOfOrder NumericString,
   customer    CustomerInfo,
+  orderType   OrderType,
   items       ListOfItems
 }
 

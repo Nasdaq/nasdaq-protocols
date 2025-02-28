@@ -16,15 +16,16 @@ __all__ = [
 ]
 TEMPLATES_PATH = resources.files(templates)
 BASIC_TYPES = [
-    'ENUMERATED',
-    'INTEGER',
-    'REAL',
-    'OCTET STRING',
-    'BOOLEAN',
-    'NumericString',
-    'VisibleString',
-    'PrintableString',
-    'GraphicString'
+    'enumerated',
+    'integer',
+    'real',
+    'octetstring',
+    'bitstring',
+    'boolean',
+    'numericstring',
+    'visiblestring',
+    'printablestring',
+    'graphicstring'
 ]
 LOG = logging.getLogger(__name__)
 
@@ -58,7 +59,7 @@ class Ans1Generator:
         Path(self.op_dir).mkdir(parents=True, exist_ok=True)
 
     def generate(self, extra_context=None):
-        asn1_parsed = _parse_asn1(self._asn1_files)
+        asn1_parsed = _Parser(self._asn1_files).parse()
         context = {
             'app_name': self.app_name,
             'pdu_name': self.pdu,
@@ -100,20 +101,17 @@ class Ans1Generator:
     def _prepare_types_context(asn1_parsed):
         types = []
         for type_name, type_ in asn1_parsed.items():
-            if type_['type'] == 'ENUMERATED':
+            if _strip_and_lower(type_['type']) in ['enumerated', 'bitstring']:
                 types.append(_prepare_enum_context(type_name, type_))
-            elif type_['type'] == 'CHOICE':
+            elif _strip_and_lower(type_['type']) == 'choice':
                 types.append(_prepare_complex_context(type_name, type_, choice=True))
-            elif type_['type'] == 'SEQUENCE':
+            elif _strip_and_lower(type_['type']) in ['sequence', 'set']:
                 types.append(_prepare_complex_context(type_name, type_, sequence=True))
-            elif type_['type'] == 'SEQUENCE OF':
+            elif _strip_and_lower(type_['type']) in ['sequenceof', 'setof']:
                 types.append(_prepare_complex_context(type_name, type_,
                                                       sequence=True, list_=True))
-            elif type_['type'] == 'BIT STRING':
-                types.append({
-                    'bitstring': True,
-                    'name': _fix_name(type_name),
-                })
+            else:
+                raise NotImplementedError(f'Unsupported type {type_["type"]}')
         return types
 
     @staticmethod
@@ -124,11 +122,15 @@ class Ans1Generator:
             print(f'Generated: {op_file}')
             return op_file
 
+def _strip_and_lower(s):
+    return s.replace(' ', '').lower()
+
 
 def _prepare_complex_context(type_name, type_, choice=False, sequence=False,
                              list_=False):
     def member(member_):
         member_type = Asn1Type.TypeMap.get(member_['type'], None)
+        member_type = member_type or Asn1Type.TypeMap.get(_strip_and_lower(member_['type']), None)
         member_type = member_type.Hint if member_type is not None else member_['type']
         member_name = member_['name'] if 'name' in member_ else member_['type']
         return {
@@ -151,6 +153,8 @@ def _prepare_complex_context(type_name, type_, choice=False, sequence=False,
 
 
 def _prepare_enum_context(type_name, type_):
+    # For enum types use 'values', for bitstring use 'named-bits'
+    values = type_['values'] if 'values' in type_ else type_['named-bits']
     return {
         'enum': True,
         'name': _fix_name(type_name),
@@ -159,49 +163,65 @@ def _prepare_enum_context(type_name, type_):
                 'name': _fix_name(_[0]),
                 'value': _[1]
             }
-            for _ in type_['values']
+            for _ in values
         ]
     }
 
 
 def _fix_name(name):
-    return f'{name}_' if keyword.iskeyword(name) else name
+    name = f'{name}_' if keyword.iskeyword(name) else name
+    name = name.replace('-', '_')
+    return name
 
 
-def _find_type_in_spec(full_spec, type_name):
-    if type_name not in BASIC_TYPES:
-        for _, module in full_spec.items():
-            if type_name in module['types']:
-                return module['types'][type_name]
+@attrs.define(auto_attribs=True)
+class _Parser:
+    """
+    Parses the asn.1 files using asn1tools and prepares a mapping of type names
+    to their definitions
+    """
+    asn1_files: list[Path]
+    parsed_types: dict = attrs.field(init=False)
+    in_spec: dict = attrs.field(init=False)
+
+    def parse(self):
+        self.parsed_types = {}
+        self.in_spec = asn1tools.parse_files(self.asn1_files)
+
+        for _, module in self.in_spec.items():
+            for type_name, type_ in module['types'].items():
+                self.add_type(type_name, type_)
+
+        return self.parsed_types
 
 
-def _add_type(in_specification, op_types, type_name, type_):
-    if type_name in op_types or type_name in BASIC_TYPES:
-        return
+    def find_type_in_spec(self, type_name):
+        if _strip_and_lower(type_name) not in BASIC_TYPES:
+            for _, module in self.in_spec.items():
+                if type_name in module['types']:
+                    return module['types'][type_name]
 
-    if type_ is None:
-        LOG.warning("Type %s not found in specification, likely an inline type which is not supported now", type_name)
-        return
+    def add_type(self, type_name, type_):
+        """
+        Resolves the type and adds it to the parsed_types dictionary.
+        """
+        if type_name in self.parsed_types or _strip_and_lower(type_name) in BASIC_TYPES:
+            # Type already added or basic types, no processing needed
+            return
 
-    if type_['type'] == 'SEQUENCE OF':
-        type_name_1 = type_['element']['type']
-        type_1 = _find_type_in_spec(in_specification, type_name_1)
-        _add_type(in_specification, op_types, type_name_1, type_1)
-    elif type_['type'] not in ['ENUMERATED', 'BIT STRING']:
-        for member in type_['members']:
-            type_name_1 = member['type']
-            type_1 = _find_type_in_spec(in_specification, type_name_1)
-            _add_type(in_specification, op_types, type_name_1, type_1)
+        if type_ is None:
+            LOG.warning("Type %s not found in specification, likely an inline type which is not supported now", type_name)
+            return
 
-    op_types[type_name] = type_
+        if _strip_and_lower(type_['type']) == 'sequenceof':
+            # SEQUENCE OF has special handling
+            type_name_1 = type_['element']['type']
+            type_1 = self.find_type_in_spec(type_name_1)
+            self.add_type(type_name_1, type_1)
+        elif _strip_and_lower(type_['type']) not in ['enumerated', 'bitstring']:
+            for member in type_['members']:
+                type_name_1 = member['type']
+                type_1 = self.find_type_in_spec(type_name_1)
+                self.add_type(type_name_1, type_1)
 
-
-def _parse_asn1(asn1_files):
-    specification = asn1tools.parse_files(asn1_files)
-    types = {}
-
-    for _, module in specification.items():
-        for type_name, type_ in module['types'].items():
-            _add_type(specification, types, type_name, type_)
-
-    return types
+        self.parsed_types[type_name] = type_
