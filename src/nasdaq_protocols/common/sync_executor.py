@@ -1,4 +1,5 @@
 import asyncio
+import concurrent
 import threading
 from asyncio import iscoroutine
 
@@ -15,6 +16,8 @@ __all__ = ['SyncExecutor']
 class SyncExecutor:
     """
     A helper class to execute async functions synchronously.
+
+    NOTE: This is experimental and should be used with caution.
     """
     name: str = attrs.field()
     _event_loop: asyncio.BaseEventLoop = attrs.field(init=False)
@@ -36,7 +39,11 @@ class SyncExecutor:
             raise ValueError(f'Expected an async function, got: {underlying}')
 
         future = asyncio.run_coroutine_threadsafe(underlying, self._event_loop)
-        return future.result(timeout=timeout)
+        try:
+            return future.result(timeout=timeout)
+        except concurrent.futures.TimeoutError:
+            future.cancel()
+            raise asyncio.TimeoutError(f'Timed out after {timeout} seconds')
 
     def execute_sync(self, underlying, *args, **kwargs):
         """

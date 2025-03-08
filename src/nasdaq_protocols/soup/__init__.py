@@ -15,7 +15,6 @@ would like to talk to the soup server, Say in testing or writing a monitoring to
 In such cases, the client application can use the SoupBinTCP client provided by this module.
 """
 import asyncio
-import logging
 from typing import Callable
 
 from nasdaq_protocols import common
@@ -68,8 +67,7 @@ __all__ = [
 ]
 
 
-
-async def connect_async(remote: tuple[str, int],  # pylint: disable=too-many-arguments
+async def connect_async(remote: tuple[str, int],  # pylint: disable=too-many-arguments, too-many-locals
                         user: str,
                         passwd: str,
                         session_id: str = '',
@@ -78,7 +76,8 @@ async def connect_async(remote: tuple[str, int],  # pylint: disable=too-many-arg
                         on_close_coro: common.OnCloseCoro = None,
                         session_factory: Callable[[], SoupClientSession] = None,
                         client_heartbeat_interval: int = 10,
-                        server_heartbeat_interval: int = 10) -> SoupClientSession:
+                        server_heartbeat_interval: int = 10,
+                        connect_timeout: int = 5) -> SoupClientSession:
     """
     Connect asynchronously to the SoupBinTCP server and login.
 
@@ -100,6 +99,7 @@ async def connect_async(remote: tuple[str, int],  # pylint: disable=too-many-arg
     :param session_factory: Factory to create a SoupClientSession.
     :param client_heartbeat_interval: seconds between client heartbeats.
     :param server_heartbeat_interval: seconds between server heartbeats.
+    :param connect_timeout: seconds to wait for connection.
     :return: SoupClientSession
     """
     loop = asyncio.get_running_loop()
@@ -112,14 +112,19 @@ async def connect_async(remote: tuple[str, int],  # pylint: disable=too-many-arg
             server_heartbeat_interval=server_heartbeat_interval
         )
 
-    _, soup_session = await loop.create_connection(
-        session_factory if session_factory else default_session_factory,
-        *remote
-    )
-
-    login_request = LoginRequest(user, passwd, session_id, str(sequence))
+    try:
+        _, soup_session = await asyncio.wait_for(
+            loop.create_connection(
+                session_factory if session_factory else default_session_factory,
+                *remote
+            ),
+            timeout=connect_timeout
+        )
+    except asyncio.TimeoutError:
+        raise ConnectionError(f'Unable to connect to {remote}')
 
     try:
+        login_request = LoginRequest(user, passwd, session_id, str(sequence))
         return await soup_session.login(login_request)
     except common.EndOfQueue as exc:
         # if a connection is abruptly closed, the incoming message queue will be closed
@@ -143,6 +148,8 @@ def connect(remote: tuple[str, int],
     To connect to the start of the stream, specify sequence=1, which is the default.
     To connect to the end of the stream, specify sequence=0, new messages will be received.
     To connect to a specific message, specify the sequence number of the message.
+
+    NOTE: This is experimental and should be used with caution.
 
     :param remote: tuple of host and port
     :param user: Username to login

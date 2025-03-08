@@ -32,7 +32,8 @@ async def connect_async(remote: tuple[str, int], user: str, passwd: str, session
                         on_msg_coro: OnItchMessageCoro = None,
                         on_close_coro: OnItchCloseCoro = None,
                         client_heartbeat_interval: int = 10,
-                        server_heartbeat_interval: int = 10):
+                        server_heartbeat_interval: int = 10,
+                        connect_timeout: int = 5) -> ClientSession:
     """
     Connect to the ITCH server.
 
@@ -46,6 +47,7 @@ async def connect_async(remote: tuple[str, int], user: str, passwd: str, session
     :param on_close_coro: callback, connection closed .
     :param client_heartbeat_interval: seconds between client heartbeats.
     :param server_heartbeat_interval: seconds between server heartbeats.
+    :param connect_timeout: seconds to wait for connection.
     :return: SoupClientSession
     """
 
@@ -53,7 +55,8 @@ async def connect_async(remote: tuple[str, int], user: str, passwd: str, session
     soup_session = await soup.connect_async(
         remote, user, passwd, session_id, sequence=sequence,
         client_heartbeat_interval=client_heartbeat_interval,
-        server_heartbeat_interval=server_heartbeat_interval
+        server_heartbeat_interval=server_heartbeat_interval,
+        connect_timeout=connect_timeout
     )
 
     # Create an itch session (with the soup session created above)
