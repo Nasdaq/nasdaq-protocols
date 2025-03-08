@@ -49,6 +49,7 @@ class MockServerSession(asyncio.Protocol):
         self.transport = transport
 
     def data_received(self, data):
+        _logger.debug('mock server session: data recived: %s', data)
         for predicate, executor in self.actions:
             _logger.debug('testing matcher : %s', executor.name)
             if predicate(data):
@@ -58,6 +59,7 @@ class MockServerSession(asyncio.Protocol):
                 _logger.debug('matcher : %s, not matched', executor.name)
 
     def connection_lost(self, exc):
+        _logger.debug('mock server session: connection lost')
         self.connected = False
 
     def send(self, data: str | common.Serializable | bytes):

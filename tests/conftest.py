@@ -1,4 +1,7 @@
+import asyncio
 import importlib.util
+import logging
+import threading
 from pathlib import Path
 import os
 import sys
@@ -7,6 +10,9 @@ import pytest
 from click.testing import CliRunner
 from nasdaq_protocols import common
 from .mocks import *
+
+
+LOG = logging.getLogger(__name__)
 
 
 @pytest.fixture(scope='function')
@@ -36,6 +42,26 @@ async def mock_server_session(unused_tcp_port):
     server, serving_task = await common.start_server(('127.0.0.1', unused_tcp_port), lambda: session)
     yield unused_tcp_port, session
     await common.stop_task(serving_task)
+
+
+@pytest.fixture(scope='function')
+def sync_mock_server_session(unused_tcp_port):
+    event_loop = asyncio.new_event_loop()
+    thread = threading.Thread(name=f'mock-server', target=event_loop.run_forever)
+    thread.start()
+
+    session = MockServerSession()
+    future = asyncio.run_coroutine_threadsafe(
+        common.start_server(('127.0.0.1', unused_tcp_port), lambda: session),
+        event_loop
+    )
+    server, serving_task = future.result()
+    LOG.debug('Mock Server started')
+
+    yield unused_tcp_port, session
+    event_loop.call_soon_threadsafe(common.stop_task, serving_task)
+    event_loop.call_soon_threadsafe(event_loop.stop)
+    thread.join()
 
 
 @pytest.fixture(scope='function')

@@ -28,10 +28,9 @@ __all__ = [
     'SoupSession',
     'SoupClientSession',
     'SoupServerSession',
+    'SoupClientSessionSync',
     'OnSoupMsgCoro'
 ]
-
-
 OnSoupMsgCoro = Callable[[Any], Awaitable[None]]
 
 
@@ -288,3 +287,50 @@ class SoupServerSession(SoupSession, session_type='server'):
             self.start_heartbeats(self.client_heartbeat_interval, self.server_heartbeat_interval)
         else:
             await self.close()
+
+
+@attrs.define
+@common.logable
+class SoupClientSessionSync:
+    """
+    Synchronous SoupBinTCP session.
+
+    """
+    session: SoupClientSession
+    bridge: common.SyncExecutor
+    closed: bool = False
+
+    def __attrs_post_init__(self):
+        """Sync session have no support for on_msg_coro and on_close_coro
+        So we inject a close_coro to close the session when the on_close_coro is called.
+        """
+        async def on_close_coro() -> None:
+            self.log.info('on close coro called, session is closing')
+            self.close()
+        self.session.on_close_coro = on_close_coro
+
+    def receive(self):
+        return self.bridge.execute(self.session.receive_msg())
+
+    def send_msg(self, msg: SoupMessage):
+        self.bridge.execute_sync(self.session.send_msg, msg)
+
+    def send_debug(self, text: str):
+        self.bridge.execute_sync(self.session.send_debug, text)
+
+    def logout(self):
+        self.bridge.execute_sync(self.session.logout)
+        self.close()
+
+    def send_unseq_data(self, data: bytes):
+        self.session.send_unseq_data(data)
+
+    def close(self):
+        if self.closed:
+            return
+        self.closed = True
+        self.bridge.execute(self.session.close())
+        self.bridge.stop()
+
+    def is_closed(self):
+        return self.session.is_closed()

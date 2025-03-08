@@ -1,0 +1,71 @@
+import asyncio
+import threading
+from asyncio import iscoroutine
+
+import attrs
+from .utils import logable
+from .types import StateError
+
+
+__all__ = ['SyncExecutor']
+
+
+@attrs.define
+@logable
+class SyncExecutor:
+    """
+    A helper class to execute async functions synchronously.
+    """
+    name: str = attrs.field()
+    _event_loop: asyncio.BaseEventLoop = attrs.field(init=False)
+    _thread: threading.Thread = attrs.field(init=False)
+
+    def __attrs_post_init__(self):
+        self._event_loop = asyncio.new_event_loop()
+        self._thread = threading.Thread(name=f'sync-executor-{self.name}', target=self._event_loop.run_forever)
+        self._thread.start()
+        self.log.info(f'SyncExecutor[{self.name}] started')
+
+    def execute(self, underlying, timeout=None):
+        """
+        Execute an async function synchronously.
+        """
+        self._must_be_active()
+
+        if not iscoroutine(underlying):
+            raise ValueError(f'Expected an async function, got: {underlying}')
+
+        future = asyncio.run_coroutine_threadsafe(underlying, self._event_loop)
+        return future.result(timeout=timeout)
+
+    def execute_sync(self, underlying, *args, **kwargs):
+        """
+        Execute an underlying synchronous function in this context.
+
+        This method wraps the underlying function in a coroutine and executes it synchronously.
+        In this way, if the underlying function is creating tasks, they will do so in the same
+        event loop.
+        """
+        self._must_be_active()
+
+        if not callable(underlying):
+            raise ValueError(f'Expected a callable, got: {underlying}')
+
+        return self.execute(
+            self._bridge(underlying, *args, **kwargs)
+        )
+
+    def stop(self):
+        """
+        Stop the SyncExecutor and the underlying event loop
+        """
+        self.log.info(f'Stopping SyncExecutor[{self.name}]')
+        self._event_loop.call_soon_threadsafe(self._event_loop.stop)
+        self._thread.join()
+
+    async def _bridge(self, underlying, *args, **kwargs):
+        return underlying(*args, **kwargs)
+
+    def _must_be_active(self):
+        if not self._thread.is_alive():
+            raise StateError(f'SyncExecutor[{self.name}] is not active')
