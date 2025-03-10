@@ -23,9 +23,14 @@ class SyncExecutor:
     _event_loop: asyncio.BaseEventLoop = attrs.field(init=False)
     _thread: threading.Thread = attrs.field(init=False)
 
+    @staticmethod
+    def _work(event_loop):
+        asyncio.set_event_loop(event_loop)
+        event_loop.run_forever()
+
     def __attrs_post_init__(self):
         self._event_loop = asyncio.new_event_loop()
-        self._thread = threading.Thread(name=f'sync-executor-{self.name}', target=self._event_loop.run_forever)
+        self._thread = threading.Thread(name=f'sync-executor-{self.name}', target=SyncExecutor._work, args=(self._event_loop,))
         self._thread.start()
         self.log.info(f'SyncExecutor[{self.name}] started')
 

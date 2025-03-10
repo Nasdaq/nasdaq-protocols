@@ -15,6 +15,18 @@ from .mocks import *
 LOG = logging.getLogger(__name__)
 
 
+@pytest.fixture(scope='function', autouse=True)
+def thread_resource_clean_checker():
+    before_threads = [thread.name for thread in threading.enumerate()]
+    yield
+    after_threads = [thread.name for thread in threading.enumerate()]
+
+    if before_threads != after_threads:
+        LOG.warning(f'Threads differ: {before_threads=} {after_threads=}')
+        new_threads = [thread for thread in after_threads if thread not in before_threads]
+        LOG.warning(f'New threads: {new_threads}')
+
+
 @pytest.fixture(scope='function')
 def tmp_file_writer(tmp_path):
     """
@@ -59,7 +71,8 @@ def sync_mock_server_session(unused_tcp_port):
     LOG.debug('Mock Server started')
 
     yield unused_tcp_port, session
-    event_loop.call_soon_threadsafe(common.stop_task, serving_task)
+    future = asyncio.run_coroutine_threadsafe(common.stop_task(serving_task), event_loop)
+    future.result()
     event_loop.call_soon_threadsafe(event_loop.stop)
     thread.join()
 
