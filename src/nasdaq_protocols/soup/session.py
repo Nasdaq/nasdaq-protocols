@@ -3,6 +3,7 @@ nasdaq_protocols.soup.session contains implementation of the soup session.
 """
 import abc
 import asyncio
+import threading
 from typing import Any, Awaitable, Callable, ClassVar
 
 import attrs
@@ -299,14 +300,18 @@ class SoupClientSessionSync:
     session: SoupClientSession
     bridge: common.SyncExecutor
     closed: bool = False
+    close_lock: threading.RLock = attrs.field(init=False, factory=threading.RLock)
+    closed_event: threading.Event = attrs.field(init=False, factory=threading.Event)
 
     def __attrs_post_init__(self):
         """Sync session have no support for on_msg_coro and on_close_coro
         So we inject a close_coro to close the session when the on_close_coro is called.
         """
         async def on_close_coro() -> None:
-            self.log.info('on close coro called, session is closing')
-            self.close()
+            with self.close_lock:
+                if not self.closed_event.is_set():
+                    self.bridge.stop(join=False)
+                    self.closed_event.set()
         self.session.on_close_coro = on_close_coro
 
     def receive(self):
@@ -318,19 +323,22 @@ class SoupClientSessionSync:
     def send_debug(self, text: str):
         self.bridge.execute_sync(self.session.send_debug, text)
 
-    def logout(self):
-        self.bridge.execute_sync(self.session.logout)
-        self.close()
-
     def send_unseq_data(self, data: bytes):
         self.session.send_unseq_data(data)
 
+    def logout(self):
+        with self.close_lock:
+            if not self.closed_event.is_set():
+                self.bridge.execute_sync(self.session.logout)
+        self.closed_event.wait()
+        self.bridge.join()
+
     def close(self):
-        if self.closed:
-            return
-        self.closed = True
-        self.bridge.execute(self.session.close())
-        self.bridge.stop()
+        with self.close_lock:
+            if not self.closed_event.is_set():
+                self.bridge.execute_sync(self.session.initiate_close)
+        self.closed_event.wait()
+        self.bridge.join()
 
     def is_closed(self):
         return self.session.is_closed()

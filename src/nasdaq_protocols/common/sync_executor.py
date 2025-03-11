@@ -32,7 +32,7 @@ class SyncExecutor:
         self._event_loop = asyncio.new_event_loop()
         self._thread = threading.Thread(name=f'sync-executor-{self.name}', target=SyncExecutor._work, args=(self._event_loop,))
         self._thread.start()
-        self.log.info(f'SyncExecutor[{self.name}] started')
+        self.log.info(f'SyncExecutor[{self.name}] started, thread: {self._thread.ident}')
 
     def execute(self, underlying, timeout=None):
         """
@@ -67,12 +67,19 @@ class SyncExecutor:
             self._bridge(underlying, *args, **kwargs)
         )
 
-    def stop(self):
+    def stop(self, join=True):
         """
         Stop the SyncExecutor and the underlying event loop
         """
         self.log.info(f'Stopping SyncExecutor[{self.name}]')
         self._event_loop.call_soon_threadsafe(self._event_loop.stop)
+        if join:
+            self._thread.join()
+
+    def join(self):
+        """
+        Join the underlying thread
+        """
         self._thread.join()
 
     async def _bridge(self, underlying, *args, **kwargs):
