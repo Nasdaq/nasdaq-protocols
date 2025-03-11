@@ -1,5 +1,5 @@
 import asyncio
-import logging
+import time
 
 import attrs
 import pytest
@@ -7,8 +7,6 @@ import pytest
 from nasdaq_protocols import soup
 from nasdaq_protocols.soup import LoginRequest, LoginAccepted, LoginRejected, UnSequencedData
 from tests.mocks import matches, send
-
-LOG = logging.getLogger(__name__)
 
 
 @attrs.define(auto_attribs=True)
@@ -42,6 +40,11 @@ def configure_login_accept(server_session):
 async def wait_for_session_close(client_session):
     while not client_session.is_closed():
         await asyncio.sleep(0.1)
+
+
+def sync_wait_for_session_close(client_session):
+    while not client_session.is_closed():
+        time.sleep(0.1)
 
 
 async def test__soup_session__invalid_credentials__login_rejected(mock_server_session):
@@ -267,3 +270,99 @@ async def test__soup_session__send_logout():
     )
     assert len(server_session.output_sent) == 0
     assert server_session.is_closed()
+
+
+def test__sync_soup_session__invalid_credentials__login_rejected(sync_mock_server_session):
+    port, server_session = sync_mock_server_session
+
+    server_session.when(
+        matches(LoginRequest('nouser', 'nopwd', 'session', '1')), 'login-request-match',
+    ).do(
+        send(LoginRejected(soup.LoginRejectReason.NOT_AUTHORIZED)), 'login-rejected'
+    )
+
+    with pytest.raises(ConnectionRefusedError):
+        client_session = soup.connect(
+            ('127.0.0.1', port),
+            'nouser',
+            'nopwd',
+            'session'
+        )
+        assert client_session is None
+
+
+def test__sync_soup_session__valid_credentials__login_accepted(sync_mock_server_session):
+    port, server_session = sync_mock_server_session
+    server_session = configure_login_accept(server_session)
+
+    client_session = soup.connect(
+        ('127.0.0.1', port),
+        'test-u',
+        'test-p',
+        'session'
+    )
+    assert client_session is not None
+
+    client_session.logout()
+
+    sync_wait_for_session_close(client_session)
+
+
+def test__sync_soup_session__able_to_communicate(sync_mock_server_session):
+    port, server_session = sync_mock_server_session
+    server_session = configure_login_accept(server_session)
+
+    client_session = soup.connect(
+        ('127.0.0.1', port),
+        'test-u',
+        'test-p',
+        'session'
+    )
+    assert client_session is not None
+
+    for i in range(1, 10):
+        server_session.when(
+            matches(soup.UnSequencedData(f'hello-{i}'.encode())),
+            f'sequenced-data-{i}'
+        ).do(
+            send(soup.SequencedData(f'hello-{i}-ack'.encode()))
+        )
+
+    for i in range(1, 10):
+        test_data = f'hello-{i}'.encode()
+        client_session.send_msg(soup.UnSequencedData(test_data))
+        reply = client_session.receive()
+        assert isinstance(reply, soup.SequencedData)
+        assert reply.data == test_data + b'-ack'
+
+    client_session.logout()
+
+    sync_wait_for_session_close(client_session)
+
+
+def test__sync_soup_session__sending_debug_from_client(sync_mock_server_session):
+    port, server_session = sync_mock_server_session
+    server_session = configure_login_accept(server_session)
+
+    client_session = soup.connect(
+        ('127.0.0.1', port),
+        'test-u',
+        'test-p',
+        'session'
+    )
+    assert client_session is not None
+    test_data = 'sending debug msg'
+
+    server_session.when(
+        matches(soup.Debug(test_data)), 'debug-msg'
+    ).do(
+        send(soup.SequencedData(f'{test_data}-ack'.encode()))
+    )
+
+    client_session.send_debug(test_data)
+    reply = client_session.receive()
+    assert isinstance(reply, soup.SequencedData)
+    assert reply.data == f'{test_data}-ack'.encode('ascii')
+
+    client_session.logout()
+    sync_wait_for_session_close(client_session)

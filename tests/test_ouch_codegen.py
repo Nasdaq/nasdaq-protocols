@@ -47,7 +47,8 @@ async def connect_async(remote: tuple[str, int], user: str, passwd: str, session
                         on_msg_coro: Callable[[Type[Message]], Awaitable[None]] = None,
                         on_close_coro: Callable[[], Awaitable[None]] = None,
                         client_heartbeat_interval: int = 10,
-                        server_heartbeat_interval: int = 10) -> ClientSession:
+                        server_heartbeat_interval: int = 10,
+                        connect_timeout: int = 5) -> ClientSession:
     if session_factory is None:
         def session_factory(x):
             return ClientSession(x, on_msg_coro=on_msg_coro, on_close_coro=on_close_coro)
@@ -55,7 +56,8 @@ async def connect_async(remote: tuple[str, int], user: str, passwd: str, session
     return await ouch.connect_async(
         remote, user, passwd, session_id, sequence,
         session_factory, on_msg_coro, on_close_coro,
-        client_heartbeat_interval, server_heartbeat_interval
+        client_heartbeat_interval, server_heartbeat_interval,
+        connect_timeout=connect_timeout
     )
 
 

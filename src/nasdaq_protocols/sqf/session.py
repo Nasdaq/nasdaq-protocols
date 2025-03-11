@@ -75,7 +75,6 @@ class ClientSession:
             self.log.debug('%s> incoming sequenced bytes_', self._session_id)
             msg = self.decode(message.data)
             await self._message_queue.put(msg[1])
-            #await self._message_queue.put(self.decode(message.data)[1])
 
     async def _on_soup_close(self):
         await self._message_queue.stop()

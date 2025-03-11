@@ -38,7 +38,7 @@ from .session import (
     SoupSessionId,
     SoupSession,
     SoupClientSession,
-    SoupServerSession
+    SoupServerSession, SoupClientSessionSync
 )
 
 
@@ -61,11 +61,13 @@ __all__ = [
     'SoupSession',
     'SoupClientSession',
     'SoupServerSession',
-    'connect_async'
+    'SoupClientSessionSync',
+    'connect_async',
+    'connect'
 ]
 
 
-async def connect_async(remote: tuple[str, int],  # pylint: disable=too-many-arguments
+async def connect_async(remote: tuple[str, int],  # pylint: disable=too-many-arguments, too-many-locals
                         user: str,
                         passwd: str,
                         session_id: str = '',
@@ -74,9 +76,10 @@ async def connect_async(remote: tuple[str, int],  # pylint: disable=too-many-arg
                         on_close_coro: common.OnCloseCoro = None,
                         session_factory: Callable[[], SoupClientSession] = None,
                         client_heartbeat_interval: int = 10,
-                        server_heartbeat_interval: int = 10) -> SoupClientSession:
+                        server_heartbeat_interval: int = 10,
+                        connect_timeout: int = 5) -> SoupClientSession:
     """
-    Connect to the SoupBinTCP server and login.
+    Connect asynchronously to the SoupBinTCP server and login.
 
     Using `:param sequence` the client can specify the sequence number of the next
     message it expects to receive. The server will then send all messages with sequence
@@ -96,6 +99,7 @@ async def connect_async(remote: tuple[str, int],  # pylint: disable=too-many-arg
     :param session_factory: Factory to create a SoupClientSession.
     :param client_heartbeat_interval: seconds between client heartbeats.
     :param server_heartbeat_interval: seconds between server heartbeats.
+    :param connect_timeout: seconds to wait for connection.
     :return: SoupClientSession
     """
     loop = asyncio.get_running_loop()
@@ -108,15 +112,68 @@ async def connect_async(remote: tuple[str, int],  # pylint: disable=too-many-arg
             server_heartbeat_interval=server_heartbeat_interval
         )
 
-    _, soup_session = await loop.create_connection(
-        session_factory if session_factory else default_session_factory,
-        *remote
-    )
-
-    login_request = LoginRequest(user, passwd, session_id, str(sequence))
+    try:
+        _, soup_session = await asyncio.wait_for(
+            loop.create_connection(
+                session_factory if session_factory else default_session_factory,
+                *remote
+            ),
+            timeout=connect_timeout
+        )
+    except asyncio.TimeoutError:
+        raise ConnectionError(f'Unable to connect to {remote}')
 
     try:
+        login_request = LoginRequest(user, passwd, session_id, str(sequence))
         return await soup_session.login(login_request)
     except common.EndOfQueue as exc:
         # if a connection is abruptly closed, the incoming message queue will be closed
         raise ConnectionRefusedError("Connection closed by peer.") from exc
+
+
+def connect(remote: tuple[str, int],
+            user: str,
+            passwd: str,
+            session_id: str = '',
+            sequence: int = 1,
+            client_heartbeat_interval: int = 10,
+            server_heartbeat_interval: int = 10) -> SoupClientSessionSync:
+    """
+    Connect to the SoupBinTCP server and login.
+
+    Using `:param sequence` the client can specify the sequence number of the next
+    message it expects to receive. The server will then send all messages with sequence
+    numbers greater than the specified sequence number.
+
+    To connect to the start of the stream, specify sequence=1, which is the default.
+    To connect to the end of the stream, specify sequence=0, new messages will be received.
+    To connect to a specific message, specify the sequence number of the message.
+
+    NOTE: This is experimental and should be used with caution.
+
+    :param remote: tuple of host and port
+    :param user: Username to login
+    :param passwd:  Password to login
+    :param session_id: Name of the session to join [Default=''] .
+    :param sequence: The sequence number. [Default=1]
+    :param client_heartbeat_interval: seconds between client heartbeats.
+    :param server_heartbeat_interval: seconds between server heartbeats.
+    :return: SoupClientSessionSync
+    """
+    sync_executor = common.SyncExecutor(f'soup-connect-{user}')
+    try:
+        async_session = sync_executor.execute(
+            connect_async(
+                remote,
+                user,
+                passwd,
+                session_id,
+                sequence,
+                client_heartbeat_interval=client_heartbeat_interval,
+                server_heartbeat_interval=server_heartbeat_interval
+            )
+        )
+        return SoupClientSessionSync(async_session, sync_executor)
+    except Exception as exc:
+        sync_executor.stop()
+        raise exc
