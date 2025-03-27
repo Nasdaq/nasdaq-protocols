@@ -157,3 +157,17 @@ def module_loader():
     return load_module
 
 
+@pytest.fixture(scope='function')
+def package_loader():
+    loaded_packages_path = []
+
+    def load_package(package_name, package_dir):
+        sys.path.insert(0, str(package_dir))
+        package_ = importlib.import_module(package_name)
+        loaded_packages_path.append(str(package_dir))
+        return package_
+
+    yield load_package
+
+    for pkg_path in loaded_packages_path:
+        sys.path.remove(pkg_path)

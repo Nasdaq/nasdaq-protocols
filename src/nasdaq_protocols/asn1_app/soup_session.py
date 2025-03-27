@@ -1,66 +1,71 @@
 import asyncio
-from typing import Callable, Type, Awaitable
+from typing import Callable, Type, Awaitable, ClassVar
 
 import attrs
 from nasdaq_protocols.common import DispatchableMessageQueue, logable
 from nasdaq_protocols import soup
-from .core import Message
+
+from .core import Asn1Message
 
 
 __all__ = [
-    'OnSqfMessageCoro',
-    'OnSqfCloseCoro',
-    'SqfSessionId',
-    'ClientSession'
+    'OnAsn1MessageCoro',
+    'OnAns1CloseCoro',
+    'Ans1SoupSessionId',
+    'Asn1SoupClientSession'
 ]
-OnSqfMessageCoro = Callable[[Type[Message]], Awaitable[None]]
-OnSqfCloseCoro = Callable[[], Awaitable[None]]
+OnAsn1MessageCoro = Callable[[Type[Asn1Message]], Awaitable[None]]
+OnAns1CloseCoro = Callable[[], Awaitable[None]]
 
 
 @attrs.define(auto_attribs=True)
-class SqfSessionId:
+class Ans1SoupSessionId:
     soup_session_id: soup.SoupSessionId = None
 
     def __str__(self):
         if self.soup_session_id:
-            return f'sqf-{self.soup_session_id}'
-        return 'sqf-nosoup'
+            return f'asn1-{self.soup_session_id}'
+        return 'asn1-nosoup'
 
 
 @attrs.define(auto_attribs=True)
 @logable
-class ClientSession:
+class Asn1SoupClientSession:
+    """ Soup client session that can read messages from soup server.
+
+    Currently, only one pdu is supported.
+    """
+    Asn1Message: ClassVar[Asn1Message]
     soup_session: soup.SoupClientSession
-    on_msg_coro: OnSqfMessageCoro = None
-    on_close_coro: OnSqfCloseCoro = None
+    on_msg_coro: OnAsn1MessageCoro = None
+    on_close_coro: OnAns1CloseCoro = None
     closed: bool = False
-    _session_id: SqfSessionId = None
+    _session_id: Ans1SoupSessionId = None
     _close_event: asyncio.Event = None
     _message_queue: DispatchableMessageQueue = None
 
+    def __init_subclass__(cls, **kwargs):
+        if 'asn1_message' not in kwargs:
+            raise AttributeError("Missing 'asn1_message' attribute")
+        cls.Asn1Message = kwargs['asn1_message']
+
     def __attrs_post_init__(self):
-        self._session_id = SqfSessionId(self.soup_session.session_id)
+        self._session_id = Ans1SoupSessionId(self.soup_session.session_id)
         self._message_queue = DispatchableMessageQueue(self._session_id, self.on_msg_coro)
         self.soup_session.set_handlers(on_msg_coro=self._on_soup_message, on_close_coro=self._on_soup_close)
         self.soup_session.start_dispatching()
 
     async def receive_message(self):
         """
-        Asynchronously receive a message from the Sqf session.
+        Asynchronously receive a message from the soup session.
 
         This method blocks until a message is received by the session.
         """
         return await self._message_queue.get()
 
-    def send_message(self, msg: Message):
-        """
-        Send a message to the Sqf Server.
-        """
-        self.soup_session.send_unseq_data(msg.to_bytes()[1])
-
     async def close(self):
         """
-        Asynchronously close the Sqf session.
+        Asynchronously close the session.
         """
         if self._close_event or self.closed:
             self.log.debug('%s> closing in progress..', self._session_id)
@@ -73,8 +78,9 @@ class ClientSession:
     async def _on_soup_message(self, message: soup.SoupMessage):
         if isinstance(message, soup.SequencedData):
             self.log.debug('%s> incoming sequenced bytes_', self._session_id)
-            msg = self.decode(message.data)
-            await self._message_queue.put(msg[1])
+            await self._message_queue.put(
+                self.decode(message.data)[1]
+            )
 
     async def _on_soup_close(self):
         await self._message_queue.stop()
@@ -84,8 +90,9 @@ class ClientSession:
             self._close_event.set()
         self.closed = True
 
-    def decode(self, bytes_: bytes):
+    @classmethod
+    def decode(cls, bytes_: bytes):
         """
-        Decode the given bytes into an itch message.
+        Decode the given bytes into an asn1 message.
         """
-        return Message.from_bytes(bytes_)
+        return cls.Asn1Message.from_bytes(bytes_)

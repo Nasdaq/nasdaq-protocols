@@ -62,7 +62,7 @@ class ClientSession:
         """
         Asynchronously close the ouch session.
         """
-        if self._close_event:
+        if self._close_event or self.closed:
             self.log.debug('%s> closing in progress..', self._session_id)
             return
         self._close_event = asyncio.Event()
