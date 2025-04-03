@@ -65,7 +65,7 @@ compiler = asn1tools.compile_string(TEST_ASN1_SPEC)
 
 
 @attrs.define(auto_attribs=True)
-class TestHurlMessage(Serializable):
+class ExampleAsn1Message(Serializable):
     data: bytes
 
     def to_bytes(self) -> tuple[int, bytes]:
@@ -247,7 +247,7 @@ async def test__asn1app_codegen__soup_clientapp_common_tests__using_generated_co
     def in_msg_factory(i):
         msg = get_test_msg(i)
         encoded_message = compiler.encode('MyCompanyAutomation', msg)
-        return TestHurlMessage(encoded_message)
+        return ExampleAsn1Message(encoded_message)
 
     def out_msg_factory(i):
         msg = get_test_msg(i)
