@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "nasdaq-protocols"
 description = "Nasdaq protocols python library"
-license = {file = "docs/LICENSE.rst"}
+license-files = ["docs/LICENSE.rst"]
 requires-python = ">= 3.10"
 classifiers = [
     'Development Status :: 3 - Alpha',
