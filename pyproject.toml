@@ -12,6 +12,7 @@ classifiers = [
     'Development Status :: 3 - Alpha',
     'Topic :: Software Development :: Libraries :: Python Modules'
 ]
+readme = "README.md"
 
 dependencies = [
     'attrs>=23.1',
