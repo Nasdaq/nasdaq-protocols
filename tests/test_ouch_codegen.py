@@ -25,13 +25,13 @@ __all__ = [
 
 
 @logable
-class Message(ouch.Message, app_name='test'):
+class Message(ouch.Message, app_name='test_ouch'):
     def __init_subclass__(cls, **kwargs):
         cls.log.debug('subclassing %s, params = %s', cls.__name__, str(kwargs))
         if 'indicator' not in kwargs:
-            raise ValueError('expected "indicator" when subclassing test.Message')
+            raise ValueError('expected "indicator" when subclassing test_ouch.Message')
 
-        kwargs['app_name'] = 'test'
+        kwargs['app_name'] = 'test_ouch'
         super().__init_subclass__(**kwargs)
 
 
@@ -116,7 +116,7 @@ def msg_factory(load_generated_ouch_code):
 async def test__ouch__soup_clientapp_codegen_tests(load_generated_ouch_code, soup_clientapp_codegen_tests):
     await soup_clientapp_codegen_tests(
         'ouch',
-        'test',
+        'test_ouch',
         codegen.generate,
         TEST_XML_OUCH_MESSAGE,
         EXPECTED_GENERATED_CODE,

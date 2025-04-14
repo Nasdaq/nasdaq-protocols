@@ -21,6 +21,5 @@ class SoupMessageReader(common.Reader):
 
         _, msg = SoupMessage.from_bytes(self._buffer[:siz + 2])
         self._buffer = self._buffer[siz + 2:]
-        buff_len -= (siz+2)
 
         return msg, msg.is_logout(), msg.is_heartbeat()
