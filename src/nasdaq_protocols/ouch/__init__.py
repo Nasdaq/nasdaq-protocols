@@ -2,7 +2,6 @@ from typing import Callable
 from nasdaq_protocols import soup
 
 from .core import (
-    OuchMessageId,
     Message
 )
 from .session import (
@@ -15,7 +14,6 @@ from .codegen import generate
 
 
 __all__ = [
-    'OuchMessageId',
     'Message',
     'OnOuchMessageCoro',
     'OnOuchCloseCoro',

@@ -24,7 +24,7 @@ class App2ItchMessage(itch.Message, app_name='itch_app_2'):
         super().__init_subclass__(**kwargs)
 
 
-class TestItchApp1Message1(App1ItchMessage, indicator=1):
+class TestItchApp1Message1(App1ItchMessage, indicator=1, direction='outgoing'):
     __test__ = False
 
     class BodyRecord(Record):
@@ -39,7 +39,7 @@ class TestItchApp1Message1(App1ItchMessage, indicator=1):
         return msg
 
 
-class TestItchApp1Message2(App1ItchMessage, indicator=2):
+class TestItchApp1Message2(App1ItchMessage, indicator=2, direction='outgoing'):
     __test__ = False
 
     class BodyRecord(Record):
@@ -54,7 +54,7 @@ class TestItchApp1Message2(App1ItchMessage, indicator=2):
         return msg
 
 
-class TestItchApp2Message(App2ItchMessage, indicator=1):
+class TestItchApp2Message(App2ItchMessage, indicator=1, direction='outgoing'):
     __test__ = False
 
     class BodyRecord(Record):
