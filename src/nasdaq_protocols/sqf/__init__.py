@@ -2,7 +2,6 @@ from typing import Callable
 from nasdaq_protocols import soup
 
 from .core import (
-    SqfMessageId,
     Message
 )
 from .session import (
@@ -14,7 +13,6 @@ from .session import (
 
 
 __all__ = [
-    'SqfMessageId',
     'Message',
     'OnSqfMessageCoro',
     'OnSqfCloseCoro',
