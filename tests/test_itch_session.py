@@ -4,7 +4,7 @@ from nasdaq_protocols import itch
 from .soup_client_app_tests import soup_clientapp_common_tests
 
 
-class TestOrderBookMessage(itch.Message, indicator=1):
+class TestOrderBookMessage(itch.Message, indicator=1, direction='outgoing'):
     __test__ = False
     class BodyRecord(Record):
         Fields = [
