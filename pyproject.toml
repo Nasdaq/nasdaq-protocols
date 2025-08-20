@@ -30,6 +30,7 @@ nasdaq-itch-tools-codegen="nasdaq_protocols.itch.codegen:generate_itch_tools"
 nasdaq-fix-codegen="nasdaq_protocols.fix.codegen:generate"
 nasdaq-asn1soup-codegen="nasdaq_protocols.asn1_app.codegen:generate_soup_app"
 nasdaq-protocols-create-new-project="nasdaq_protocols.tools.new_project:create"
+nasdaq-soup-tail="nasdaq_protocols.soup.tools_soup_tail:command"
 
 
 [tool.setuptools_scm]

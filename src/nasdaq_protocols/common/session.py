@@ -319,7 +319,7 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
         self.log.debug('%s> connected', self.session_id)
         self._transport = transport
         self.session_id.set_transport(self._transport)
-        self._reader = self.reader_factory(self.session_id, self._msg_queue.put, self.close)
+        self._reader = self.reader_factory(self.session_id, self.on_message, self.close)
         if self.dispatch_on_connect:
             self.start_dispatching()
 
@@ -337,6 +337,9 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
         """
         self.log.debug('%s> connection lost', self.session_id)
         self.initiate_close()
+
+    async def on_message(self, msg):
+        await self._msg_queue.put(msg)
 
     @abc.abstractmethod
     def send_msg(self, msg: Serializable[T]) -> None:

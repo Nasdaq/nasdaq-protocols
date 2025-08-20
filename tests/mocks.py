@@ -31,7 +31,7 @@ class ActonExecutor:
         self.actions.append((name, action))
         return self
 
-    def __call__(self, data: Any, *args, **kwargs):
+    def __call__(self, data: Any=None, *args, **kwargs):
         for name, action in self.actions:
             _logger.debug('Executing action : %s', name)
             action(self.session, data)
@@ -42,11 +42,13 @@ class MockServerSession(asyncio.Protocol):
     connected: bool = attrs.field(init=False, default=False)
     port: int = attrs.field(init=False, default=0)
     actions: list[tuple[Matcher, ActonExecutor]] = attrs.field(init=False, factory=list)
+    connect_actions: ActonExecutor = attrs.field(init=False, default=None)
     transport: asyncio.Transport | asyncio.BaseTransport = None
 
     def connection_made(self, transport):
         self.connected = True
         self.transport = transport
+        self.connect_actions and self.connect_actions(self)
 
     def data_received(self, data):
         _logger.debug('mock server session: data recived: %s', data)
@@ -79,6 +81,10 @@ class MockServerSession(asyncio.Protocol):
         executor = ActonExecutor(self, name=name)
         self.actions.append((matcher, executor))
         return executor
+
+    def when_connect(self):
+        self.connect_actions = self.connect_actions or ActonExecutor(self, name='connect')
+        return self.connect_actions
 
     def close(self):
         if self.transport:

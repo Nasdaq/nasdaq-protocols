@@ -1,5 +1,9 @@
 [run]
+concurrency = multiprocessing
+parallel = true
+sigterm = true
 omit =
    src/nasdaq_protocols/tools/*
+   tests/*
     
 
