@@ -173,7 +173,7 @@ class SoupClientSession(SoupSession, session_type='client'):
             raise ConnectionRefusedError(str(reply))
 
         self.session_id.update(reply)
-        self.sequence = reply.sequence
+        self.sequence = reply.sequence - 1
         self.log.debug('%s> session established, sequence = %d', self.session_id, self.sequence)
         self.start_heartbeats(self.client_heartbeat_interval, self.server_heartbeat_interval)
         self.start_dispatching()
@@ -193,6 +193,11 @@ class SoupClientSession(SoupSession, session_type='client'):
         :param data: application payload
         """
         self.send_msg(UnSequencedData(data))
+
+    async def on_message(self, msg):
+        if isinstance(msg, SequencedData):
+            self.sequence += 1
+        await super().on_message(msg)
 
 
 @attrs.define(auto_attribs=True)
