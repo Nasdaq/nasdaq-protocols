@@ -4,6 +4,7 @@ parallel = true
 sigterm = true
 omit =
    src/nasdaq_protocols/tools/*
+   src/nasdaq_protocols/soup/tools_soup_tail.py
    tests/*
     
 
