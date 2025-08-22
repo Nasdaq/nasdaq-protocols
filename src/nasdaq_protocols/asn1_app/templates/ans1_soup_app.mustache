@@ -1,13 +1,19 @@
+import asyncio
 from typing import Callable, Awaitable, Type
 
+import click
+from nasdaq_protocols.common import utils
 from nasdaq_protocols.common import logable
+from nasdaq_protocols import soup
 from nasdaq_protocols import asn1_app
+
 
 __all__ = [
     '{{spec.capitalised_name}}',
     'Message',
     'SoupClientSession',
-    'connect_async_soup'
+    'connect_async_soup',
+    'tail_messages'
 ]
 
 
@@ -41,5 +47,25 @@ async def connect_async_soup(remote: tuple[str, int], user: str, passwd: str, se
         remote, user, passwd, session_id, session_factory,
         sequence,
         client_heartbeat_interval, server_heartbeat_interval
+    )
+
+
+@click.command()
+@click.option('-h', '--host', required=True)
+@click.option('-p', '--port', required=True)
+@click.option('-U', '--user', required=True)
+@click.option('-P', '--password', required=True)
+@click.option('-S', '--session', default='', show_default=True)
+@click.option('-s', '--sequence', default=1, show_default=True)
+@click.option('-t', '--client-heartbeat-interval', default=10, show_default=True)
+@click.option('-T', '--server-heartbeat-interval', default=10, show_default=True)
+@click.option('-v', '--verbose', count=True)
+def tail_messages(host, port, user, password, session, sequence,
+                  client_heartbeat_interval, server_heartbeat_interval, verbose):
+    utils.enable_logging_tools(verbose)
+    asyncio.run(
+        soup.tail_soup_app(
+            (host, port), user, password, session, sequence, connect_async_soup, client_heartbeat_interval, server_heartbeat_interval
+        )
     )
 

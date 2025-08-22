@@ -40,6 +40,7 @@ from .session import (
     SoupClientSession,
     SoupServerSession, SoupClientSessionSync
 )
+from .tools_soupapp_tail import tail_soup_app
 
 
 __all__ = [
@@ -62,6 +63,7 @@ __all__ = [
     'SoupClientSession',
     'SoupServerSession',
     'SoupClientSessionSync',
+    'tail_soup_app',
     'connect_async',
     'connect'
 ]
