@@ -52,7 +52,8 @@ def init_file__no_prefix__code_generated(params: TestParams):
     assert len(generated_files) == 2
 
     assert expected_file_name in generated_files
-    assert generated_files[expected_file_name].strip() == params.expected_generated_code.strip()
+    assert generated_files[expected_file_name].strip() == params.expected_generated_code.strip(), \
+        f"Expected:\n{params.expected_generated_code.strip()}\nGot:\n{generated_files[expected_file_name].strip()}"
 
     assert '__init__.py' in generated_files
     assert generated_files['__init__.py'].strip() == f'from .{params.protocol}_{params.app_name} import *'

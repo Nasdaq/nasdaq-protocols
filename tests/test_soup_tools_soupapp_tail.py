@@ -4,8 +4,7 @@ import pytest
 from nasdaq_protocols import soup
 from nasdaq_protocols.common import stop_task
 from nasdaq_protocols.itch import codegen
-from nasdaq_protocols.itch.tools import tail_itch
-from nasdaq_protocols.soup import LoginRejectReason
+from nasdaq_protocols.soup import LoginRejectReason, tools_soupapp_tail
 from .testdata import *
 from .mocks import *
 
@@ -35,23 +34,6 @@ def load_itch_definitions(code_loader, codegen_invoker):
     yield generator
 
 
-@pytest.fixture(scope='function')
-def load_itch_tools(code_loader, load_itch_definitions, tools_codegen_invoker):
-    def generator(app_name):
-        definitions = load_itch_definitions(app_name)
-        generated_file_name = f'itch_{app_name}_tools.py'
-        generated_files = tools_codegen_invoker(
-            codegen.generate_itch_tools,
-            app_name,
-            app_name
-        )
-
-        tools = code_loader(f'{app_name}_tools', generated_files[generated_file_name])
-        assert tools is not None
-        return definitions, tools,
-    yield generator
-
-
 def get_message_feed(module):
     message1 = module.TestMessage1()
     message1.field1 = 1
@@ -65,8 +47,8 @@ def get_message_feed(module):
     return [message1, message2]
 
 
-async def test__itch_tools__tail_itch(mock_server_session, load_itch_tools):
-    definitions, tools = load_itch_tools('test__itch_tools__tail_itch')
+async def test__soup__tools__soup_app__tail_itch(mock_server_session, load_itch_definitions):
+    definitions = load_itch_definitions('test__soup__tools__soup_app__tail_itch')
     message_feed = get_message_feed(definitions)
     port, server_session = mock_server_session
 
@@ -83,10 +65,9 @@ async def test__itch_tools__tail_itch(mock_server_session, load_itch_tools):
         )
 
     # start tailing
-    tailer = asyncio.create_task(tail_itch(
+    tailer = asyncio.create_task(soup.tail_soup_app(
         ('127.0.0.1', port), 'test-u', 'test-p', '', 1,
         definitions.connect_async, 10, 10,
-        connect_timeout=1
     ))
     assert not tailer.done()
 
@@ -102,8 +83,8 @@ async def test__itch_tools__tail_itch(mock_server_session, load_itch_tools):
     assert tailer.done()
 
 
-async def test__itch_tools__tail_itch__login_failed(mock_server_session, load_itch_tools):
-    definitions, tools = load_itch_tools('test__itch_tools__tail_itch__login_failed')
+async def test__soup__tools__soup_app__tail_itch__login_failed(mock_server_session, load_itch_definitions):
+    definitions = load_itch_definitions('test__soup__tools__soup_app__tail_itch__login_failed')
     port, server_session = mock_server_session
 
     # setup login
@@ -114,24 +95,22 @@ async def test__itch_tools__tail_itch__login_failed(mock_server_session, load_it
     )
 
     # start tailing
-    tailer = asyncio.create_task(tail_itch(
+    tailer = asyncio.create_task(soup.tail_soup_app(
         ('127.0.0.1', port), 'test-u', 'test-p', '', 1,
         definitions.connect_async, 10, 10,
-        connect_timeout=1
     ))
     # give some time for tail
     await asyncio.sleep(1)
     assert tailer.done()
 
 
-async def test__itch_tools__tail_itch__wrong_server(load_itch_tools, unused_tcp_port):
-    definitions, tools = load_itch_tools('test__itch_tools__tail_itch__wrong_server')
+async def test__soup__tools__soup_app__tail_itch__wrong_server(load_itch_definitions, unused_tcp_port):
+    definitions = load_itch_definitions('test__soup__tools__soup_app__tail_itch__wrong_server')
 
     # start tailing
-    tailer = asyncio.create_task(tail_itch(
+    tailer = asyncio.create_task(soup.tail_soup_app(
         ('no.such.host', unused_tcp_port), 'test-u', 'test-p', '', 1,
         definitions.connect_async, 10, 10,
-        connect_timeout=0.5
     ))
 
     await asyncio.sleep(1)
@@ -139,8 +118,8 @@ async def test__itch_tools__tail_itch__wrong_server(load_itch_tools, unused_tcp_
 
 
 @pytest.mark.xfail(reason='https://github.com/Nasdaq/nasdaq-protocols/issues/21')
-async def test__itch_tools__tail_itch__ctrl_c(mock_server_session, load_itch_tools):
-    definitions, tools = load_itch_tools('test__itch_tools__tail_itch__ctrl_c')
+async def test__soup__tools__soup_app__tail_itch__ctrl_c(mock_server_session, load_itch_definitions):
+    definitions = load_itch_definitions('test__soup__tools__soup_app__tail_itch__ctrl_c')
     port, server_session = mock_server_session
 
     # setup login
@@ -151,10 +130,9 @@ async def test__itch_tools__tail_itch__ctrl_c(mock_server_session, load_itch_too
     )
 
     # start tailing
-    tailer = asyncio.create_task(tail_itch(
+    tailer = asyncio.create_task(soup.tail_soup_app(
         ('127.0.0.1', port), 'test-u', 'test-p', '', 1,
         definitions.connect_async, 10, 10,
-        connect_timeout=1
     ))
     # give some time for tail
     await asyncio.sleep(1)

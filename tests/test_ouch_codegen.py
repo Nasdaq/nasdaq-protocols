@@ -7,9 +7,12 @@ from .testdata import *
 
 
 EXPECTED_GENERATED_CODE = """
+import asyncio
 from enum import Enum
 from typing import Callable, Awaitable, Type
 
+import click
+from nasdaq_protocols.common import utils
 from nasdaq_protocols.common import logable
 from nasdaq_protocols.common.message import *
 from nasdaq_protocols import soup, ouch
@@ -19,6 +22,7 @@ __all__ = [
     'Message',
     'ClientSession',
     'connect_async',
+    'tail_messages',
     'TestMessage1',
     'TestMessage2',
 ]
@@ -58,6 +62,26 @@ async def connect_async(remote: tuple[str, int], user: str, passwd: str, session
         session_factory, on_msg_coro, on_close_coro,
         client_heartbeat_interval, server_heartbeat_interval,
         connect_timeout=connect_timeout
+    )
+
+
+@click.command()
+@click.option('-h', '--host', required=True)
+@click.option('-p', '--port', required=True)
+@click.option('-U', '--user', required=True)
+@click.option('-P', '--password', required=True)
+@click.option('-S', '--session', default='', show_default=True)
+@click.option('-s', '--sequence', default=1, show_default=True)
+@click.option('-t', '--client-heartbeat-interval', default=10, show_default=True)
+@click.option('-T', '--server-heartbeat-interval', default=10, show_default=True)
+@click.option('-v', '--verbose', count=True)
+def tail_messages(host, port, user, password, session, sequence,
+                  client_heartbeat_interval, server_heartbeat_interval, verbose):
+    utils.enable_logging_tools(verbose)
+    asyncio.run(
+        soup.tail_soup_app(
+            (host, port), user, password, session, sequence, connect_async, client_heartbeat_interval, server_heartbeat_interval
+        )
     )
 
 
