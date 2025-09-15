@@ -29,13 +29,13 @@ __all__ = [
 
 
 @logable
-class Message(itch.Message, app_name='test'):
+class Message(itch.Message, app_name='test_itch'):
     def __init_subclass__(cls, **kwargs):
         cls.log.debug('subclassing %s, params = %s', cls.__name__, str(kwargs))
         if 'indicator' not in kwargs:
-            raise ValueError('expected "indicator" when subclassing test.Message')
+            raise ValueError('expected "indicator" when subclassing test_itch.Message')
 
-        kwargs['app_name'] = 'test'
+        kwargs['app_name'] = 'test_itch'
         super().__init_subclass__(**kwargs)
 
 
@@ -139,7 +139,7 @@ def msg_factory(load_generated_itch_code):
 async def test__itch__soup_clientapp_codegen_tests(load_generated_itch_code, soup_clientapp_codegen_tests):
     await soup_clientapp_codegen_tests(
         'itch',
-        'test',
+        'test_itch',
         codegen.generate,
         TEST_XML_ITCH_MESSAGE,
         EXPECTED_GENERATED_CODE,
