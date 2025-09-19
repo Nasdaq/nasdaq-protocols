@@ -26,7 +26,7 @@ dynamic = ["version"]
 [project.scripts]
 nasdaq-ouch-codegen="nasdaq_protocols.ouch.codegen:generate"
 nasdaq-itch-codegen="nasdaq_protocols.itch.codegen:generate"
-nasdaq-itch-tools-codegen="nasdaq_protocols.itch.codegen:generate_itch_tools"
+nasdaq-sqf-codegen="nasdaq_protocols.sqf.codegen:generate"
 nasdaq-fix-codegen="nasdaq_protocols.fix.codegen:generate"
 nasdaq-asn1soup-codegen="nasdaq_protocols.asn1_app.codegen:generate_soup_app"
 nasdaq-protocols-create-new-project="nasdaq_protocols.tools.new_project:create"
