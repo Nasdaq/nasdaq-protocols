@@ -51,7 +51,7 @@ class FieldDef:
     array: str = None
     length: int = None
     default: str = None
-    endian: str = None
+    length_type: str = None
 
     def get_codegen_context(self,  definitions: 'Definitions'):
         field_context = self._field_context(definitions)
@@ -89,10 +89,8 @@ class FieldDef:
             type_ = TypeDefinition.Definitions[self.type].__name__
             hint = TypeDefinition.Definitions[self.type].hint
 
-        endian = 'uint_2_be' if self.endian == 'big' else 'uint_2'
-        endian = TypeDefinition.Definitions[endian].__name__
-
         if self.array is not None:
+            endian = TypeDefinition.Definitions[self.length_type].__name__
             type_ = f'Array({type_}, {endian})'
             hint = f'list[{hint}]'
             if self.array == 'double':
@@ -221,7 +219,7 @@ class Parser:
                 element.get('array'),
                 element.get('length'),
                 element.get('default'),
-                element.get('endian')
+                element.get('length_type')
             )
         return f_def
 
