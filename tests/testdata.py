@@ -33,7 +33,7 @@ TEST_XML_RECORDS = """
         <record id="test_record">
             <fields>
                 <field name="int_field1" type="uint_8" default="0"/>
-                <field name="array_field" array="single" length="5" type="uint_2"/>
+                <field name="array_field" array="single" length="5" type="uint_2" length_type="uint_2"/>
                 <field name="override_name_for_field1_def" def="int_field1_def"/>
                 <field def="int_field2_def"/>
                 <field name="enum_field" type="enum:test_enum"/>
@@ -59,7 +59,7 @@ TEST_XML_MESSAGES = """
         <record id="test_record">
             <fields>
                 <field name="int_field1" type="uint_8" default="0"/>
-                <field name="array_field" array="single" length="5" type="uint_2"/>
+                <field name="array_field" array="single" length="5" type="uint_2" length_type="uint_2"/>
                 <field name="override_name_for_field1_def" def="int_field1_def"/>
                 <field def="int_field2_def"/>
                 <field name="enum_field" type="enum:test_enum"/>
@@ -282,7 +282,7 @@ TEST_SQF_MESSAGES = """
             <fields>
                 <field def="timestamp"/>
                 <field def="someInfo"/>
-                <field name="quotes" type="record:Quote" array="true" endian="big"/>
+                <field name="quotes" type="record:Quote" array="true" endian="big" length_type="uint_2_be"/>
             </fields>
         </message>
     </messages-root>
