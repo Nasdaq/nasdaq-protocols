@@ -278,7 +278,7 @@ TEST_SQF_MESSAGES = """
         </record>
     </records-root>
     <messages-root>
-        <message id="QuoteMessage" message-id="1" direction="incoming">
+        <message id="QuoteMessage" message-id="1" direction="outgoing">
             <fields>
                 <field def="timestamp"/>
                 <field def="someInfo"/>
