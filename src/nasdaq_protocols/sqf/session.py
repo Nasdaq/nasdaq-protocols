@@ -86,6 +86,6 @@ class ClientSession:
 
     def decode(self, bytes_: bytes):
         """
-        Decode the given bytes into an itch message.
+        Decode the given bytes into a sqf message.
         """
         return Message.from_bytes(bytes_)
