@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 from contextlib import asynccontextmanager
 from itertools import count
 from typing import Any, Callable, Awaitable
@@ -26,6 +27,7 @@ class DispatchableMessageQueue(Stoppable):
     on_msg_coro: DispatcherCoro = None
     _closed: bool = attrs.field(init=False, default=False)
     _msg_queue: asyncio.Queue = attrs.field(init=False, default=None)
+    _buffer_msg_queue: asyncio.Queue | None = attrs.field(init=False, default=None)
     _recv_task: asyncio.Task = attrs.field(init=False, default=None)
     _dispatcher_task: asyncio.Task = attrs.field(init=False, default=None)
 
@@ -33,12 +35,17 @@ class DispatchableMessageQueue(Stoppable):
         self._msg_queue = asyncio.Queue()
         self.start_dispatching(self.on_msg_coro)
 
+    def __len__(self) -> int:
+        """Return the number of entries in the queue."""
+        return self._msg_queue.qsize()
+
     async def put(self, msg: Any) -> None:
         """
         put an entry into the queue.
         :param msg: Any
         """
-        await self._msg_queue.put(msg)
+        queue = self._buffer_msg_queue if self._buffer_msg_queue else self._msg_queue
+        await queue.put(msg)
 
     async def get(self):
         """get an entry from the queue.
@@ -59,7 +66,8 @@ class DispatchableMessageQueue(Stoppable):
         put an entry into the queue.
         :param msg: Any
         """
-        self._msg_queue.put_nowait(msg)
+        queue = self._buffer_msg_queue if self._buffer_msg_queue else self._msg_queue
+        queue.put_nowait(msg)
 
     def get_nowait(self) -> Any | None:
         """
@@ -118,6 +126,27 @@ class DispatchableMessageQueue(Stoppable):
             self._dispatcher_task = asyncio.create_task(self._start_dispatching(), name=f'{self.session_id}-dispatcher')
             self.log.debug('%s> queue dispatcher started.', self.session_id)
 
+    @contextlib.asynccontextmanager
+    async def buffer_until_drained(self, discard_buffer: bool = False):
+        """Async context manager that waits until the buffer is drained."""
+        if self._buffer_msg_queue:
+            raise StateError('Already blocking new messages, cannot nest block_until_empty')
+
+        self._buffer_msg_queue = asyncio.Queue()
+
+        try:
+            while not self._msg_queue.empty():
+                await asyncio.sleep(0.0001)
+            yield
+        finally:
+            if not discard_buffer:
+                if self.is_dispatching():
+                    async with self.pause_dispatching():
+                        self._msg_queue = self._buffer_msg_queue
+                else:
+                    self._msg_queue = self._buffer_msg_queue
+            self._buffer_msg_queue = None
+
     async def stop(self) -> None:
         """
         Stop the queue.
@@ -137,8 +166,7 @@ class DispatchableMessageQueue(Stoppable):
         counter = count(1)
         while True:
             try:
-                msg = await self._msg_queue.get()
-                await self.on_msg_coro(msg)
+                await self.on_msg_coro(await self._msg_queue.get())
                 self.log.debug('%s> dispatched message %s', self.session_id, next(counter))
             except asyncio.CancelledError:
                 break
