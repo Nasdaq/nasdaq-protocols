@@ -1,5 +1,6 @@
 import abc
 import asyncio
+import contextlib
 from typing import Any, Callable, Coroutine, Generic, Type, TypeVar
 from itertools import count
 
@@ -108,17 +109,36 @@ class Reader(Stoppable):
     on_msg_coro: OnMsgCoro = attrs.field(validator=Validators.not_none())
     on_close_coro: OnCloseCoro = attrs.field(validator=Validators.not_none())
     _buffer: bytearray = attrs.field(init=False, factory=bytearray)
+    _drain_buffer: bytearray | None = attrs.field(init=False, default=None)
     _task: asyncio.Task = attrs.field(init=False, default=None)
     _stopped: bool = attrs.field(init=False, default=False)
+    _drain_mode: asyncio.Event | None = attrs.field(init=False, default=None)
 
     def __attrs_post_init__(self):
         self._task = asyncio.create_task(self._process(), name=f'reader:{self.session_id}')
+
+    @contextlib.asynccontextmanager
+    async def buffer_until_drained(self, discard_buffer: bool = False):
+        """Async context manager that waits until the buffer is drained."""
+        if self._drain_mode:
+            raise StateError('Already draining, cannot nest buffer_until_drained')
+        self._drain_mode = asyncio.Event()
+        self._drain_buffer = bytearray()
+        try:
+            await self._drain_mode.wait()
+            yield
+        finally:
+            self._drain_mode = None
+            if not discard_buffer:
+                self._buffer.extend(self._drain_buffer)
+            self._drain_buffer = None
 
     def on_data(self, data: bytes):
         self.log.debug('%s> on_data: existing = %s, received = %s', self.session_id, self._buffer, data)
         if len(data) == 0:
             return
-        self._buffer.extend(data)
+        buffer = self._drain_buffer if self._drain_buffer is not None else self._buffer
+        buffer.extend(data)
 
     async def stop(self):
         if self._stopped:
@@ -133,8 +153,13 @@ class Reader(Stoppable):
 
     async def _process(self):
         while not self._stopped:
-            if len(self._buffer) > 0:
+            len_before = len_after = len(self._buffer)
+            if len_before > 0:
                 await self._process_1()
+                len_after = len(self._buffer)
+            if self._drain_mode and not self._drain_mode.is_set() and len_after == len_before:
+                self._drain_mode.set()
+
             await asyncio.sleep(0.0001)
 
     async def _process_1(self):
@@ -200,6 +225,7 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
     on_msg_coro: OnMsgCoro = attrs.field(kw_only=True, default=None)
     on_close_coro: OnCloseCoro = attrs.field(kw_only=True, default=None)
     dispatch_on_connect: bool = attrs.field(kw_only=True, default=True)
+    graceful_shutdown: bool = attrs.field(kw_only=True, default=True)
     _reader: Reader = attrs.field(init=False, default=None)
     _transport: asyncio.Transport = attrs.field(init=False, default=None)
     _closed: bool = attrs.field(init=False, default=False)
@@ -242,7 +268,7 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
         """
         return self._closed
 
-    def initiate_close(self) -> None:
+    def initiate_close(self, drain: bool = False) -> None:
         """
         Initiate close of the session.
         An asynchronous task is created which will close the session and all its
@@ -253,22 +279,38 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
         """
         if self._closed or self._closing_task:
             return
-        self._closing_task = asyncio.create_task(self.close(), name=f'asyncsession-close:{self.session_id}')
 
-    async def close(self):
+        if drain:
+            name = f'asyncsession-close-drain:{self.session_id}'
+        else:
+            name = f'asyncsession-close:{self.session_id}'
+
+        self._closing_task = asyncio.create_task(self.close(drain), name=name)
+
+    @contextlib.asynccontextmanager
+    async def buffer_until_drained(self, discard_buffer: bool = False):
+        """Async context manager that waits until both the reader and message queue are drained."""
+        async with self._reader.buffer_until_drained(discard_buffer=discard_buffer):
+            async with self._msg_queue.buffer_until_drained(discard_buffer=discard_buffer):
+                yield
+
+    async def close(self, drain: bool = False):
         """
         Close the session, the session cannot be used after this call.
         """
         if not self._closed:
             self._closed = True
-            await stop_task([
-                self._msg_queue,
-                self._local_hb_monitor,
-                self._remote_hb_monitor,
-                self._reader
-            ])
             if self._transport:
                 self._transport.close()
+
+            await stop_task([self._local_hb_monitor, self._remote_hb_monitor])
+
+            if drain:
+                async with self.buffer_until_drained(discard_buffer=True):
+                    self.log.debug('%s> close: drained session.', self.session_id)
+
+            await stop_task([self._msg_queue,self._reader])
+
             if self.on_close_coro:
                 await self.on_close_coro()
 
@@ -336,7 +378,7 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
         :meta private:
         """
         self.log.debug('%s> connection lost', self.session_id)
-        self.initiate_close()
+        self.initiate_close(self.graceful_shutdown)
 
     async def on_message(self, msg):
         await self._msg_queue.put(msg)

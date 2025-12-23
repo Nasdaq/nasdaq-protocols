@@ -58,6 +58,9 @@ async def reader__stop__reader_is_stopped(**kwargs):
 
     assert handler.closed.is_set()
 
+    # Double stop should be no-op
+    await common.stop_task(reader)
+
 
 @reader_test
 async def reader__one_msg_per_packet__msg_is_read(**kwargs):
@@ -144,6 +147,51 @@ async def reader__handler_raises_exception__reader_is_stopped(**kwargs):
 async def reader__empty_data__no_effect(**kwargs):
     handler, reader, input_factory, output_factory = all_test_params(**kwargs)
     reader.on_data(b'')
+
+    await reader.stop()
+
+
+@reader_test
+async def reader__buffer_until_drained__buffers_not_discarded(**kwargs):
+    handler, reader, input_factory, output_factory = all_test_params(**kwargs)
+
+    discard_buffers_modes = [False, True]
+    for discard_buffer in discard_buffers_modes:
+        reader.on_data(input_factory(1))
+        async with reader.buffer_until_drained(discard_buffer=discard_buffer):
+            first = await handler.received_messages.get()
+            assert first == output_factory(1)
+
+            # Send another message while buffering
+            reader.on_data(input_factory(2))
+            await asyncio.sleep(0.1)
+
+            # Ensure no new messages are received while buffering
+            try:
+                second = await asyncio.wait_for(handler.received_messages.get(), timeout=0.5)
+                assert False, f'Unexpected message received: {second}'
+            except asyncio.TimeoutError:
+                pass
+
+        if not discard_buffer:
+            # After exiting the context, the buffered message should be processed
+            second = await asyncio.wait_for(handler.received_messages.get(), timeout=0.5)
+            assert second == output_factory(2)
+        else:
+            with pytest.raises(asyncio.TimeoutError):
+                await asyncio.wait_for(handler.received_messages.get(), timeout=0.5)
+
+    await reader.stop()
+
+
+@reader_test
+async def reader__buffer_until_drained__nested_call_raises_error(**kwargs):
+    handler, reader, input_factory, output_factory = all_test_params(**kwargs)
+
+    async with reader.buffer_until_drained():
+        with pytest.raises(RuntimeError):
+            async with reader.buffer_until_drained():
+                pass
 
     await reader.stop()
 
