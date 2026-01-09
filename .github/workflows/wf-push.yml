@@ -47,7 +47,7 @@ jobs:
 
   deploy-docs:
     name: Deploy documentation 📚 to GitHub Pages
-    if: startsWith(github.ref, 'refs/tags/')  # only publish documentation on tag pushes
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     needs:
       - build
     runs-on: ubuntu-latest
