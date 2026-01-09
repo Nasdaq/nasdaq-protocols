@@ -2,7 +2,7 @@ from typing import Callable, Awaitable, Type
 
 import attrs
 from nasdaq_protocols import soup
-from nasdaq_protocols.soup_app.session import BaseClientSession, SessionId
+from nasdaq_protocols.soup import soup_app
 from .core import Message
 
 __all__ = [
@@ -17,13 +17,13 @@ OnItchCloseCoro = Callable[[], Awaitable[None]]
 
 
 @attrs.define(auto_attribs=True)
-class ItchSessionId(SessionId):
+class ItchSessionId(soup_app.SoupAppSessionId):
     soup_session_id: soup.SoupSessionId = None
     protocol_name: str = "itch"
 
 
 @attrs.define(auto_attribs=True)
-class ClientSession(BaseClientSession):
+class ClientSession(soup_app.SoupAppClientSession):
     """ITCH protocol client session implementation."""
 
     def _create_session_id(self):
