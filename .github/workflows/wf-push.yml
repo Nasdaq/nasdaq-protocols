@@ -94,6 +94,8 @@ jobs:
         with:
           name: build-artifacts-3.12
           path: dist/
+      - name: list all files
+        run: ls -laR
       - name: Publish distribution 📦 to TestPyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -117,7 +119,5 @@ jobs:
         with:
           name: build-artifacts-3.12
           path: dist/
-      - name: list all files
-        run: ls -laR
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
