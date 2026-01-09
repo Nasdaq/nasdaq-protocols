@@ -2,13 +2,64 @@ import asyncio
 from typing import Callable, Type, Awaitable, Generic, TypeVar
 
 import attrs
-from nasdaq_protocols.common import DispatchableMessageQueue, logable
+
+from nasdaq_protocols.common import (
+    Serializable,
+    Byte,
+    CommonMessage,
+    logable,
+    DispatchableMessageQueue,
+)
 from nasdaq_protocols import soup
+
 
 M = TypeVar('M')
 
 
-class SessionId:
+__all__ = [
+    'SoupAppMessageId',
+    'SoupAppMessage',
+    'SoupAppSessionId',
+    'SoupAppClientSession',
+]
+
+
+@attrs.define(auto_attribs=True, hash=True)
+class SoupAppMessageId(Serializable):
+    indicator: int
+    direction: str = 'outgoing'
+
+    @classmethod
+    def from_bytes(cls, bytes_: bytes) -> tuple[int, 'SoupAppMessageId']:
+        return 1, cls(Byte.from_bytes(bytes_)[1])
+
+    def to_bytes(self) -> tuple[int, bytes]:
+        return Byte.to_bytes(self.indicator)
+
+    def __str__(self):
+        return f'indicator={self.indicator}, direction={self.direction}'
+
+
+@attrs.define
+@logable
+class SoupAppMessage(CommonMessage):
+    IncomingMsgClasses = []
+    OutgoingMsgsClasses = []
+
+    def __init_subclass__(cls, *args, **kwargs):
+        cls.log.debug('%s subclassing %s, params = %s', cls.__mro__[1].__name__, cls.__name__, str(kwargs))
+
+        app_name = kwargs.get('app_name')
+        kwargs['app_name'] = app_name
+        kwargs['msg_id_cls'] = SoupAppMessageId
+
+        if 'indicator' in kwargs and 'direction' in kwargs:
+            kwargs['msg_id'] = SoupAppMessageId(kwargs['indicator'], kwargs['direction'])
+
+        super().__init_subclass__(**kwargs)
+
+
+class SoupAppSessionId:
     """Base class for protocol-specific session IDs."""
     soup_session_id: soup.SoupSessionId = None
     protocol_name: str = "generic"
@@ -21,13 +72,13 @@ class SessionId:
 
 @attrs.define(auto_attribs=True)
 @logable
-class BaseClientSession(Generic[M]):
+class SoupAppClientSession(Generic[M]):
     """Base client session class with common functionality for all protocol implementations."""
     soup_session: soup.SoupClientSession
     on_msg_coro: Callable[[Type[M]], Awaitable[None]] = None
     on_close_coro: Callable[[], Awaitable[None]] = None
     closed: bool = False
-    _session_id: SessionId = None
+    _session_id: SoupAppSessionId = None
     _close_event: asyncio.Event = None
     _message_queue: DispatchableMessageQueue = None
 

@@ -65,7 +65,7 @@ __all__ = [
     'SoupClientSessionSync',
     'tail_soup_app',
     'connect_async',
-    'connect'
+    'connect',
 ]
 
 
