@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ITCH API Reference &#8212; Nasdaq Protocols Python Library 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css?v=08520df9" />
+    <script src="_static/documentation_options.js?v=d45e8c67"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="OUCH API Reference" href="api_reference_ouch.html" />
+    <link rel="prev" title="SOUP API Reference" href="api_reference_soup.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Nasdaq Protocols Python Library 0.0.1 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="Related">
+          <a href="api_reference_soup.html" title="SOUP API Reference"
+             accesskey="P">previous</a> |
+          <a href="api_reference_ouch.html" title="OUCH API Reference"
+             accesskey="N">next</a> |
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="itch-api-reference">
+<span id="api-reference-itch"></span><h1>ITCH API Reference<a class="headerlink" href="#itch-api-reference" title="Link to this heading">¶</a></h1>
+<section id="module-nasdaq_protocols.itch">
+<span id="itch"></span><h2>Itch<a class="headerlink" href="#module-nasdaq_protocols.itch" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.itch.Message">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.itch.</span></span><span class="sig-name descname"><span class="pre">Message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.itch.Message" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SoupAppMessage</span></code></p>
+<dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.itch.Message.MsgIdClass">
+<span class="sig-name descname"><span class="pre">MsgIdClass</span></span><a class="headerlink" href="#nasdaq_protocols.itch.Message.MsgIdClass" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">SoupAppMessageId</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.itch.ItchSessionId">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.itch.</span></span><span class="sig-name descname"><span class="pre">ItchSessionId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soup_session_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'itch'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.itch.ItchSessionId" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SoupAppSessionId</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>soup_session_id</strong> (<a class="reference internal" href="api_reference_soup.html#nasdaq_protocols.soup.session.SoupSessionId" title="nasdaq_protocols.soup.session.SoupSessionId"><em>SoupSessionId</em></a>)</p></li>
+<li><p><strong>protocol_name</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.itch.ClientSession">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.itch.</span></span><span class="sig-name descname"><span class="pre">ClientSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soup_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_msg_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_close_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">close_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_queue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.itch.ClientSession" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SoupAppClientSession</span></code></p>
+<p>ITCH protocol client session implementation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>soup_session</strong> (<a class="reference internal" href="api_reference_soup.html#nasdaq_protocols.soup.session.SoupClientSession" title="nasdaq_protocols.soup.session.SoupClientSession"><em>SoupClientSession</em></a>)</p></li>
+<li><p><strong>on_msg_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>Type</em><em>[</em><em>M</em><em>]</em><em>]</em><em>, </em><em>Awaitable</em><em>[</em><em>None</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>on_close_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Awaitable</em><em>[</em><em>None</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>closed</strong> (<em>bool</em>)</p></li>
+<li><p><strong>session_id</strong> (<em>SoupAppSessionId</em>)</p></li>
+<li><p><strong>close_event</strong> (<em>Event</em>)</p></li>
+<li><p><strong>message_queue</strong> (<a class="reference internal" href="api_reference_common.html#nasdaq_protocols.common.message_queue.DispatchableMessageQueue" title="nasdaq_protocols.common.message_queue.DispatchableMessageQueue"><em>DispatchableMessageQueue</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.itch.ClientSession.send_message">
+<span class="sig-name descname"><span class="pre">send_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.itch.ClientSession.send_message" title="Link to this definition">¶</a></dt>
+<dd><p>Send a message to the server.
+Not implemented in all protocols (e.g., ITCH is read-only).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference internal" href="#nasdaq_protocols.itch.core.Message" title="nasdaq_protocols.itch.core.Message"><em>Message</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.itch.ClientSession.decode">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bytes_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.itch.ClientSession.decode" title="Link to this definition">¶</a></dt>
+<dd><p>Decode the given bytes into an ITCH message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bytes_</strong> (<em>bytes</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="nasdaq_protocols.itch.connect_async">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.itch.</span></span><span class="sig-name descname"><span class="pre">connect_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remote</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">passwd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_factory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_msg_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_close_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_heartbeat_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_heartbeat_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connect_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.itch.connect_async" title="Link to this definition">¶</a></dt>
+<dd><p>Connect to the ITCH server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>remote</strong> (<em>tuple</em><em>[</em><em>str</em><em>, </em><em>int</em><em>]</em>) – tuple of host and port</p></li>
+<li><p><strong>user</strong> (<em>str</em>) – Username to login</p></li>
+<li><p><strong>passwd</strong> (<em>str</em>) – Password to login</p></li>
+<li><p><strong>session_id</strong> – Name of the session to join [Default=’’] .</p></li>
+<li><p><strong>sequence</strong> (<em>int</em>) – The sequence number. [Default=1]</p></li>
+<li><p><strong>session_factory</strong> (<em>Callable</em><em>[</em><em>[</em><a class="reference internal" href="api_reference_soup.html#nasdaq_protocols.soup.session.SoupClientSession" title="nasdaq_protocols.soup.session.SoupClientSession"><em>SoupClientSession</em></a><em>]</em><em>, </em><a class="reference internal" href="#nasdaq_protocols.itch.session.ClientSession" title="nasdaq_protocols.itch.session.ClientSession"><em>ClientSession</em></a><em>]</em>) – Factory to create a SoupClientSession.</p></li>
+<li><p><strong>on_msg_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>Type</em><em>[</em><a class="reference internal" href="#nasdaq_protocols.itch.core.Message" title="nasdaq_protocols.itch.core.Message"><em>Message</em></a><em>]</em><em>]</em><em>, </em><em>Awaitable</em><em>[</em><em>None</em><em>]</em><em>]</em>) – callback, message from server.</p></li>
+<li><p><strong>on_close_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Awaitable</em><em>[</em><em>None</em><em>]</em><em>]</em>) – callback, connection closed .</p></li>
+<li><p><strong>client_heartbeat_interval</strong> (<em>int</em>) – seconds between client heartbeats.</p></li>
+<li><p><strong>server_heartbeat_interval</strong> (<em>int</em>) – seconds between server heartbeats.</p></li>
+<li><p><strong>connect_timeout</strong> (<em>int</em>) – seconds to wait for connection.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SoupClientSession</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#nasdaq_protocols.itch.session.ClientSession" title="nasdaq_protocols.itch.session.ClientSession"><em>ClientSession</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="itch-session">
+<h3>Itch Session<a class="headerlink" href="#itch-session" title="Link to this heading">¶</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.itch.session.ItchSessionId">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.itch.session.</span></span><span class="sig-name descname"><span class="pre">ItchSessionId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soup_session_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protocol_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'itch'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.itch.session.ItchSessionId" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SoupAppSessionId</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>soup_session_id</strong> (<a class="reference internal" href="api_reference_soup.html#nasdaq_protocols.soup.session.SoupSessionId" title="nasdaq_protocols.soup.session.SoupSessionId"><em>SoupSessionId</em></a>)</p></li>
+<li><p><strong>protocol_name</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.itch.session.ClientSession">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.itch.session.</span></span><span class="sig-name descname"><span class="pre">ClientSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soup_session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_msg_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_close_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">close_event</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message_queue</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.itch.session.ClientSession" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SoupAppClientSession</span></code></p>
+<p>ITCH protocol client session implementation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>soup_session</strong> (<a class="reference internal" href="api_reference_soup.html#nasdaq_protocols.soup.session.SoupClientSession" title="nasdaq_protocols.soup.session.SoupClientSession"><em>SoupClientSession</em></a>)</p></li>
+<li><p><strong>on_msg_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>Type</em><em>[</em><em>M</em><em>]</em><em>]</em><em>, </em><em>Awaitable</em><em>[</em><em>None</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>on_close_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Awaitable</em><em>[</em><em>None</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>closed</strong> (<em>bool</em>)</p></li>
+<li><p><strong>session_id</strong> (<em>SoupAppSessionId</em>)</p></li>
+<li><p><strong>close_event</strong> (<em>Event</em>)</p></li>
+<li><p><strong>message_queue</strong> (<a class="reference internal" href="api_reference_common.html#nasdaq_protocols.common.message_queue.DispatchableMessageQueue" title="nasdaq_protocols.common.message_queue.DispatchableMessageQueue"><em>DispatchableMessageQueue</em></a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.itch.session.ClientSession.send_message">
+<span class="sig-name descname"><span class="pre">send_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.itch.session.ClientSession.send_message" title="Link to this definition">¶</a></dt>
+<dd><p>Send a message to the server.
+Not implemented in all protocols (e.g., ITCH is read-only).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference internal" href="#nasdaq_protocols.itch.core.Message" title="nasdaq_protocols.itch.core.Message"><em>Message</em></a>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.itch.session.ClientSession.decode">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bytes_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.itch.session.ClientSession.decode" title="Link to this definition">¶</a></dt>
+<dd><p>Decode the given bytes into an ITCH message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bytes_</strong> (<em>bytes</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-nasdaq_protocols.itch.core">
+<span id="itch-messages"></span><h3>Itch Messages<a class="headerlink" href="#module-nasdaq_protocols.itch.core" title="Link to this heading">¶</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.itch.core.Message">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.itch.core.</span></span><span class="sig-name descname"><span class="pre">Message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">record</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.itch.core.Message" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">SoupAppMessage</span></code></p>
+<dl class="field-list simple">
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.itch.core.Message.MsgIdClass">
+<span class="sig-name descname"><span class="pre">MsgIdClass</span></span><a class="headerlink" href="#nasdaq_protocols.itch.core.Message.MsgIdClass" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">SoupAppMessageId</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          
+          <h3>Table of Contents</h3>
+          <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">MIT License</a></li>
+</ul>
+
+          <search role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+            </form>
+          </search>
+
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="Related">
+            <a href="api_reference_soup.html" title="SOUP API Reference"
+              >previous</a> |
+            <a href="api_reference_ouch.html" title="OUCH API Reference"
+              >next</a> |
+            <a href="py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/api_reference_itch.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+    &#169; Copyright Copyright (c) 2024 Nasdaq.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

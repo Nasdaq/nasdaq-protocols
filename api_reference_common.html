@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Common api reference &#8212; Nasdaq Protocols Python Library 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css?v=08520df9" />
+    <script src="_static/documentation_options.js?v=d45e8c67"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Developer’s Guide" href="developer_guide.html" />
+    <link rel="prev" title="SQF API Reference" href="api_reference_sqf.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Nasdaq Protocols Python Library 0.0.1 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="Related">
+          <a href="api_reference_sqf.html" title="SQF API Reference"
+             accesskey="P">previous</a> |
+          <a href="developer_guide.html" title="Developer’s Guide"
+             accesskey="N">next</a> |
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-nasdaq_protocols.common.message_queue">
+<span id="common-api-reference"></span><h1>Common api reference<a class="headerlink" href="#module-nasdaq_protocols.common.message_queue" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message_queue.DispatchableMessageQueue">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message_queue.</span></span><span class="sig-name descname"><span class="pre">DispatchableMessageQueue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_msg_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.message_queue.DispatchableMessageQueue" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.types.Stoppable" title="nasdaq_protocols.common.types.Stoppable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stoppable</span></code></a></p>
+<p>A message queue that dispatches messages to a coro.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session_id</strong> (<em>Any</em>)</p></li>
+<li><p><strong>on_msg_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>Awaitable</em><em>[</em><em>None</em><em>]</em><em>]</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message_queue.DispatchableMessageQueue.put">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">put</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.message_queue.DispatchableMessageQueue.put" title="Link to this definition">¶</a></dt>
+<dd><p>put an entry into the queue.
+:param msg: Any</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>Any</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message_queue.DispatchableMessageQueue.get">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.message_queue.DispatchableMessageQueue.get" title="Link to this definition">¶</a></dt>
+<dd><p>get an entry from the queue.</p>
+<p>if the underlying queue contains entries, the first element is fetched and returned,
+if the queue contains no entries, a coro is awaited, which will wait until queue contains
+an entry.</p>
+<dl class="simple">
+<dt>Raises:</dt><dd><p>StateError - if the dispatcher is already in progress
+EndOfQueue - if queue is stopped the underlying queue contains no entries.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message_queue.DispatchableMessageQueue.put_nowait">
+<span class="sig-name descname"><span class="pre">put_nowait</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.message_queue.DispatchableMessageQueue.put_nowait" title="Link to this definition">¶</a></dt>
+<dd><p>put an entry into the queue.
+:param msg: Any</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>Any</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message_queue.DispatchableMessageQueue.get_nowait">
+<span class="sig-name descname"><span class="pre">get_nowait</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.message_queue.DispatchableMessageQueue.get_nowait" title="Link to this definition">¶</a></dt>
+<dd><p>get an entry from the queue. This is a non-blocking call.
+:return: entry from the queue or None if queue is empty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Any</em> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message_queue.DispatchableMessageQueue.pause_dispatching">
+<span class="sig-name descname"><span class="pre">pause_dispatching</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.message_queue.DispatchableMessageQueue.pause_dispatching" title="Link to this definition">¶</a></dt>
+<dd><p>This is a context manager that pauses the dispatcher:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">queue</span> <span class="o">=</span> <span class="n">DispatchableMessageQueue</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">on_msg_coro</span><span class="p">)</span>
+
+<span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>  <span class="c1"># will raise an exception</span>
+
+<span class="k">async</span> <span class="k">with</span> <span class="n">queue</span><span class="o">.</span><span class="n">pause_dispatching</span><span class="p">():</span>
+     <span class="n">queue</span><span class="o">.</span><span class="n">get</span><span class="p">()</span>  <span class="c1"># will not raise an exception</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message_queue.DispatchableMessageQueue.is_dispatching">
+<span class="sig-name descname"><span class="pre">is_dispatching</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.message_queue.DispatchableMessageQueue.is_dispatching" title="Link to this definition">¶</a></dt>
+<dd><p>Check is message queue is actively dispatching.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message_queue.DispatchableMessageQueue.start_dispatching">
+<span class="sig-name descname"><span class="pre">start_dispatching</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_msg_coro</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.message_queue.DispatchableMessageQueue.start_dispatching" title="Link to this definition">¶</a></dt>
+<dd><p>Start dispatching messages from the queue to the coro.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>on_msg_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>Awaitable</em><em>[</em><em>None</em><em>]</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message_queue.DispatchableMessageQueue.buffer_until_drained">
+<span class="sig-name descname"><span class="pre">buffer_until_drained</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">discard_buffer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.message_queue.DispatchableMessageQueue.buffer_until_drained" title="Link to this definition">¶</a></dt>
+<dd><p>Async context manager that waits until the buffer is drained.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>discard_buffer</strong> (<em>bool</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message_queue.DispatchableMessageQueue.stop">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.message_queue.DispatchableMessageQueue.stop" title="Link to this definition">¶</a></dt>
+<dd><p>Stop the queue.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message_queue.DispatchableMessageQueue.is_stopped">
+<span class="sig-name descname"><span class="pre">is_stopped</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.message_queue.DispatchableMessageQueue.is_stopped" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if the queue is stopped.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-nasdaq_protocols.common.session">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.HeartbeatMonitor">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.session.</span></span><span class="sig-name descname"><span class="pre">HeartbeatMonitor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_no_activity_coro</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop_when_no_activity</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerate_missed_heartbeats</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'monitor'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.HeartbeatMonitor" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.types.Stoppable" title="nasdaq_protocols.common.types.Stoppable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stoppable</span></code></a></p>
+<p>Monitor that trips the <cite>on_no_activity_coro</cite> if no activity is detected.</p>
+<p>Currently, activity is externally signalled by calling the <cite>ping</cite> method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session_id</strong> (<em>Any</em>) – The session id.</p></li>
+<li><p><strong>interval</strong> (<em>float</em>) – interval in seconds at which the monitor checks for activity.</p></li>
+<li><p><strong>on_no_activity_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Coroutine</em><em>]</em>) – coroutine to be called when no activity is detected.</p></li>
+<li><p><strong>stop_when_no_activity</strong> (<em>bool</em>) – If True, the monitor stops when no activity is detected.</p></li>
+<li><p><strong>tolerate_missed_heartbeats</strong> (<em>int</em>) – number of missed heartbeats to tolerate.</p></li>
+<li><p><strong>name</strong> (<em>str</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.HeartbeatMonitor.ping">
+<span class="sig-name descname"><span class="pre">ping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.HeartbeatMonitor.ping" title="Link to this definition">¶</a></dt>
+<dd><p>Ping the monitor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.HeartbeatMonitor.is_running">
+<span class="sig-name descname"><span class="pre">is_running</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.HeartbeatMonitor.is_running" title="Link to this definition">¶</a></dt>
+<dd><p>Returns True if the monitor is running.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.HeartbeatMonitor.stop">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">stop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.HeartbeatMonitor.stop" title="Link to this definition">¶</a></dt>
+<dd><p>Stop the monitor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.Reader">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.session.</span></span><span class="sig-name descname"><span class="pre">Reader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_msg_coro</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_close_coro</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.Reader" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.types.Stoppable" title="nasdaq_protocols.common.types.Stoppable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Stoppable</span></code></a></p>
+<p>Abstract Base class for readers.</p>
+<p>A reader is responsible for parsing the received data from the transport
+and dispatching it to the on_msg_coro.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session_id</strong> (<em>Any</em>) – The session id.</p></li>
+<li><p><strong>on_msg_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>Coroutine</em><em>]</em>) – coroutine to be called for every message parsed.</p></li>
+<li><p><strong>on_close_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Coroutine</em><em>]</em>) – coroutine to be called when the reader detects end of session.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.Reader.buffer_until_drained">
+<span class="sig-name descname"><span class="pre">buffer_until_drained</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">discard_buffer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.Reader.buffer_until_drained" title="Link to this definition">¶</a></dt>
+<dd><p>Async context manager that waits until the buffer is drained.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>discard_buffer</strong> (<em>bool</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.Reader.deserialize">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">deserialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.Reader.deserialize" title="Link to this definition">¶</a></dt>
+<dd><p>Deserialize the buffer and return the message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple of message, stop reader, skip message</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[<em>Any</em>, bool, bool]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.AsyncSession">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.session.</span></span><span class="sig-name descname"><span class="pre">AsyncSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reader_factory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_msg_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_close_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispatch_on_connect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graceful_shutdown</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.AsyncSession" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code>]</p>
+<p>Abstract base class for async sessions.</p>
+<p>Once the transport is available, the session creates a new reader using the
+<cite>reader_factory</cite> and starts parsing the incoming bytes.</p>
+<p>By default, the session starts in a dispatching mode, meaning the incoming messages
+are dispatched to the <cite>on_msg_coro</cite>. This can be changed by setting <cite>dispatch_on_connect=False</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session_id</strong> (<a class="reference internal" href="#nasdaq_protocols.common.session.SessionId" title="nasdaq_protocols.common.session.SessionId"><em>SessionId</em></a>) – The session id.</p></li>
+<li><p><strong>reader_factory</strong> (<em>Callable</em><em>[</em><em>[</em><em>Any</em><em>, </em><em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>Coroutine</em><em>]</em><em>, </em><em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Coroutine</em><em>]</em><em>]</em><em>, </em><a class="reference internal" href="#nasdaq_protocols.common.session.Reader" title="nasdaq_protocols.common.session.Reader"><em>Reader</em></a><em>]</em>) – A callable that returns a reader.</p></li>
+<li><p><strong>on_msg_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>Coroutine</em><em>]</em>) – coroutine to be called when a message is received.</p></li>
+<li><p><strong>on_close_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Coroutine</em><em>]</em>) – coroutine to be called when the session is closed.</p></li>
+<li><p><strong>dispatch_on_connect</strong> (<em>bool</em>) – If True, the session starts with dispatching once connected.</p></li>
+<li><p><strong>graceful_shutdown</strong> (<em>bool</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.AsyncSession.receive_msg">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">receive_msg</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.AsyncSession.receive_msg" title="Link to this definition">¶</a></dt>
+<dd><p>Receive a message from the peer. This is a blocking call.
+This call blocks until a new message is available.</p>
+<p>If the session is dispatching messages, then this call raises an exception.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return Any<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The message received.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Type</em>[<em>T</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.AsyncSession.receive_msg_nowait">
+<span class="sig-name descname"><span class="pre">receive_msg_nowait</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.AsyncSession.receive_msg_nowait" title="Link to this definition">¶</a></dt>
+<dd><p>Receive a message from the peer. This is a non-blocking call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return Any<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The message received.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Type</em>[<em>T</em>] | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.AsyncSession.is_active">
+<span class="sig-name descname"><span class="pre">is_active</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.AsyncSession.is_active" title="Link to this definition">¶</a></dt>
+<dd><p>Returns True if the session is not closed or in closing state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.AsyncSession.is_closed">
+<span class="sig-name descname"><span class="pre">is_closed</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.AsyncSession.is_closed" title="Link to this definition">¶</a></dt>
+<dd><p>Returns True if the session is closed.
+:return:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.AsyncSession.initiate_close">
+<span class="sig-name descname"><span class="pre">initiate_close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.AsyncSession.initiate_close" title="Link to this definition">¶</a></dt>
+<dd><p>Initiate close of the session.
+An asynchronous task is created which will close the session and all its
+associates.</p>
+<p>Poll <cite>is_closed</cite> to check if the session is closed or use the
+<cite>on_close_coro</cite> callback to be notified when the session is closed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>drain</strong> (<em>bool</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.AsyncSession.buffer_until_drained">
+<span class="sig-name descname"><span class="pre">buffer_until_drained</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">discard_buffer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.AsyncSession.buffer_until_drained" title="Link to this definition">¶</a></dt>
+<dd><p>Async context manager that waits until both the reader and message queue are drained.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>discard_buffer</strong> (<em>bool</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.AsyncSession.close">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">drain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.AsyncSession.close" title="Link to this definition">¶</a></dt>
+<dd><p>Close the session, the session cannot be used after this call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>drain</strong> (<em>bool</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.AsyncSession.start_heartbeats">
+<span class="sig-name descname"><span class="pre">start_heartbeats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_hb_interval</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remote_hb_interval</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.AsyncSession.start_heartbeats" title="Link to this definition">¶</a></dt>
+<dd><p>Starts the heartbeats for the session.</p>
+<ul class="simple">
+<li><p>if the remote failed heartbeats, then the session is closed.</p></li>
+<li><p>if the local heartbeat timer expires, then <cite>send_heartbeat</cite> is called.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>local_hb_interval</strong> (<em>int</em><em> | </em><em>float</em>)</p></li>
+<li><p><strong>remote_hb_interval</strong> (<em>int</em><em> | </em><em>float</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.AsyncSession.start_dispatching">
+<span class="sig-name descname"><span class="pre">start_dispatching</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.AsyncSession.start_dispatching" title="Link to this definition">¶</a></dt>
+<dd><p>By default, the session starts with dispatching switched-on.</p>
+<p>If, the session is created with dispatching-off, then at any point in time
+during the lifetime of this session, dispatching can be switched-on by calling
+this method.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.AsyncSession.send_msg">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">send_msg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.AsyncSession.send_msg" title="Link to this definition">¶</a></dt>
+<dd><p>Send a message to the peer.
+:param msg: Any message that is serializable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference internal" href="#nasdaq_protocols.common.types.Serializable" title="nasdaq_protocols.common.types.Serializable"><em>Serializable</em></a><em>[</em><em>T</em><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.AsyncSession.send_heartbeat">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">send_heartbeat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.AsyncSession.send_heartbeat" title="Link to this definition">¶</a></dt>
+<dd><p>Callback to send a heartbeat to the peer.
+:meta private:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.SessionId">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.session.</span></span><span class="sig-name descname"><span class="pre">SessionId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nohost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.SessionId" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A basic session id.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>host</strong> (<em>str</em>)</p></li>
+<li><p><strong>port</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.session.SessionId.set_transport">
+<span class="sig-name descname"><span class="pre">set_transport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transport</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.session.SessionId.set_transport" title="Link to this definition">¶</a></dt>
+<dd><p>Once the transport is available, the host and port are updated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>transport</strong> (<em>Transport</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class" id="module-nasdaq_protocols.common.types">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.types.Serializable">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.types.</span></span><span class="sig-name descname"><span class="pre">Serializable</span></span><a class="headerlink" href="#nasdaq_protocols.common.types.Serializable" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code>]</p>
+<p>Abstract Base class for serializable objects.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.types.Serializable.to_bytes">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.types.Serializable.to_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>pack the object to binary format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[int, bytes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.types.Serializable.from_bytes">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bytes_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.types.Serializable.from_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>unpack the object from binary format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bytes_</strong> (<em>bytes</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[int, <em>Type</em>[<em>T</em>]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.types.Stoppable">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.types.</span></span><span class="sig-name descname"><span class="pre">Stoppable</span></span><a class="headerlink" href="#nasdaq_protocols.common.types.Stoppable" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.types.StateError">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.types.</span></span><span class="sig-name descname"><span class="pre">StateError</span></span><a class="headerlink" href="#nasdaq_protocols.common.types.StateError" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">RuntimeError</span></code></p>
+<p>Raised when an operation is attempted in an invalid state.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.types.EndOfQueue">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.types.</span></span><span class="sig-name descname"><span class="pre">EndOfQueue</span></span><a class="headerlink" href="#nasdaq_protocols.common.types.EndOfQueue" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">EOFError</span></code></p>
+<p>Raised when the end of the queue is reached.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.types.TypeDefinition">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.types.</span></span><span class="sig-name descname"><span class="pre">TypeDefinition</span></span><a class="headerlink" href="#nasdaq_protocols.common.types.TypeDefinition" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to hold all type definitions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>to_str</strong> (<em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>str</em><em>]</em>) – Function to convert value to string</p></li>
+<li><p><strong>from_str</strong> (<em>Callable</em><em>[</em><em>[</em><em>str</em><em>]</em><em>, </em><em>Any</em><em>]</em>) – Function to convert string to value</p></li>
+<li><p><strong>to_bytes</strong> (<em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>bytes</em><em>]</em>) – Function to convert value to bytes</p></li>
+<li><p><strong>from_bytes</strong> (<em>Callable</em><em>[</em><em>[</em><em>bytes</em><em>]</em><em>, </em><em>Tuple</em><em>[</em><em>int</em><em>, </em><em>Any</em><em>]</em><em>]</em>) – Function to convert bytes to value</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Any</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Tuple[int, bytes]</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[int, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function" id="module-nasdaq_protocols.common.utils">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.utils.logable">
+<span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.utils.</span></span><span class="sig-name descname"><span class="pre">logable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.utils.logable" title="Link to this definition">¶</a></dt>
+<dd><p>decorator that adds a log object to the class.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.utils.stop_task">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.utils.</span></span><span class="sig-name descname"><span class="pre">stop_task</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tasks</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.utils.stop_task" title="Link to this definition">¶</a></dt>
+<dd><p>Cancel a task and wait for it to finish</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>tasks</strong> (<em>Task</em><em> | </em><a class="reference internal" href="#nasdaq_protocols.common.types.Stoppable" title="nasdaq_protocols.common.types.Stoppable"><em>Stoppable</em></a><em> | </em><em>list</em><em>[</em><em>Task</em><em> | </em><a class="reference internal" href="#nasdaq_protocols.common.types.Stoppable" title="nasdaq_protocols.common.types.Stoppable"><em>Stoppable</em></a><em>]</em>)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Task</em> | <a class="reference internal" href="#nasdaq_protocols.common.types.Stoppable" title="nasdaq_protocols.common.types.Stoppable"><em>Stoppable</em></a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.utils.start_server">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.utils.</span></span><span class="sig-name descname"><span class="pre">start_server</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remote</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_factory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spin_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.001</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'server:serve'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.utils.start_server" title="Link to this definition">¶</a></dt>
+<dd><p>start a socket server and return the server and the task that runs it</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>Tuple</em>[<em>Server</em>, <em>Task</em>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class" id="module-nasdaq_protocols.common.message.types">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.Boolean">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">Boolean</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.Boolean" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.types.TypeDefinition" title="nasdaq_protocols.common.types.TypeDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeDefinition</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.Boolean.type_cls">
+<span class="sig-name descname"><span class="pre">type_cls</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.Boolean.type_cls" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.Int">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">Int</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.Int" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.types.TypeDefinition" title="nasdaq_protocols.common.types.TypeDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeDefinition</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.Int.to_str">
+<span class="sig-name descname"><span class="pre">to_str</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.Int.to_str" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.Int.from_str">
+<span class="sig-name descname"><span class="pre">from_str</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.Int.from_str" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.Int.type_cls">
+<span class="sig-name descname"><span class="pre">type_cls</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.Int.type_cls" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.IntBE">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">IntBE</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.IntBE" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.message.types.Int" title="nasdaq_protocols.common.message.types.Int"><code class="xref py py-class docutils literal notranslate"><span class="pre">Int</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.UnsignedInt">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">UnsignedInt</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.UnsignedInt" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.message.types.Int" title="nasdaq_protocols.common.message.types.Int"><code class="xref py py-class docutils literal notranslate"><span class="pre">Int</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.UnsignedIntBE">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">UnsignedIntBE</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.UnsignedIntBE" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.message.types.UnsignedInt" title="nasdaq_protocols.common.message.types.UnsignedInt"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnsignedInt</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.Byte">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">Byte</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.Byte" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.message.types.Int" title="nasdaq_protocols.common.message.types.Int"><code class="xref py py-class docutils literal notranslate"><span class="pre">Int</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.Short">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">Short</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.Short" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.message.types.Int" title="nasdaq_protocols.common.message.types.Int"><code class="xref py py-class docutils literal notranslate"><span class="pre">Int</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.ShortBE">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">ShortBE</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.ShortBE" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.message.types.Int" title="nasdaq_protocols.common.message.types.Int"><code class="xref py py-class docutils literal notranslate"><span class="pre">Int</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.UnsignedShort">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">UnsignedShort</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.UnsignedShort" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.message.types.Int" title="nasdaq_protocols.common.message.types.Int"><code class="xref py py-class docutils literal notranslate"><span class="pre">Int</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.UnsignedShortBE">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">UnsignedShortBE</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.UnsignedShortBE" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.message.types.Int" title="nasdaq_protocols.common.message.types.Int"><code class="xref py py-class docutils literal notranslate"><span class="pre">Int</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.Long">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">Long</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.Long" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.message.types.Int" title="nasdaq_protocols.common.message.types.Int"><code class="xref py py-class docutils literal notranslate"><span class="pre">Int</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.LongBE">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">LongBE</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.LongBE" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.message.types.Int" title="nasdaq_protocols.common.message.types.Int"><code class="xref py py-class docutils literal notranslate"><span class="pre">Int</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.UnsignedLong">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">UnsignedLong</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.UnsignedLong" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.message.types.Int" title="nasdaq_protocols.common.message.types.Int"><code class="xref py py-class docutils literal notranslate"><span class="pre">Int</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.UnsignedLongBE">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">UnsignedLongBE</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.UnsignedLongBE" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.message.types.Int" title="nasdaq_protocols.common.message.types.Int"><code class="xref py py-class docutils literal notranslate"><span class="pre">Int</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.CharAscii">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">CharAscii</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.CharAscii" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.types.TypeDefinition" title="nasdaq_protocols.common.types.TypeDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeDefinition</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.CharAscii.to_str">
+<span class="sig-name descname"><span class="pre">to_str</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.CharAscii.to_str" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.CharAscii.from_str">
+<span class="sig-name descname"><span class="pre">from_str</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.CharAscii.from_str" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.CharAscii.type_cls">
+<span class="sig-name descname"><span class="pre">type_cls</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.CharAscii.type_cls" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.CharIso8599">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">CharIso8599</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.CharIso8599" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.message.types.CharAscii" title="nasdaq_protocols.common.message.types.CharAscii"><code class="xref py py-class docutils literal notranslate"><span class="pre">CharAscii</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.AsciiString">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">AsciiString</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.AsciiString" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.message.types.CharAscii" title="nasdaq_protocols.common.message.types.CharAscii"><code class="xref py py-class docutils literal notranslate"><span class="pre">CharAscii</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>to_bytes</strong> (<em>Callable</em><em>[</em><em>[</em><em>str</em><em>]</em><em>, </em><em>Tuple</em><em>[</em><em>int</em><em>, </em><em>bytes</em><em>]</em><em>]</em>) – encodes the string to bytes and prepends the 2 digit size of the string</p></li>
+<li><p><strong>from_bytes</strong> (<em>Callable</em><em>[</em><em>[</em><em>bytes</em><em>]</em><em>, </em><em>Tuple</em><em>[</em><em>int</em><em>, </em><em>str</em><em>]</em><em>]</em>) – decodes the bytes to string and returns the size of the string and the string</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.Iso8859String">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">Iso8859String</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.Iso8859String" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.message.types.CharAscii" title="nasdaq_protocols.common.message.types.CharAscii"><code class="xref py py-class docutils literal notranslate"><span class="pre">CharAscii</span></code></a></p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.FixedAsciiString">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">FixedAsciiString</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right_justified</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.message.types.FixedAsciiString" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.types.TypeDefinition" title="nasdaq_protocols.common.types.TypeDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeDefinition</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.FixedAsciiString.to_str">
+<span class="sig-name descname"><span class="pre">to_str</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.FixedAsciiString.to_str" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.FixedAsciiString.from_str">
+<span class="sig-name descname"><span class="pre">from_str</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.FixedAsciiString.from_str" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.FixedAsciiString.type_cls">
+<span class="sig-name descname"><span class="pre">type_cls</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.FixedAsciiString.type_cls" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.FixedIsoString">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.common.message.types.</span></span><span class="sig-name descname"><span class="pre">FixedIsoString</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">right_justified</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.common.message.types.FixedIsoString" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.common.types.TypeDefinition" title="nasdaq_protocols.common.types.TypeDefinition"><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeDefinition</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.FixedIsoString.to_str">
+<span class="sig-name descname"><span class="pre">to_str</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.FixedIsoString.to_str" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.FixedIsoString.from_str">
+<span class="sig-name descname"><span class="pre">from_str</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.FixedIsoString.from_str" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.common.message.types.FixedIsoString.type_cls">
+<span class="sig-name descname"><span class="pre">type_cls</span></span><a class="headerlink" href="#nasdaq_protocols.common.message.types.FixedIsoString.type_cls" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          
+          <h3>Table of Contents</h3>
+          <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">MIT License</a></li>
+</ul>
+
+          <search role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+            </form>
+          </search>
+
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="Related">
+            <a href="api_reference_sqf.html" title="SQF API Reference"
+              >previous</a> |
+            <a href="developer_guide.html" title="Developer’s Guide"
+              >next</a> |
+            <a href="py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/api_reference_common.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+    &#169; Copyright Copyright (c) 2024 Nasdaq.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

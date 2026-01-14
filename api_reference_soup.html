@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>SOUP API Reference &#8212; Nasdaq Protocols Python Library 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css?v=08520df9" />
+    <script src="_static/documentation_options.js?v=d45e8c67"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="ITCH API Reference" href="api_reference_itch.html" />
+    <link rel="prev" title="API Reference" href="api_reference.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Nasdaq Protocols Python Library 0.0.1 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="Related">
+          <a href="api_reference.html" title="API Reference"
+             accesskey="P">previous</a> |
+          <a href="api_reference_itch.html" title="ITCH API Reference"
+             accesskey="N">next</a> |
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="soup-api-reference">
+<span id="api-reference-soup"></span><h1>SOUP API Reference<a class="headerlink" href="#soup-api-reference" title="Link to this heading">¶</a></h1>
+<section id="module-nasdaq_protocols.soup">
+<span id="soup"></span><h2>Soup<a class="headerlink" href="#module-nasdaq_protocols.soup" title="Link to this heading">¶</a></h2>
+<p>The SoupBinTCP protocol is a simple, lightweight, and fast protocol that
+provides reliable, ordered, and error-checked delivery of messages between
+client and server. It is designed for high-performance market data and order
+entry applications. The protocol is based on the TCP/IP protocol suite and
+uses TCP as its transport protocol.</p>
+<p>This module provides a SoupBinTCP client implementation that can be used to
+connect to the SoupBinTCP servers.</p>
+<p>Though SoupBinTCP is meant for latency sensitive applications, there are
+numerous times when the client application is not latency sensitive and
+would like to talk to the soup server, Say in testing or writing a monitoring tool.</p>
+<p>In such cases, the client application can use the SoupBinTCP client provided by this module.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.InvalidSoupMessage">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">InvalidSoupMessage</span></span><a class="headerlink" href="#nasdaq_protocols.soup.InvalidSoupMessage" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>Raised when an invalid soup message is received.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.LoginRejectReason">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">LoginRejectReason</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.LoginRejectReason" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Login Reject Reason sent from server in case of login failure.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.LoginRejectReason.get">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reason</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.LoginRejectReason.get" title="Link to this definition">¶</a></dt>
+<dd><p>Get the LoginRejectReason enum value from the given reason.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>reason</strong> (<em>str</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupMessage">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">SoupMessage</span></span><a class="headerlink" href="#nasdaq_protocols.soup.SoupMessage" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="api_reference_common.html#nasdaq_protocols.common.types.Serializable" title="nasdaq_protocols.common.types.Serializable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Serializable</span></code></a>[<a class="reference internal" href="#nasdaq_protocols.soup.SoupMessage" title="nasdaq_protocols.soup.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a>]</p>
+<p>Base class for all soup messages.</p>
+<p>Given raw bytes use this class to unpack the bytes to the corresponding soup message:</p>
+<pre class="literal-block">input_bytes = b'Atest      2                   '
+len, soup_msg = SoupMessage.from_bytes(input_bytes)
+type(soup_msg)</pre>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupMessage.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupMessage.to_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Pack the soup message to binary format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple of length and bytes</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[int, bytes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupMessage.from_bytes">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bytes_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupMessage.from_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>unpacks the bytes to the corresponding soup message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bytes</strong> – bytes to unpack</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple of length and soup message</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[int, type[<a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><em>SoupMessage</em></a>] | <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><em>SoupMessage</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.LoginRequest">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">LoginRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.LoginRequest" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Login Request Message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user</strong> (<em>str</em>) – Username to login</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – Password to login</p></li>
+<li><p><strong>session</strong> (<em>str</em>) – Name of the session to join [Default=’’] .</p></li>
+<li><p><strong>sequence</strong> (<em>str</em>) – The sequence number. [Default=1]</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.LoginRequest.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.LoginRequest.to_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Pack the soup message to binary format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[int, bytes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.LoginAccepted">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">LoginAccepted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.LoginAccepted" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Login Accepted Message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session_id</strong> (<em>str</em>) – Name of the session joined [Default=’’] .</p></li>
+<li><p><strong>sequence</strong> (<em>int</em>) – The next sequence number.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.LoginAccepted.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.LoginAccepted.to_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Pack the soup message to binary format
+:return: bytes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[int, bytes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.LoginRejected">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">LoginRejected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reason</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.LoginRejected" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Login Rejected Message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>reason</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.core.LoginRejectReason" title="nasdaq_protocols.soup.core.LoginRejectReason"><em>LoginRejectReason</em></a>) – Reason for login failure. Refer <cite>LoginRejectReason</cite></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.LoginRejected.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.LoginRejected.to_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Pack the soup message to binary format
+:return: bytes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[int, bytes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SequencedData">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">SequencedData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SequencedData" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Sequenced Data Message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em>) – The application payload sent by the server.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SequencedData.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SequencedData.to_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Pack the soup message to binary format
+:return: bytes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[int, bytes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.UnSequencedData">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">UnSequencedData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.UnSequencedData" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Unsequenced Data Message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em>) – The application payload to be sent to server.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.UnSequencedData.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.UnSequencedData.to_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Pack the soup message to binary format
+:return: bytes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[int, bytes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.Debug">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">Debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.Debug" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Debug Message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>str</em>) – The debug message.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.Debug.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.Debug.to_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Pack the soup message to binary format
+:return: bytes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[int, bytes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.ClientHeartbeat">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">ClientHeartbeat</span></span><a class="headerlink" href="#nasdaq_protocols.soup.ClientHeartbeat" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Client Heartbeat Message.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.ServerHeartbeat">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">ServerHeartbeat</span></span><a class="headerlink" href="#nasdaq_protocols.soup.ServerHeartbeat" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Server Heartbeat Message.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.EndOfSession">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">EndOfSession</span></span><a class="headerlink" href="#nasdaq_protocols.soup.EndOfSession" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP End of Session Message.</p>
+<p>This message is sent from server to indicate the soup stream is now closed.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.LogoutRequest">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">LogoutRequest</span></span><a class="headerlink" href="#nasdaq_protocols.soup.LogoutRequest" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Logout Request Message.</p>
+<p>This message is initiated by the client to sever for graceful session logoff.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupSessionId">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">SoupSessionId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nohost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'norole'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nouser'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nosession'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupSessionId" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="api_reference_common.html#nasdaq_protocols.common.session.SessionId" title="nasdaq_protocols.common.session.SessionId"><code class="xref py py-class docutils literal notranslate"><span class="pre">SessionId</span></code></a></p>
+<p>Identifier for a soup session.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session_type</strong> (<em>str</em>) – The type of the session, either ‘client’ or ‘server’.</p></li>
+<li><p><strong>user</strong> (<em>str</em>) – The username.</p></li>
+<li><p><strong>session</strong> (<em>str</em>) – The session id.</p></li>
+<li><p><strong>host</strong> (<em>str</em>)</p></li>
+<li><p><strong>port</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupSessionId.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupSessionId.update" title="Link to this definition">¶</a></dt>
+<dd><p>Update the session id with the more information as and when it is available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.core.LoginRequest" title="nasdaq_protocols.soup.core.LoginRequest"><em>LoginRequest</em></a><em> | </em><a class="reference internal" href="#nasdaq_protocols.soup.core.LoginAccepted" title="nasdaq_protocols.soup.core.LoginAccepted"><em>LoginAccepted</em></a>) – LoginRequest or LoginAccepted message.</p></li>
+<li><p><strong>transport</strong> (<em>Transport</em><em> | </em><em>None</em>) – asyncio.Transport object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupSession">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">SoupSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_msg_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_close_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispatch_on_connect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graceful_shutdown</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_heartbeat_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_heartbeat_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupSession" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="api_reference_common.html#nasdaq_protocols.common.session.AsyncSession" title="nasdaq_protocols.common.session.AsyncSession"><code class="xref py py-class docutils literal notranslate"><span class="pre">AsyncSession</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Base class for SoupBinTCP[server, client] session.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>on_msg_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>Awaitable</em><em>[</em><em>None</em><em>]</em><em>]</em>) – Coroutine to be called when a message is received.</p></li>
+<li><p><strong>on_close_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Coroutine</em><em>]</em>) – Coroutine to be called when the session is closed.</p></li>
+<li><p><strong>sequence</strong> (<em>int</em>) – The sequence number. [Default=1]</p></li>
+<li><p><strong>client_heartbeat_interval</strong> (<em>int</em>) – The client heartbeat interval in seconds. [Default=10]</p></li>
+<li><p><strong>server_heartbeat_interval</strong> (<em>int</em>) – The server heartbeat interval in seconds. [Default=10]</p></li>
+<li><p><strong>session_id</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.session.SoupSessionId" title="nasdaq_protocols.soup.session.SoupSessionId"><em>SoupSessionId</em></a>) – The session id.</p></li>
+<li><p><strong>dispatch_on_connect</strong> (<em>bool</em>)</p></li>
+<li><p><strong>graceful_shutdown</strong> (<em>bool</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupSession.send_msg">
+<span class="sig-name descname"><span class="pre">send_msg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupSession.send_msg" title="Link to this definition">¶</a></dt>
+<dd><p>Send a soup message to the server.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><em>SoupMessage</em></a>) – SoupMessage object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupSession.send_debug">
+<span class="sig-name descname"><span class="pre">send_debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupSession.send_debug" title="Link to this definition">¶</a></dt>
+<dd><p>Send a debug message to the peer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>text</strong> (<em>str</em>) – debug text</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupSession.logout">
+<span class="sig-name descname"><span class="pre">logout</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupSession.logout" title="Link to this definition">¶</a></dt>
+<dd><p>Logout.</p>
+<p>The session is closed after sending the logout request.
+:return:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupClientSession">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">SoupClientSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_msg_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_close_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispatch_on_connect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">graceful_shutdown</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_heartbeat_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_heartbeat_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupClientSession" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.SoupSession" title="nasdaq_protocols.soup.session.SoupSession"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupSession</span></code></a></p>
+<p>SoupBinTCP client session.</p>
+<p>Upon successful connecting to the soup server, the client session is instantiated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>on_msg_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>Awaitable</em><em>[</em><em>None</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>on_close_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Coroutine</em><em>]</em>)</p></li>
+<li><p><strong>session_id</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.session.SoupSessionId" title="nasdaq_protocols.soup.session.SoupSessionId"><em>SoupSessionId</em></a>)</p></li>
+<li><p><strong>dispatch_on_connect</strong> (<em>bool</em>)</p></li>
+<li><p><strong>graceful_shutdown</strong> (<em>bool</em>)</p></li>
+<li><p><strong>sequence</strong> (<em>int</em>)</p></li>
+<li><p><strong>client_heartbeat_interval</strong> (<em>int</em>)</p></li>
+<li><p><strong>server_heartbeat_interval</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupClientSession.login">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupClientSession.login" title="Link to this definition">¶</a></dt>
+<dd><p>Login to the soup server.</p>
+<p>This is supposed to be the first message to be sent to server upon connection successful.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.core.LoginRequest" title="nasdaq_protocols.soup.core.LoginRequest"><em>LoginRequest</em></a>) – LoginRequest message.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>self</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ConnectionRefusedError</strong> – If the server rejects the login request.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupClientSession.send_unseq_data">
+<span class="sig-name descname"><span class="pre">send_unseq_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupClientSession.send_unseq_data" title="Link to this definition">¶</a></dt>
+<dd><p>Send unsequenced data to the server.
+:param data: application payload</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupServerSession">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">SoupServerSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_close_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispatch_on_connect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graceful_shutdown</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_heartbeat_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_heartbeat_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupServerSession" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.SoupSession" title="nasdaq_protocols.soup.session.SoupSession"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupSession</span></code></a></p>
+<p>Base class for all soup server sessions.</p>
+<p>Any class that implements a soup server session must inherit from this class.
+and implement the following methods:</p>
+<ul class="simple">
+<li><p>on_login</p></li>
+<li><p>on_unsequenced</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>on_close_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Coroutine</em><em>]</em>)</p></li>
+<li><p><strong>session_id</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.session.SoupSessionId" title="nasdaq_protocols.soup.session.SoupSessionId"><em>SoupSessionId</em></a>)</p></li>
+<li><p><strong>dispatch_on_connect</strong> (<em>bool</em>)</p></li>
+<li><p><strong>graceful_shutdown</strong> (<em>bool</em>)</p></li>
+<li><p><strong>sequence</strong> (<em>int</em>)</p></li>
+<li><p><strong>client_heartbeat_interval</strong> (<em>int</em>)</p></li>
+<li><p><strong>server_heartbeat_interval</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupServerSession.on_login">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">on_login</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupServerSession.on_login" title="Link to this definition">¶</a></dt>
+<dd><p>Handle the login request from the client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.core.LoginRequest" title="nasdaq_protocols.soup.core.LoginRequest"><em>LoginRequest</em></a>) – LoginRequest message.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>LoginAccepted or LoginRejected message.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#nasdaq_protocols.soup.core.LoginAccepted" title="nasdaq_protocols.soup.core.LoginAccepted"><em>LoginAccepted</em></a> | <a class="reference internal" href="#nasdaq_protocols.soup.core.LoginRejected" title="nasdaq_protocols.soup.core.LoginRejected"><em>LoginRejected</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupServerSession.on_unsequenced">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">on_unsequenced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupServerSession.on_unsequenced" title="Link to this definition">¶</a></dt>
+<dd><p>Handle the unsequenced data from the client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.core.UnSequencedData" title="nasdaq_protocols.soup.core.UnSequencedData"><em>UnSequencedData</em></a>) – UnSequencedData message.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupServerSession.send_seq_msg">
+<span class="sig-name descname"><span class="pre">send_seq_msg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupServerSession.send_seq_msg" title="Link to this definition">¶</a></dt>
+<dd><p>Send sequenced data to the client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em><em> | </em><a class="reference internal" href="#nasdaq_protocols.soup.core.SequencedData" title="nasdaq_protocols.soup.core.SequencedData"><em>SequencedData</em></a>) – application payload</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupServerSession.end_session">
+<span class="sig-name descname"><span class="pre">end_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupServerSession.end_session" title="Link to this definition">¶</a></dt>
+<dd><p>End the session.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupServerSession.send_heartbeat">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">send_heartbeat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupServerSession.send_heartbeat" title="Link to this definition">¶</a></dt>
+<dd><p>Send heartbeat to the client.</p>
+<p>This is called automatically by the session when the heartbeat interval expires.
+:meta private:</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.SoupClientSessionSync">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">SoupClientSessionSync</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bridge</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">closed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.SoupClientSessionSync" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Synchronous SoupBinTCP session.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.session.SoupClientSession" title="nasdaq_protocols.soup.session.SoupClientSession"><em>SoupClientSession</em></a>)</p></li>
+<li><p><strong>bridge</strong> (<em>SyncExecutor</em>)</p></li>
+<li><p><strong>closed</strong> (<em>bool</em>)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.connect_async">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">connect_async</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remote</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">passwd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_msg_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_close_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_factory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_heartbeat_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_heartbeat_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connect_timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.connect_async" title="Link to this definition">¶</a></dt>
+<dd><p>Connect asynchronously to the SoupBinTCP server and login.</p>
+<p>Using <cite>:param sequence</cite> the client can specify the sequence number of the next
+message it expects to receive. The server will then send all messages with sequence
+numbers greater than the specified sequence number.</p>
+<p>To connect to the start of the stream, specify sequence=1, which is the default.
+To connect to the end of the stream, specify sequence=0, new messages will be received.
+To connect to a specific message, specify the sequence number of the message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>remote</strong> (<em>tuple</em><em>[</em><em>str</em><em>, </em><em>int</em><em>]</em>) – tuple of host and port</p></li>
+<li><p><strong>user</strong> (<em>str</em>) – Username to login</p></li>
+<li><p><strong>passwd</strong> (<em>str</em>) – Password to login</p></li>
+<li><p><strong>session_id</strong> (<em>str</em>) – Name of the session to join [Default=’’] .</p></li>
+<li><p><strong>sequence</strong> (<em>int</em>) – The sequence number. [Default=1]</p></li>
+<li><p><strong>on_msg_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>Awaitable</em><em>[</em><em>None</em><em>]</em><em>]</em>) – callback, message from server.</p></li>
+<li><p><strong>on_close_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Coroutine</em><em>]</em>) – callback, connection closed .</p></li>
+<li><p><strong>session_factory</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><a class="reference internal" href="#nasdaq_protocols.soup.session.SoupClientSession" title="nasdaq_protocols.soup.session.SoupClientSession"><em>SoupClientSession</em></a><em>]</em>) – Factory to create a SoupClientSession.</p></li>
+<li><p><strong>client_heartbeat_interval</strong> (<em>int</em>) – seconds between client heartbeats.</p></li>
+<li><p><strong>server_heartbeat_interval</strong> (<em>int</em>) – seconds between server heartbeats.</p></li>
+<li><p><strong>connect_timeout</strong> (<em>int</em>) – seconds to wait for connection.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SoupClientSession</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#nasdaq_protocols.soup.session.SoupClientSession" title="nasdaq_protocols.soup.session.SoupClientSession"><em>SoupClientSession</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.connect">
+<span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.</span></span><span class="sig-name descname"><span class="pre">connect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">remote</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">passwd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_heartbeat_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_heartbeat_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.connect" title="Link to this definition">¶</a></dt>
+<dd><p>Connect to the SoupBinTCP server and login.</p>
+<p>Using <cite>:param sequence</cite> the client can specify the sequence number of the next
+message it expects to receive. The server will then send all messages with sequence
+numbers greater than the specified sequence number.</p>
+<p>To connect to the start of the stream, specify sequence=1, which is the default.
+To connect to the end of the stream, specify sequence=0, new messages will be received.
+To connect to a specific message, specify the sequence number of the message.</p>
+<p>NOTE: This is experimental and should be used with caution.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>remote</strong> (<em>tuple</em><em>[</em><em>str</em><em>, </em><em>int</em><em>]</em>) – tuple of host and port</p></li>
+<li><p><strong>user</strong> (<em>str</em>) – Username to login</p></li>
+<li><p><strong>passwd</strong> (<em>str</em>) – Password to login</p></li>
+<li><p><strong>session_id</strong> (<em>str</em>) – Name of the session to join [Default=’’] .</p></li>
+<li><p><strong>sequence</strong> (<em>int</em>) – The sequence number. [Default=1]</p></li>
+<li><p><strong>client_heartbeat_interval</strong> (<em>int</em>) – seconds between client heartbeats.</p></li>
+<li><p><strong>server_heartbeat_interval</strong> (<em>int</em>) – seconds between server heartbeats.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>SoupClientSessionSync</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#nasdaq_protocols.soup.SoupClientSessionSync" title="nasdaq_protocols.soup.session.SoupClientSessionSync"><em>SoupClientSessionSync</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<section id="soup-session">
+<h3>Soup Session<a class="headerlink" href="#soup-session" title="Link to this heading">¶</a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.session.SoupSessionId">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.session.</span></span><span class="sig-name descname"><span class="pre">SoupSessionId</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">host</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nohost'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'norole'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nouser'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nosession'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.session.SoupSessionId" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="api_reference_common.html#nasdaq_protocols.common.session.SessionId" title="nasdaq_protocols.common.session.SessionId"><code class="xref py py-class docutils literal notranslate"><span class="pre">SessionId</span></code></a></p>
+<p>Identifier for a soup session.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session_type</strong> (<em>str</em>) – The type of the session, either ‘client’ or ‘server’.</p></li>
+<li><p><strong>user</strong> (<em>str</em>) – The username.</p></li>
+<li><p><strong>session</strong> (<em>str</em>) – The session id.</p></li>
+<li><p><strong>host</strong> (<em>str</em>)</p></li>
+<li><p><strong>port</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.session.SoupSessionId.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transport</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.session.SoupSessionId.update" title="Link to this definition">¶</a></dt>
+<dd><p>Update the session id with the more information as and when it is available.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.core.LoginRequest" title="nasdaq_protocols.soup.core.LoginRequest"><em>LoginRequest</em></a><em> | </em><a class="reference internal" href="#nasdaq_protocols.soup.core.LoginAccepted" title="nasdaq_protocols.soup.core.LoginAccepted"><em>LoginAccepted</em></a>) – LoginRequest or LoginAccepted message.</p></li>
+<li><p><strong>transport</strong> (<em>Transport</em><em> | </em><em>None</em>) – asyncio.Transport object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>self</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.session.SoupClientSession">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.session.</span></span><span class="sig-name descname"><span class="pre">SoupClientSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_msg_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_close_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispatch_on_connect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">graceful_shutdown</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_heartbeat_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_heartbeat_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.session.SoupClientSession" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.SoupSession" title="nasdaq_protocols.soup.session.SoupSession"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupSession</span></code></a></p>
+<p>SoupBinTCP client session.</p>
+<p>Upon successful connecting to the soup server, the client session is instantiated.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>on_msg_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>Any</em><em>]</em><em>, </em><em>Awaitable</em><em>[</em><em>None</em><em>]</em><em>]</em>)</p></li>
+<li><p><strong>on_close_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Coroutine</em><em>]</em>)</p></li>
+<li><p><strong>session_id</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.session.SoupSessionId" title="nasdaq_protocols.soup.session.SoupSessionId"><em>SoupSessionId</em></a>)</p></li>
+<li><p><strong>dispatch_on_connect</strong> (<em>bool</em>)</p></li>
+<li><p><strong>graceful_shutdown</strong> (<em>bool</em>)</p></li>
+<li><p><strong>sequence</strong> (<em>int</em>)</p></li>
+<li><p><strong>client_heartbeat_interval</strong> (<em>int</em>)</p></li>
+<li><p><strong>server_heartbeat_interval</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.session.SoupClientSession.dispatch_on_connect">
+<span class="sig-name descname"><span class="pre">dispatch_on_connect</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#nasdaq_protocols.soup.session.SoupClientSession.dispatch_on_connect" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.session.SoupClientSession.login">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">login</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.session.SoupClientSession.login" title="Link to this definition">¶</a></dt>
+<dd><p>Login to the soup server.</p>
+<p>This is supposed to be the first message to be sent to server upon connection successful.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.core.LoginRequest" title="nasdaq_protocols.soup.core.LoginRequest"><em>LoginRequest</em></a>) – LoginRequest message.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>self</p>
+</dd>
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ConnectionRefusedError</strong> – If the server rejects the login request.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.session.SoupClientSession.send_unseq_data">
+<span class="sig-name descname"><span class="pre">send_unseq_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.session.SoupClientSession.send_unseq_data" title="Link to this definition">¶</a></dt>
+<dd><p>Send unsequenced data to the server.
+:param data: application payload</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.session.SoupClientSession.on_message">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">on_message</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.session.SoupClientSession.on_message" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.session.SoupClientSession.SessionType">
+<span class="sig-name descname"><span class="pre">SessionType</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'client'</span></span><a class="headerlink" href="#nasdaq_protocols.soup.session.SoupClientSession.SessionType" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.session.SoupClientSession.log">
+<span class="sig-name descname"><span class="pre">log</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Logger</span> <span class="pre">SoupClientSession</span> <span class="pre">(WARNING)&gt;</span></span><a class="headerlink" href="#nasdaq_protocols.soup.session.SoupClientSession.log" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.session.SoupServerSession">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.session.</span></span><span class="sig-name descname"><span class="pre">SoupServerSession</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">on_close_coro</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">dispatch_on_connect</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graceful_shutdown</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">client_heartbeat_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">server_heartbeat_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.session.SoupServerSession" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.SoupSession" title="nasdaq_protocols.soup.session.SoupSession"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupSession</span></code></a></p>
+<p>Base class for all soup server sessions.</p>
+<p>Any class that implements a soup server session must inherit from this class.
+and implement the following methods:</p>
+<ul class="simple">
+<li><p>on_login</p></li>
+<li><p>on_unsequenced</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>on_close_coro</strong> (<em>Callable</em><em>[</em><em>[</em><em>]</em><em>, </em><em>Coroutine</em><em>]</em>)</p></li>
+<li><p><strong>session_id</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.session.SoupSessionId" title="nasdaq_protocols.soup.session.SoupSessionId"><em>SoupSessionId</em></a>)</p></li>
+<li><p><strong>dispatch_on_connect</strong> (<em>bool</em>)</p></li>
+<li><p><strong>graceful_shutdown</strong> (<em>bool</em>)</p></li>
+<li><p><strong>sequence</strong> (<em>int</em>)</p></li>
+<li><p><strong>client_heartbeat_interval</strong> (<em>int</em>)</p></li>
+<li><p><strong>server_heartbeat_interval</strong> (<em>int</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.session.SoupServerSession.on_login">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">on_login</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.session.SoupServerSession.on_login" title="Link to this definition">¶</a></dt>
+<dd><p>Handle the login request from the client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.core.LoginRequest" title="nasdaq_protocols.soup.core.LoginRequest"><em>LoginRequest</em></a>) – LoginRequest message.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>LoginAccepted or LoginRejected message.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#nasdaq_protocols.soup.core.LoginAccepted" title="nasdaq_protocols.soup.core.LoginAccepted"><em>LoginAccepted</em></a> | <a class="reference internal" href="#nasdaq_protocols.soup.core.LoginRejected" title="nasdaq_protocols.soup.core.LoginRejected"><em>LoginRejected</em></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.session.SoupServerSession.on_unsequenced">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">on_unsequenced</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.session.SoupServerSession.on_unsequenced" title="Link to this definition">¶</a></dt>
+<dd><p>Handle the unsequenced data from the client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.core.UnSequencedData" title="nasdaq_protocols.soup.core.UnSequencedData"><em>UnSequencedData</em></a>) – UnSequencedData message.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.session.SoupServerSession.send_seq_msg">
+<span class="sig-name descname"><span class="pre">send_seq_msg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.session.SoupServerSession.send_seq_msg" title="Link to this definition">¶</a></dt>
+<dd><p>Send sequenced data to the client.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em><em> | </em><a class="reference internal" href="#nasdaq_protocols.soup.core.SequencedData" title="nasdaq_protocols.soup.core.SequencedData"><em>SequencedData</em></a>) – application payload</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.session.SoupServerSession.end_session">
+<span class="sig-name descname"><span class="pre">end_session</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.session.SoupServerSession.end_session" title="Link to this definition">¶</a></dt>
+<dd><p>End the session.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.session.SoupServerSession.send_heartbeat">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">send_heartbeat</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.session.SoupServerSession.send_heartbeat" title="Link to this definition">¶</a></dt>
+<dd><p>Send heartbeat to the client.</p>
+<p>This is called automatically by the session when the heartbeat interval expires.
+:meta private:</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-nasdaq_protocols.soup.core">
+<span id="soup-messages"></span><h3>Soup Messages<a class="headerlink" href="#module-nasdaq_protocols.soup.core" title="Link to this heading">¶</a></h3>
+<p>nasdaq_protocols.soup.core module contains the implementation of the
+soup messages.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.InvalidSoupMessage">
+<span class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.core.</span></span><span class="sig-name descname"><span class="pre">InvalidSoupMessage</span></span><a class="headerlink" href="#nasdaq_protocols.soup.core.InvalidSoupMessage" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></p>
+<p>Raised when an invalid soup message is received.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.LoginRejectReason">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.core.</span></span><span class="sig-name descname"><span class="pre">LoginRejectReason</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.core.LoginRejectReason" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>Login Reject Reason sent from server in case of login failure.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.LoginRejectReason.get">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reason</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.core.LoginRejectReason.get" title="Link to this definition">¶</a></dt>
+<dd><p>Get the LoginRejectReason enum value from the given reason.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>reason</strong> (<em>str</em>)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.SoupMessage">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.core.</span></span><span class="sig-name descname"><span class="pre">SoupMessage</span></span><a class="headerlink" href="#nasdaq_protocols.soup.core.SoupMessage" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="api_reference_common.html#nasdaq_protocols.common.types.Serializable" title="nasdaq_protocols.common.types.Serializable"><code class="xref py py-class docutils literal notranslate"><span class="pre">Serializable</span></code></a>[<a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a>]</p>
+<p>Base class for all soup messages.</p>
+<p>Given raw bytes use this class to unpack the bytes to the corresponding soup message:</p>
+<pre class="literal-block">input_bytes = b'Atest      2                   '
+len, soup_msg = SoupMessage.from_bytes(input_bytes)
+type(soup_msg)</pre>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.SoupMessage.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.core.SoupMessage.to_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Pack the soup message to binary format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple of length and bytes</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[int, bytes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.SoupMessage.from_bytes">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bytes_</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.core.SoupMessage.from_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>unpacks the bytes to the corresponding soup message</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>bytes</strong> – bytes to unpack</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple of length and soup message</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[int, type[<a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><em>SoupMessage</em></a>] | <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><em>SoupMessage</em></a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.LoginRequest">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.core.</span></span><span class="sig-name descname"><span class="pre">LoginRequest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">password</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.core.LoginRequest" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Login Request Message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user</strong> (<em>str</em>) – Username to login</p></li>
+<li><p><strong>password</strong> (<em>str</em>) – Password to login</p></li>
+<li><p><strong>session</strong> (<em>str</em>) – Name of the session to join [Default=’’] .</p></li>
+<li><p><strong>sequence</strong> (<em>str</em>) – The sequence number. [Default=1]</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.LoginRequest.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.core.LoginRequest.to_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Pack the soup message to binary format</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[int, bytes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.LoginAccepted">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.core.</span></span><span class="sig-name descname"><span class="pre">LoginAccepted</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sequence</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.core.LoginAccepted" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Login Accepted Message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session_id</strong> (<em>str</em>) – Name of the session joined [Default=’’] .</p></li>
+<li><p><strong>sequence</strong> (<em>int</em>) – The next sequence number.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.LoginAccepted.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.core.LoginAccepted.to_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Pack the soup message to binary format
+:return: bytes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[int, bytes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.LoginRejected">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.core.</span></span><span class="sig-name descname"><span class="pre">LoginRejected</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reason</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.core.LoginRejected" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Login Rejected Message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>reason</strong> (<a class="reference internal" href="#nasdaq_protocols.soup.core.LoginRejectReason" title="nasdaq_protocols.soup.core.LoginRejectReason"><em>LoginRejectReason</em></a>) – Reason for login failure. Refer <cite>LoginRejectReason</cite></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.LoginRejected.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.core.LoginRejected.to_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Pack the soup message to binary format
+:return: bytes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[int, bytes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.SequencedData">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.core.</span></span><span class="sig-name descname"><span class="pre">SequencedData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.core.SequencedData" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Sequenced Data Message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em>) – The application payload sent by the server.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.SequencedData.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.core.SequencedData.to_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Pack the soup message to binary format
+:return: bytes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[int, bytes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.UnSequencedData">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.core.</span></span><span class="sig-name descname"><span class="pre">UnSequencedData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.core.UnSequencedData" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Unsequenced Data Message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>bytes</em>) – The application payload to be sent to server.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.UnSequencedData.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.core.UnSequencedData.to_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Pack the soup message to binary format
+:return: bytes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[int, bytes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.Debug">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.core.</span></span><span class="sig-name descname"><span class="pre">Debug</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.core.Debug" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Debug Message.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>msg</strong> (<em>str</em>) – The debug message.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.Debug.to_bytes">
+<span class="sig-name descname"><span class="pre">to_bytes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#nasdaq_protocols.soup.core.Debug.to_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Pack the soup message to binary format
+:return: bytes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[int, bytes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.ClientHeartbeat">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.core.</span></span><span class="sig-name descname"><span class="pre">ClientHeartbeat</span></span><a class="headerlink" href="#nasdaq_protocols.soup.core.ClientHeartbeat" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Client Heartbeat Message.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.ServerHeartbeat">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.core.</span></span><span class="sig-name descname"><span class="pre">ServerHeartbeat</span></span><a class="headerlink" href="#nasdaq_protocols.soup.core.ServerHeartbeat" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Server Heartbeat Message.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.EndOfSession">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.core.</span></span><span class="sig-name descname"><span class="pre">EndOfSession</span></span><a class="headerlink" href="#nasdaq_protocols.soup.core.EndOfSession" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP End of Session Message.</p>
+<p>This message is sent from server to indicate the soup stream is now closed.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="nasdaq_protocols.soup.core.LogoutRequest">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">nasdaq_protocols.soup.core.</span></span><span class="sig-name descname"><span class="pre">LogoutRequest</span></span><a class="headerlink" href="#nasdaq_protocols.soup.core.LogoutRequest" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#nasdaq_protocols.soup.core.SoupMessage" title="nasdaq_protocols.soup.core.SoupMessage"><code class="xref py py-class docutils literal notranslate"><span class="pre">SoupMessage</span></code></a></p>
+<p>SoupBinTCP Logout Request Message.</p>
+<p>This message is initiated by the client to sever for graceful session logoff.</p>
+<dl class="field-list simple">
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          
+          <h3>Table of Contents</h3>
+          <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">MIT License</a></li>
+</ul>
+
+          <search role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+            </form>
+          </search>
+
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="Related">
+            <a href="api_reference.html" title="API Reference"
+              >previous</a> |
+            <a href="api_reference_itch.html" title="ITCH API Reference"
+              >next</a> |
+            <a href="py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/api_reference_soup.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+    &#169; Copyright Copyright (c) 2024 Nasdaq.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

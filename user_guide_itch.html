@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ITCH User Guide &#8212; Nasdaq Protocols Python Library 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css?v=08520df9" />
+    <script src="_static/documentation_options.js?v=d45e8c67"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="SQF User Guide" href="user_guide_sqf.html" />
+    <link rel="prev" title="OUCH User Guide" href="user_guide_ouch.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Nasdaq Protocols Python Library 0.0.1 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="Related">
+          <a href="user_guide_ouch.html" title="OUCH User Guide"
+             accesskey="P">previous</a> |
+          <a href="user_guide_sqf.html" title="SQF User Guide"
+             accesskey="N">next</a> |
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="itch-user-guide">
+<span id="user-guide-itch"></span><h1>ITCH User Guide<a class="headerlink" href="#itch-user-guide" title="Link to this heading">¶</a></h1>
+<p>The <cite>nasdaq_protocols.itch</cite> module provides an API to interact with ITCH servers.
+Refer <a class="reference internal" href="api_reference_itch.html#api-reference-itch"><span class="std std-ref">ITCH API Reference</span></a>. for more information on the API.</p>
+<p>This package <strong>only</strong> provides the core implementation of the ITCH protocols, like message serialization
+deserialization, session handling, etc. It <strong>does not</strong> define any actual ITCH messages. The actual ITCH
+messages has to be defined by the user of this package. The first step is to create a new python package
+which contains the messages definitions for all the protocols that the user wants to use.</p>
+<p>This package provides a command line utility <cite>nasdaq-protocols-create-new-project</cite> to create a new python package
+and all the necessary files.</p>
+<p>Follow the steps in <a class="reference internal" href="user_guide_create_new_project.html#user-guide-create-new-project"><span class="std std-ref">Create New Project Guide</span></a> to create a new python package for application specific
+messages.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This rest of the guide assumes that you have built a new python project using the steps mentioned in
+<a class="reference internal" href="user_guide_create_new_project.html#user-guide-create-new-project"><span class="std std-ref">Create New Project Guide</span></a>.</p>
+</div>
+<dl class="simple">
+<dt>The generated project will contain a file <cite>itch_&lt;app_name&gt;.py</cite> which will contain the following</dt><dd><ul class="simple">
+<li><p>ITCH message definitions</p></li>
+<li><p>ITCH Client Session for this application</p></li>
+</ul>
+</dd>
+</dl>
+<p>Using the generated code, you can connect to a ITCH server and start receiving messages.</p>
+<p>The <cite>nasdaq_protocols.itch</cite> module provides an API to interact with ITCH servers.
+Refer <a class="reference internal" href="api_reference_itch.html#api-reference-itch"><span class="std std-ref">ITCH API Reference</span></a>. for more information on the API.</p>
+<section id="connecting-to-a-itch-server">
+<h2>Connecting to a ITCH Server<a class="headerlink" href="#connecting-to-a-itch-server" title="Link to this heading">¶</a></h2>
+<p>Use the example below to implement a program that will tail itch messages from the server.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="c1"># from the generated package we import the application we want to use</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nasdaq_protocols_messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">itch_feed</span>
+
+
+<span class="n">stopped</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Event</span><span class="p">()</span>
+<span class="n">port</span> <span class="o">=</span> <span class="mi">1234</span>  <span class="c1"># give the proper itch server port</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">itch_output</span><span class="p">(</span><span class="n">itch_message</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will be called whenever a new ITCH message is received</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;received: </span><span class="si">{</span><span class="n">itch_message</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">itch_close</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function will be called when the ITCH session is closed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stopped</span><span class="o">.</span><span class="n">set</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;itch session closed, Bye Bye&#39;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># Step1: connect</span>
+    <span class="n">itch_session</span> <span class="o">=</span> <span class="k">await</span> <span class="n">itch_feed</span><span class="o">.</span><span class="n">connect_async</span><span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;hostname&#39;</span><span class="p">,</span> <span class="n">port</span><span class="p">),</span>
+        <span class="s1">&#39;itch username&#39;</span><span class="p">,</span>  <span class="c1"># itch username, max 6 characters</span>
+        <span class="s1">&#39;pwdchange&#39;</span><span class="p">,</span> <span class="c1"># itch password, max 10 characters</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="c1"># session id</span>
+        <span class="n">on_msg_coro</span><span class="o">=</span><span class="n">itch_output</span><span class="p">,</span>  <span class="c1"># function to call when a new message is received</span>
+        <span class="n">on_close_coro</span><span class="o">=</span><span class="n">itch_close</span><span class="p">,</span> <span class="c1"># function to call when the session is closed</span>
+        <span class="n">sequence</span><span class="o">=</span><span class="mi">1</span>  <span class="c1"># 0 to listen from HEAD, 1 to listen from start, n to listen from n</span>
+    <span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;wait for server to close the session&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">stopped</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+</div>
+<p><em>A simple itch tail program</em></p>
+<p>Slightly modified version where we do not use dispatchers instead explicitly call <cite>receive_message()</cite> method.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nasdaq_protocols_messages</span><span class="w"> </span><span class="kn">import</span> <span class="n">itch_feed</span>
+
+
+<span class="n">port</span> <span class="o">=</span> <span class="mi">1234</span>  <span class="c1"># give the proper itch server port</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># Step1: connect</span>
+    <span class="n">itch_session</span> <span class="o">=</span> <span class="k">await</span> <span class="n">itch_feed</span><span class="o">.</span><span class="n">connect_async</span><span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;hostname&#39;</span><span class="p">,</span> <span class="n">port</span><span class="p">),</span>
+        <span class="s1">&#39;itch username&#39;</span><span class="p">,</span>  <span class="c1"># itch username, max 6 characters</span>
+        <span class="s1">&#39;pwdchange&#39;</span><span class="p">,</span> <span class="c1"># itch password, max 10 characters</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="c1"># session id</span>
+        <span class="n">sequence</span><span class="o">=</span><span class="mi">1</span>  <span class="c1"># 0 to listen from HEAD, 1 to listen from start, n to listen from n</span>
+    <span class="p">)</span>
+
+    <span class="c1"># receive the first message from the server.</span>
+    <span class="n">itch_message</span> <span class="o">=</span> <span class="k">await</span> <span class="n">itch_session</span><span class="o">.</span><span class="n">receive_message</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">itch_message</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Closing the itch session...&quot;</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">itch_session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          
+          <h3>Table of Contents</h3>
+          <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">MIT License</a></li>
+</ul>
+
+          <search role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+            </form>
+          </search>
+
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="Related">
+            <a href="user_guide_ouch.html" title="OUCH User Guide"
+              >previous</a> |
+            <a href="user_guide_sqf.html" title="SQF User Guide"
+              >next</a> |
+            <a href="py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/user_guide_itch.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+    &#169; Copyright Copyright (c) 2024 Nasdaq.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>
