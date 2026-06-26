@@ -14,22 +14,27 @@ jobs:
         python-version: ["3.12"]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Upgrade pip
-      run: python -m pip install --upgrade pip
-
-    - name: Install Tox
-      run: pip install tox
-
     - name: Run test
-      run: tox -e test
-    
+      run: |
+        uv run --group test pytest \
+          -vv \
+          --timeout=120 \
+          --junitxml=pytest.xml \
+          --cov-config=pyproject.toml \
+          --cov=src \
+          --cov-report html:cov_html \
+          --cov-report xml:cov.xml \
+          --cov-fail-under=97
+
     - name: Pytest coverage comment
       uses: MishaKav/pytest-coverage-comment@main
       with:

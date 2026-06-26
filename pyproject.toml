@@ -24,13 +24,35 @@ dependencies = [
 dynamic = ["version"]
 
 [project.scripts]
-nasdaq-ouch-codegen="nasdaq_protocols.ouch.codegen:generate"
-nasdaq-itch-codegen="nasdaq_protocols.itch.codegen:generate"
-nasdaq-sqf-codegen="nasdaq_protocols.sqf.codegen:generate"
-nasdaq-fix-codegen="nasdaq_protocols.fix.codegen:generate"
-nasdaq-asn1soup-codegen="nasdaq_protocols.asn1_app.codegen:generate_soup_app"
-nasdaq-protocols-create-new-project="nasdaq_protocols.tools.new_project:create"
-nasdaq-soup-tail="nasdaq_protocols.soup.tools_soup_tail:command"
+nasdaq-ouch-codegen = "nasdaq_protocols.ouch.codegen:generate"
+nasdaq-itch-codegen = "nasdaq_protocols.itch.codegen:generate"
+nasdaq-sqf-codegen = "nasdaq_protocols.sqf.codegen:generate"
+nasdaq-fix-codegen = "nasdaq_protocols.fix.codegen:generate"
+nasdaq-asn1soup-codegen = "nasdaq_protocols.asn1_app.codegen:generate_soup_app"
+nasdaq-protocols-create-new-project = "nasdaq_protocols.tools.new_project:create"
+nasdaq-soup-tail = "nasdaq_protocols.soup.tools_soup_tail:command"
+
+
+[dependency-groups]
+test = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=4",
+    "pytest-sugar",
+    "pytest-timeout",
+]
+lint = [
+    "pylint",
+    "flake8",
+]
+docs = [
+    "sphinx",
+]
+dev = [
+    { include-group = "test" },
+    { include-group = "lint" },
+    { include-group = "docs" },
+]
 
 
 [tool.setuptools_scm]
@@ -40,4 +62,50 @@ nasdaq-soup-tail="nasdaq_protocols.soup.tools_soup_tail:command"
 where = ["src"]
 include = ["nasdaq_protocols*"]
 namespaces = false
+
+[tool.setuptools.package-data]
+"nasdaq_protocols" = ["**/*.mustache"]
+
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+log_cli = true
+log_level = "INFO"
+log_format = "%(name)-20s: %(message)s"
+log_date_format = "%I:%M:%S"
+
+
+[tool.coverage.run]
+concurrency = ["multiprocessing"]
+parallel = true
+sigterm = true
+omit = [
+    "src/nasdaq_protocols/tools/*",
+    "src/nasdaq_protocols/soup/tools_soup_tail.py",
+    "tests/*",
+]
+
+
+[tool.flake8]
+exclude = [
+    ".git",
+    ".tox",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "tests",
+    "build",
+    "dist",
+]
+max-complexity = 10
+max-line-length = 120
+per-file-ignores = [
+    "./src/nasdaq_protocols/common/__init__.py:F401,F403",
+    "./src/nasdaq_protocols/common/message/__init__.py:F401,F403",
+    "./src/nasdaq_protocols/fix/__init__.py:F401,F403,F405",
+    "./src/nasdaq_protocols/itch/__init__.py:F401,F403",
+    "./src/nasdaq_protocols/fix/parser/__init__.py:F401,F403",
+]
 
