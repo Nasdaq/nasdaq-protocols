@@ -15,3 +15,24 @@ by extending the base message class defined in the package.
 
 More documentation can be found in the [github-pages](https://nasdaq.github.io/nasdaq-protocols/)
 
+
+Performance
+-----------
+
+For improved throughput, install the optional performance dependencies:
+
+```bash
+pip install nasdaq-protocols[performance]
+```
+
+This installs [uvloop](https://github.com/MagicStack/uvloop) (Linux/macOS only), which provides ~4-5x faster event loop scheduling.
+
+To activate it, call early in your application before any asyncio work:
+
+```python
+from nasdaq_protocols.common import use_fast_loop
+use_fast_loop()
+```
+
+If uvloop is not installed, `use_fast_loop()` is a no-op.
+

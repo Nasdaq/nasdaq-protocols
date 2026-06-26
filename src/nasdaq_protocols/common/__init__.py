@@ -4,3 +4,4 @@ from .message_queue import *
 from .session import *
 from .message import *
 from .sync_executor import *
+from ._loop import use_fast_loop
