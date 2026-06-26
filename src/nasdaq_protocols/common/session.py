@@ -109,6 +109,7 @@ class Reader(Stoppable):
     on_msg_coro: OnMsgCoro = attrs.field(validator=Validators.not_none())
     on_close_coro: OnCloseCoro = attrs.field(validator=Validators.not_none())
     _buffer: bytearray = attrs.field(init=False, factory=bytearray)
+    _read_pos: int = attrs.field(init=False, default=0)
     _drain_buffer: bytearray | None = attrs.field(init=False, default=None)
     _task: asyncio.Task = attrs.field(init=False, default=None)
     _stopped: bool = attrs.field(init=False, default=False)
@@ -130,6 +131,10 @@ class Reader(Stoppable):
         finally:
             self._drain_mode = None
             if not discard_buffer:
+                # Compact before extending with drain buffer
+                if self._read_pos > 0:
+                    del self._buffer[:self._read_pos]
+                    self._read_pos = 0
                 self._buffer.extend(self._drain_buffer)
             self._drain_buffer = None
 
@@ -153,11 +158,11 @@ class Reader(Stoppable):
 
     async def _process(self):
         while not self._stopped:
-            len_before = len_after = len(self._buffer)
-            if len_before > 0:
+            available_before = available_after = len(self._buffer) - self._read_pos
+            if available_before > 0:
                 await self._process_1()
-                len_after = len(self._buffer)
-            if self._drain_mode and not self._drain_mode.is_set() and len_after == len_before:
+                available_after = len(self._buffer) - self._read_pos
+            if self._drain_mode and not self._drain_mode.is_set() and available_after == available_before:
                 self._drain_mode.set()
 
             await asyncio.sleep(0.0001)

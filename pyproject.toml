@@ -23,6 +23,9 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.optional-dependencies]
+performance = ["uvloop>=0.19; sys_platform != 'win32'"]
+
 [project.scripts]
 nasdaq-ouch-codegen = "nasdaq_protocols.ouch.codegen:generate"
 nasdaq-itch-codegen = "nasdaq_protocols.itch.codegen:generate"

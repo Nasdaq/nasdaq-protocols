@@ -10,16 +10,22 @@ from .core import SoupMessage
 class SoupMessageReader(common.Reader):
     def deserialize(self) -> Any:
         empty_response = (None, False, False)
-        buff_len = len(self._buffer)
+        available = len(self._buffer) - self._read_pos
 
-        if buff_len < 2:
+        if available < 2:
             return empty_response
 
-        siz = int.from_bytes(self._buffer[:2], 'big')
-        if (siz+2) > buff_len:
+        siz = int.from_bytes(self._buffer[self._read_pos:self._read_pos + 2], 'big')
+        if (siz + 2) > available:
             return empty_response
 
-        _, msg = SoupMessage.from_bytes(self._buffer[:siz + 2])
-        self._buffer = self._buffer[siz + 2:]
+        frame = bytes(memoryview(self._buffer)[self._read_pos:self._read_pos + siz + 2])
+        _, msg = SoupMessage.from_bytes(frame)
+        self._read_pos += siz + 2
+
+        # Compact when more than half the buffer is consumed
+        if self._read_pos > len(self._buffer) // 2:
+            del self._buffer[:self._read_pos]
+            self._read_pos = 0
 
         return msg, msg.is_logout(), msg.is_heartbeat()
