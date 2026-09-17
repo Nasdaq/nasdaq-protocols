@@ -345,6 +345,24 @@ def test__record_with_present_bit__empty_record2__from_bytes():
     assert SampleTestRecordWithPresentBit.from_bytes(b'\x00') == (1, None)
 
 
+def test__record_in_record__as_collection():
+    record = SampleTestRecordInRecord()
+    record.record.byte_field = 2
+    record.record.short_field = 5
+    record.record.string_field = 'test'
+
+    collection = record.as_collection()
+
+    # nested record must be recursively converted to a dict, not left as a _Record
+    assert collection == {
+        'record': {
+            'byte_field': 2,
+            'short_field': 5,
+            'string_field': 'test',
+        }
+    }
+
+
 def test__common_message__as_collection():
     message = SampleTestMessage()
     data = {
