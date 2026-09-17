@@ -96,6 +96,8 @@ class _Record(TypeDefinition):
         for k, v in self.values.items():
             if isinstance(v, list):
                 transformed[k] = [_.as_collection() for _ in v]
+            elif isinstance(v, _Record):
+                transformed[k] = v.as_collection()
             else:
                 transformed[k] = v
         return transformed
