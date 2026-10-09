@@ -12,4 +12,5 @@ User Guide
    user_guide_ouch
    user_guide_itch
    user_guide_sqf
+   user_guide_fix
    user_guide_create_new_project
