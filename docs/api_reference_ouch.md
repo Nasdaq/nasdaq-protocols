@@ -1,22 +1,25 @@
-.. _api-reference-ouch:
-OUCH API Reference
-==================
+(api-reference-ouch)=
+# OUCH API Reference
 
-Ouch
-----
+## Ouch
+
+```{eval-rst}
 .. automodule:: nasdaq_protocols.ouch
+```
 
+### Ouch Session
 
-Ouch Session
-^^^^^^^^^^^^
+```{eval-rst}
 .. autoclass:: nasdaq_protocols.ouch.session.OuchSessionId
     :show-inheritance: True
 
 .. autoclass:: nasdaq_protocols.ouch.session.ClientSession
     :show-inheritance: True
     :undoc-members: ['send_heartbeat']
+```
 
+### Ouch Messages
 
-Ouch Messages
-^^^^^^^^^^^^^
+```{eval-rst}
 .. automodule:: nasdaq_protocols.ouch.core
+```

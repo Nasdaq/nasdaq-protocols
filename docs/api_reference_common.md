@@ -1,6 +1,6 @@
-Common api reference
-====================
+# Common API reference
 
+```{eval-rst}
 .. automodule:: nasdaq_protocols.common.message_queue
 
 .. automodule:: nasdaq_protocols.common.session
@@ -10,3 +10,4 @@ Common api reference
 .. automodule:: nasdaq_protocols.common.utils
 
 .. automodule:: nasdaq_protocols.common.message.types
+```

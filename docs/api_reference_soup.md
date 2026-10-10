@@ -1,14 +1,15 @@
-.. _api-reference-soup:
-SOUP API Reference
-==================
+(api-reference-soup)=
+# SOUP API Reference
 
-Soup
-----
+## Soup
+
+```{eval-rst}
 .. automodule:: nasdaq_protocols.soup
+```
 
+### Soup Session
 
-Soup Session
-^^^^^^^^^^^^
+```{eval-rst}
 .. autoclass:: nasdaq_protocols.soup.session.SoupSessionId
     :show-inheritance: True
 
@@ -18,8 +19,10 @@ Soup Session
 
 .. autoclass:: nasdaq_protocols.soup.session.SoupServerSession
     :show-inheritance: True
+```
 
+### Soup Messages
 
-Soup Messages
-^^^^^^^^^^^^^
+```{eval-rst}
 .. automodule:: nasdaq_protocols.soup.core
+```

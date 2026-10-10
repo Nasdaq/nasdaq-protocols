@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "nasdaq-protocols"
 description = "Nasdaq protocols python library"
-license-files = ["docs/LICENSE.rst"]
+license-files = ["LICENSE"]
 requires-python = ">= 3.10"
 classifiers = [
     'Development Status :: 3 - Alpha',
@@ -50,6 +50,7 @@ lint = [
 ]
 docs = [
     "sphinx",
+    "myst-parser",
 ]
 dev = [
     { include-group = "test" },
