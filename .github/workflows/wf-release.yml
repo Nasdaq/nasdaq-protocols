@@ -74,7 +74,7 @@ jobs:
             --title "Release ${{ inputs.version }}" \
             --body "Automated CHANGELOG.md rollover for ${{ inputs.version }}." \
             --label skip-changelog
-          gh pr merge "${{ steps.branch.outputs.name }}" --merge --delete-branch
+          gh pr merge "${{ steps.branch.outputs.name }}" --squash --delete-branch
           echo "sha=$(git rev-parse origin/main 2>/dev/null || true)" >> "$GITHUB_OUTPUT"
 
       - name: Create and push tag on the merge commit
