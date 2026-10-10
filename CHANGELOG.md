@@ -7,6 +7,10 @@ project uses tagged releases published to [PyPI](https://pypi.org/project/nasdaq
 
 ## [Unreleased]
 
+No changes yet.
+
+## [1.3.0] - 2026-10-10
+
 - FIX: session-level sequence gap detection and recovery on login (#73)
 - Fix: `Record.as_collection` now prints nested `Record`s correctly (#72)
 - Build: migrated the project's own build/test/lint/doc tooling from `tox` to
@@ -61,7 +65,8 @@ GitHub Pages.
 Initial alpha releases: SOUP transport layer, OUCH/ITCH/SQF protocol support, FIX parser and
 session handling, documentation infrastructure, and CI setup.
 
-[Unreleased]: https://github.com/Nasdaq/nasdaq-protocols/compare/1.2.4...main
+[Unreleased]: https://github.com/Nasdaq/nasdaq-protocols/compare/1.3.0...main
+[1.3.0]: https://github.com/Nasdaq/nasdaq-protocols/releases/tag/1.3.0
 [1.2.4]: https://github.com/Nasdaq/nasdaq-protocols/releases/tag/1.2.4
 [1.1.4]: https://github.com/Nasdaq/nasdaq-protocols/releases/tag/1.1.4
 [1.1.3]: https://github.com/Nasdaq/nasdaq-protocols/releases/tag/1.1.3
