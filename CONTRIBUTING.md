@@ -47,6 +47,9 @@ cd docs && uv run --group docs make html
     - CLI: `gh pr edit <PR_NUMBER> --add-label skip-changelog`
     Only maintainers/contributors with write access can add labels; if you can't add it
     yourself, ask a maintainer to apply it on your PR.
+  - Dependabot PRs are handled automatically: a workflow (`Dependabot changelog entry`)
+    adds a one-line `CHANGELOG.md` entry (derived from the PR title) to the PR branch when
+    it's opened, so no label or manual edit is needed for dependency bumps.
 
 ## Documentation
 

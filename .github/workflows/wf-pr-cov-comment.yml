@@ -43,6 +43,10 @@ jobs:
         fail_ci_if_error: false
 
     - name: Pytest coverage comment
+      # Dependabot-authored PRs run with a read-only GITHUB_TOKEN, so posting
+      # a PR comment always fails with "Resource not accessible by integration".
+      # Coverage is still enforced above via --cov-fail-under; just skip the comment.
+      if: github.actor != 'dependabot[bot]'
       uses: MishaKav/pytest-coverage-comment@main
       with:
         junitxml-path: ./pytest.xml
