@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Developer’s Guide &#8212; Nasdaq Protocols Python Library 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css?v=08520df9" />
+    <script src="_static/documentation_options.js?v=d45e8c67"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="MIT License" href="LICENSE.html" />
+    <link rel="prev" title="Common API reference" href="api_reference_common.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Nasdaq Protocols Python Library 0.0.1 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="Related">
+          <a href="api_reference_common.html" title="Common API reference"
+             accesskey="P">previous</a> |
+          <a href="LICENSE.html" title="MIT License"
+             accesskey="N">next</a> |
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="developer-s-guide">
+<span id="developer-guide"></span><h1>Developer’s Guide<a class="headerlink" href="#developer-s-guide" title="Link to this heading">¶</a></h1>
+<p>This guide is intended for developers who want to contribute to the
+development of the <code class="docutils literal notranslate"><span class="pre">nasdaq-protocols</span></code> library.</p>
+<section id="guidelines">
+<h2>Guidelines<a class="headerlink" href="#guidelines" title="Link to this heading">¶</a></h2>
+<p>Before merging to main, please ensure that the following guidelines are met:</p>
+<ul class="simple">
+<li><p>All existing tests are passing.</p></li>
+<li><p>New tests are added when needed.</p></li>
+<li><p>Pylint reports no errors, 10/10</p></li>
+<li><p>Code is documented and docstrings are added when needed.</p></li>
+<li><p>Documentation is included in the markdown files under <code class="docutils literal notranslate"><span class="pre">docs/</span></code>.</p></li>
+</ul>
+</section>
+<section id="building">
+<h2>Building<a class="headerlink" href="#building" title="Link to this heading">¶</a></h2>
+<p>This project uses <a class="reference external" href="https://docs.astral.sh/uv/">uv</a> for dependency management, builds,
+tests, linting and docs – there is no <code class="docutils literal notranslate"><span class="pre">tox.ini</span></code> at the repo root.</p>
+<p>Install the dev dependency group once:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>dev
+</pre></div>
+</div>
+<p>Then run each step individually:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>--group<span class="w"> </span>lint<span class="w"> </span>pylint<span class="w"> </span>--fail-under<span class="o">=</span><span class="m">10</span>.0<span class="w"> </span><span class="s2">&quot;--ignore-patterns=.*egg-info.*,.*test.*&quot;</span><span class="w"> </span>src/*
+<span class="gp">$ </span>uv<span class="w"> </span>run<span class="w"> </span>--group<span class="w"> </span><span class="nb">test</span><span class="w"> </span>pytest<span class="w"> </span>--cov<span class="o">=</span>src<span class="w"> </span>--cov-fail-under<span class="o">=</span><span class="m">97</span>
+<span class="gp">$ </span>uv<span class="w"> </span>build
+<span class="gp">$ </span><span class="nb">cd</span><span class="w"> </span>docs<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>--group<span class="w"> </span>docs<span class="w"> </span>make<span class="w"> </span>html
+</pre></div>
+</div>
+<p>These are the same commands run by the <code class="docutils literal notranslate"><span class="pre">Workflow</span> <span class="pre">Push</span></code> GitHub Action
+(<code class="docutils literal notranslate"><span class="pre">.github/workflows/wf-push.yml</span></code>) on every push, so running them locally before opening a
+PR will catch most CI failures early.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Looking for the <code class="docutils literal notranslate"><span class="pre">tox</span></code>-based workflow described in older versions of this guide? The
+project migrated its own build/test/lint/doc tooling to <code class="docutils literal notranslate"><span class="pre">uv</span></code>. <code class="docutils literal notranslate"><span class="pre">tox</span></code> is still used by
+<em>generated</em> downstream projects created via <code class="docutils literal notranslate"><span class="pre">nasdaq-protocols-create-new-project</span></code> –
+see <a class="reference internal" href="user_guide_create_new_project.html#user-guide-create-new-project"><span class="std std-ref">Create New Project Guide</span></a> – that is unrelated to building this repository.</p>
+</div>
+</section>
+<section id="faq">
+<h2>FAQ<a class="headerlink" href="#faq" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Why is pycharm debugger not stopping at breakpoints?</strong>
+Disable the coverage statement from pytest.ini. Refer <a class="reference external" href="https://stackoverflow.com/a/56235965/4248850">https://stackoverflow.com/a/56235965/4248850</a></p></li>
+<li><p><strong>Why is the coverage not reported in pycharm?</strong>
+Disable the coverage statement from pytest.ini</p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          
+          <h3>Table of Contents</h3>
+          <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">MIT License</a></li>
+</ul>
+
+          <search role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+            </form>
+          </search>
+
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="Related">
+            <a href="api_reference_common.html" title="Common API reference"
+              >previous</a> |
+            <a href="LICENSE.html" title="MIT License"
+              >next</a> |
+            <a href="py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/developer_guide.md.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+    &#169; Copyright Copyright (c) 2024 Nasdaq.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>
