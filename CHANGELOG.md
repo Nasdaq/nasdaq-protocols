@@ -8,6 +8,8 @@ project uses tagged releases published to [PyPI](https://pypi.org/project/nasdaq
 ## [Unreleased]
 
 - Chore: bump `urllib3` from 2.7.0 to 2.8.0 (#79)
+- CI: added CodeQL security scanning, Codecov coverage reporting/badge, and
+  enabled Dependabot security updates.
 
 ## [1.3.0] - 2026-10-10
 
