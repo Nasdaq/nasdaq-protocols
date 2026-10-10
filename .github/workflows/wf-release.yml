@@ -1,0 +1,65 @@
+name: Release
+
+# Fully automated release: bump CHANGELOG.md's [Unreleased] section into a
+# dated version entry, commit that change directly to main, then create and
+# push the matching tag. The tag push triggers the existing build, TestPyPI,
+# and PyPI publish jobs in wf-push.yml.
+#
+# This workflow commits straight to the protected `main` branch. That is only
+# possible because `github-actions[bot]` has been explicitly added as a
+# bypass actor for the "required pull request review" rule on `main` -- see
+# repo branch protection settings. The "no force-push / no branch deletion"
+# rules remain enforced for everyone, including this workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release, e.g. 1.3.0 (no leading 'v')"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Validate version format
+        run: |
+          echo "${{ inputs.version }}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([ab][0-9]+)?$' \
+            || { echo "::error::Version '${{ inputs.version }}' doesn't look like a valid semver (e.g. 1.3.0)"; exit 1; }
+
+      - name: Check tag doesn't already exist
+        run: |
+          if git rev-parse "refs/tags/${{ inputs.version }}" >/dev/null 2>&1; then
+            echo "::error::Tag ${{ inputs.version }} already exists."
+            exit 1
+          fi
+
+      - name: Roll CHANGELOG.md [Unreleased] into [${{ inputs.version }}]
+        run: python3 .github/scripts/prepare_release.py "${{ inputs.version }}"
+
+      - name: Commit and push to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "Release ${{ inputs.version }}: update CHANGELOG.md"
+          git push origin HEAD:main
+
+      - name: Create and push tag
+        run: |
+          git tag "${{ inputs.version }}"
+          git push origin "${{ inputs.version }}"
+
+      - name: Summary
+        run: |
+          echo "Released ${{ inputs.version }}. Tag push will trigger build -> TestPyPI -> PyPI." \
+            >> "$GITHUB_STEP_SUMMARY"
