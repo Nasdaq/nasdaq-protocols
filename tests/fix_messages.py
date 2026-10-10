@@ -61,6 +61,38 @@ class Username(fix.Field, Tag="553", Name="Username", Type=fix.FixString):
     Values = None
 
 
+class PossDupFlag(fix.Field, Tag="43", Name="PossDupFlag", Type=fix.FixBool):
+    Values = None
+
+
+class OrigSendingTime(fix.Field, Tag="122", Name="OrigSendingTime", Type=fix.FixUTCTimeStamp):
+    Values = None
+
+
+class PossResend(fix.Field, Tag="97", Name="PossResend", Type=fix.FixBool):
+    Values = None
+
+
+class BeginSeqNo(fix.Field, Tag="7", Name="BeginSeqNo", Type=fix.FixInt):
+    Values = None
+
+
+class EndSeqNo(fix.Field, Tag="16", Name="EndSeqNo", Type=fix.FixInt):
+    Values = None
+
+
+class GapFillFlag(fix.Field, Tag="123", Name="GapFillFlag", Type=fix.FixBool):
+    Values = None
+
+
+class NewSeqNo(fix.Field, Tag="36", Name="NewSeqNo", Type=fix.FixInt):
+    Values = None
+
+
+class TestReqID(fix.Field, Tag="112", Name="TestReqID", Type=fix.FixString):
+    Values = None
+
+
 class Group_1(fix.Group):
     Entries = [
         fix.Entry(Field_1_Int, True),
@@ -174,6 +206,9 @@ class Header(fix.DataSegment):
         fix.Entry(SenderSubID, False),
         fix.Entry(TargetSubID, False),
         fix.Entry(SendingTime, True),
+        fix.Entry(PossDupFlag, False),
+        fix.Entry(OrigSendingTime, False),
+        fix.Entry(PossResend, False),
     ]
 
 
@@ -186,6 +221,11 @@ class Trailer(fix.DataSegment):
 class Body(fix.DataSegment):
     Entries = [
         fix.Entry(Username, False),
+        fix.Entry(TestReqID, False),
+        fix.Entry(BeginSeqNo, False),
+        fix.Entry(EndSeqNo, False),
+        fix.Entry(GapFillFlag, False),
+        fix.Entry(NewSeqNo, False),
     ]
 
 
@@ -218,4 +258,54 @@ class Nope(fix.Message,
            BodyCls=Body,
            TrailerCls=Trailer
            ):
+    ...
+
+
+class TestRequest(fix.Message,
+                  Name='TestRequest',
+                  Type='1',
+                  Category='Session',
+                  HeaderCls=Header,
+                  BodyCls=Body,
+                  TrailerCls=Trailer):
+    ...
+
+
+class ResendRequest(fix.Message,
+                    Name='ResendRequest',
+                    Type='2',
+                    Category='Session',
+                    HeaderCls=Header,
+                    BodyCls=Body,
+                    TrailerCls=Trailer):
+    ...
+
+
+class SequenceReset(fix.Message,
+                    Name='SequenceReset',
+                    Type='4',
+                    Category='Session',
+                    HeaderCls=Header,
+                    BodyCls=Body,
+                    TrailerCls=Trailer):
+    ...
+
+
+class Logout(fix.Message,
+             Name='Logout',
+             Type='5',
+             Category='Session',
+             HeaderCls=Header,
+             BodyCls=Body,
+             TrailerCls=Trailer):
+    ...
+
+
+class App(fix.Message,
+          Name='App',
+          Type='D',
+          Category='B',
+          HeaderCls=Header,
+          BodyCls=Body,
+          TrailerCls=Trailer):
     ...

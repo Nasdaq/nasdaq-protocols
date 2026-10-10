@@ -31,6 +31,10 @@ MSG_TYPE_FIELD = 35
 HEART_BEAT_MSG = '0'
 LOGIN_MSG = 'A'
 LOGOUT_MSG = '5'
+TEST_REQUEST_MSG = '1'
+RESEND_REQUEST_MSG = '2'
+REJECT_MSG = '3'
+SEQUENCE_RESET_MSG = '4'
 
 
 class FixSerializable(Serializable):
@@ -439,6 +443,15 @@ class Message(FixSerializable):
 
     def is_logout(self):
         return self.Type == LOGOUT_MSG
+
+    def is_test_request(self):
+        return self.Type == TEST_REQUEST_MSG
+
+    def is_resend_request(self):
+        return self.Type == RESEND_REQUEST_MSG
+
+    def is_sequence_reset(self):
+        return self.Type == SEQUENCE_RESET_MSG
 
     def as_collection(self):
         return {segment.value: self.data[segment].as_collection() for segment in MessageSegments}
