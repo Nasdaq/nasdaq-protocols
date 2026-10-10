@@ -159,7 +159,7 @@ class FixSession(common.AsyncSession):
     async def _check_for_gap(self, logon_resp: core.Message) -> None:
         seq = logon_resp.Header.MsgSeqNum
         if self.expected_seq_num is None or seq == self.expected_seq_num:
-            # TODO: confirm with protocol spec whether the Logon response's MsgSeqNum is
+            # Needs confirmation with protocol spec: whether the Logon response's MsgSeqNum is
             # its own slot (requiring +1 here, as currently implemented) or already the
             # next sequence number the server will send (no +1 needed).
             self.expected_seq_num = seq + 1
