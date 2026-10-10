@@ -24,15 +24,15 @@ base message classes provided here.
 
 | Protocol | Description | User guide | API reference |
 |---|---|---|---|
-| 🧦 **SOUP** (SoupBinTCP) | Sequenced message delivery transport underlying the app protocols below | [guide](https://nasdaq.github.io/nasdaq-protocols/user_guide_soup.html) | [reference](https://nasdaq.github.io/nasdaq-protocols/api_reference_soup.html) |
-| 🛒 **OUCH** | Order entry protocol | [guide](https://nasdaq.github.io/nasdaq-protocols/user_guide_ouch.html) | [reference](https://nasdaq.github.io/nasdaq-protocols/api_reference_ouch.html) |
-| 📈 **ITCH** | Market data feed protocol | [guide](https://nasdaq.github.io/nasdaq-protocols/user_guide_itch.html) | [reference](https://nasdaq.github.io/nasdaq-protocols/api_reference_itch.html) |
-| 💬 **SQF** | Quote feed protocol | [guide](https://nasdaq.github.io/nasdaq-protocols/user_guide_sqf.html) | [reference](https://nasdaq.github.io/nasdaq-protocols/api_reference_sqf.html) |
-| 🔁 **FIX** | FIX session layer (44/50), with session-level sequence gap detection/recovery | [guide](https://nasdaq.github.io/nasdaq-protocols/user_guide_fix.html) | [reference](https://nasdaq.github.io/nasdaq-protocols/api_reference_fix.html) |
+| 🧦 **SOUP** (SoupBinTCP) | Sequenced message delivery transport underlying the app protocols below | [guide](docs/user_guide_soup.md) | [reference](https://nasdaq.github.io/nasdaq-protocols/api_reference_soup.html) |
+| 🛒 **OUCH** | Order entry protocol | [guide](docs/user_guide_ouch.md) | [reference](https://nasdaq.github.io/nasdaq-protocols/api_reference_ouch.html) |
+| 📈 **ITCH** | Market data feed protocol | [guide](docs/user_guide_itch.md) | [reference](https://nasdaq.github.io/nasdaq-protocols/api_reference_itch.html) |
+| 💬 **SQF** | Quote feed protocol | [guide](docs/user_guide_sqf.md) | [reference](https://nasdaq.github.io/nasdaq-protocols/api_reference_sqf.html) |
+| 🔁 **FIX** | FIX session layer (44/50), with session-level sequence gap detection/recovery | [guide](docs/user_guide_fix.md) | [reference](https://nasdaq.github.io/nasdaq-protocols/api_reference_fix.html) |
 
 Application-specific messages for any of the protocols above are defined by generating a new
 companion package with the bundled `nasdaq-protocols-create-new-project` CLI -- see the
-[Create New Project guide](https://nasdaq.github.io/nasdaq-protocols/user_guide_create_new_project.html).
+[Create New Project guide](docs/user_guide_create_new_project.md).
 
 ## 🚀 Quickstart
 
@@ -60,9 +60,9 @@ async def main():
 asyncio.run(main())
 ```
 
-See the [User Guide](https://nasdaq.github.io/nasdaq-protocols/user_guide.html) for a
+See the [User Guide](docs/user_guide.md) for a
 walkthrough of each protocol, and the
-[Create New Project guide](https://nasdaq.github.io/nasdaq-protocols/user_guide_create_new_project.html)
+[Create New Project guide](docs/user_guide_create_new_project.md)
 for defining your own application messages.
 
 ## ⚡ Performance
@@ -89,7 +89,7 @@ If uvloop is not installed, `use_fast_loop()` is a no-op.
 
 Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for the development
 workflow, and the
-[Developer's Guide](https://nasdaq.github.io/nasdaq-protocols/developer_guide.html) for
+[Developer's Guide](docs/developer_guide.md) for
 more detail.
 
 ## 📄 License
