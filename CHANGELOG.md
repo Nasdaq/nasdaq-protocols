@@ -7,7 +7,7 @@ project uses tagged releases published to [PyPI](https://pypi.org/project/nasdaq
 
 ## [Unreleased]
 
-No changes yet.
+- Chore: bump `urllib3` from 2.7.0 to 2.8.0 (#79)
 
 ## [1.3.0] - 2026-10-10
 
