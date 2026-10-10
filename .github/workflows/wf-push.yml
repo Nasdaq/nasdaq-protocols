@@ -35,6 +35,14 @@ jobs:
           --cov-report xml:cov.xml \
           --cov-fail-under=97
 
+    - name: Upload coverage to Codecov
+      if: matrix.python-version == '3.12'
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./cov.xml
+        fail_ci_if_error: false
+
     - name: Run build
       run: uv build
 

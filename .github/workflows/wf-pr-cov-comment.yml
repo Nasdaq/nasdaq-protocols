@@ -35,6 +35,13 @@ jobs:
           --cov-report xml:cov.xml \
           --cov-fail-under=97
 
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./cov.xml
+        fail_ci_if_error: false
+
     - name: Pytest coverage comment
       uses: MishaKav/pytest-coverage-comment@main
       with:

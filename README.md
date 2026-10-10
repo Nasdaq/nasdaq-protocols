@@ -3,6 +3,8 @@
 [![PyPI version](https://img.shields.io/pypi/v/nasdaq-protocols.svg)](https://pypi.org/project/nasdaq-protocols/)
 [![Python versions](https://img.shields.io/pypi/pyversions/nasdaq-protocols.svg)](https://pypi.org/project/nasdaq-protocols/)
 [![Build status](https://github.com/Nasdaq/nasdaq-protocols/actions/workflows/wf-push.yml/badge.svg)](https://github.com/Nasdaq/nasdaq-protocols/actions/workflows/wf-push.yml)
+[![codecov](https://codecov.io/gh/Nasdaq/nasdaq-protocols/branch/main/graph/badge.svg)](https://codecov.io/gh/Nasdaq/nasdaq-protocols)
+[![CodeQL](https://github.com/Nasdaq/nasdaq-protocols/actions/workflows/codeql.yml/badge.svg)](https://github.com/Nasdaq/nasdaq-protocols/actions/workflows/codeql.yml)
 [![Documentation](https://img.shields.io/badge/docs-github--pages-blue)](https://nasdaq.github.io/nasdaq-protocols/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Downloads](https://img.shields.io/pypi/dm/nasdaq-protocols.svg)](https://pypi.org/project/nasdaq-protocols/)
