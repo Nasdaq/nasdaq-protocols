@@ -1,15 +1,19 @@
 name: Release
 
 # Fully automated release: bump CHANGELOG.md's [Unreleased] section into a
-# dated version entry, commit that change directly to main, then create and
-# push the matching tag. The tag push triggers the existing build, TestPyPI,
-# and PyPI publish jobs in wf-push.yml.
+# dated version entry on a short-lived branch, open a PR, merge it into
+# main, then tag the resulting merge commit. The tag push triggers the
+# existing build, TestPyPI, and PyPI publish jobs in wf-push.yml.
 #
-# This workflow commits straight to the protected `main` branch. That is only
-# possible because `github-actions[bot]` has been explicitly added as a
-# bypass actor for the "required pull request review" rule on `main` -- see
-# repo branch protection settings. The "no force-push / no branch deletion"
-# rules remain enforced for everyone, including this workflow.
+# Why a PR instead of a direct push to main: main has two independent
+# protections -- (1) a "restrict who can push" allowlist, which blocks ANY
+# direct `git push` to main outright (even for allowlisted apps/bypass
+# actors -- this is NOT the same as the PR-review bypass setting), and
+# (2) a required-PR-review rule, for which `github-actions[bot]` has been
+# explicitly added as a bypass actor so this workflow can merge without a
+# human approval. Only (2) can be bypassed programmatically; (1) requires
+# going through the normal PR-merge path, which is why this workflow opens
+# and merges a PR rather than pushing to main directly.
 
 on:
   workflow_dispatch:
@@ -21,10 +25,13 @@ on:
 
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -46,16 +53,35 @@ jobs:
       - name: Roll CHANGELOG.md [Unreleased] into [${{ inputs.version }}]
         run: python3 .github/scripts/prepare_release.py "${{ inputs.version }}"
 
-      - name: Commit and push to main
+      - name: Commit and push release branch
+        id: branch
         run: |
+          BRANCH="release/${{ inputs.version }}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
           git add CHANGELOG.md
           git commit -m "Release ${{ inputs.version }}: update CHANGELOG.md"
-          git push origin HEAD:main
+          git push origin "$BRANCH"
+          echo "name=$BRANCH" >> "$GITHUB_OUTPUT"
 
-      - name: Create and push tag
+      - name: Open and merge release PR
+        id: pr
         run: |
+          gh pr create \
+            --base main \
+            --head "${{ steps.branch.outputs.name }}" \
+            --title "Release ${{ inputs.version }}" \
+            --body "Automated CHANGELOG.md rollover for ${{ inputs.version }}." \
+            --label skip-changelog
+          gh pr merge "${{ steps.branch.outputs.name }}" --merge --delete-branch
+          echo "sha=$(git rev-parse origin/main 2>/dev/null || true)" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push tag on the merge commit
+        run: |
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
           git tag "${{ inputs.version }}"
           git push origin "${{ inputs.version }}"
 
