@@ -18,9 +18,17 @@ release = '0.0.1'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html
-extensions = ['sphinx.ext.autodoc',]
+extensions = ['sphinx.ext.autodoc', 'myst_parser']
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', 'performance-optimization-plan.md']
+
+source_suffix = {
+    '.md': 'markdown',
+}
+
+myst_enable_extensions = [
+    'colon_fence',
+]
 
 
 autodoc_member_order = 'bysource'
