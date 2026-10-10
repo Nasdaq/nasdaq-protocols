@@ -38,7 +38,15 @@ cd docs && uv run --group docs make html
 - Pylint must report 10/10.
 - Code should be documented, with docstrings added where needed.
 - User-facing changes should be documented in the relevant file under `docs/` and noted in
-  [CHANGELOG.md](CHANGELOG.md) under `[Unreleased]`.
+  [CHANGELOG.md](CHANGELOG.md) under `[Unreleased]`. A CI check (`Changelog Check`) fails the
+  PR if `CHANGELOG.md` isn't part of the diff.
+  - If your change genuinely doesn't need a changelog entry (e.g. CI-only tweaks, typo
+    fixes, internal refactors with no user-facing effect), apply the `skip-changelog`
+    label to the PR to bypass the check:
+    - GitHub UI: open the PR -> **Labels** (right sidebar) -> select `skip-changelog`.
+    - CLI: `gh pr edit <PR_NUMBER> --add-label skip-changelog`
+    Only maintainers/contributors with write access can add labels; if you can't add it
+    yourself, ask a maintainer to apply it on your PR.
 
 ## Documentation
 
@@ -48,6 +56,20 @@ published automatically to [GitHub Pages](https://nasdaq.github.io/nasdaq-protoc
 every push to `main`. See the
 [Developer's Guide](https://nasdaq.github.io/nasdaq-protocols/developer_guide.html) for more
 detail.
+
+## Cutting a release
+
+Releases are fully automated (maintainers only):
+
+1. Go to **Actions -> Release -> Run workflow**, enter the new version (e.g. `1.3.0`, no
+   leading `v`), and run it.
+2. The workflow rolls `CHANGELOG.md`'s `[Unreleased]` entries into a new dated
+   `[<version>]` section, commits that change to `main`, then creates and pushes the
+   `<version>` tag.
+3. The tag push automatically triggers the build, then publishes to TestPyPI and PyPI.
+
+No manual CHANGELOG editing or tagging is needed -- just make sure `[Unreleased]` has the
+entries you want released before running the workflow.
 
 ## Reporting issues
 

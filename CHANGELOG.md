@@ -7,8 +7,6 @@ project uses tagged releases published to [PyPI](https://pypi.org/project/nasdaq
 
 ## [Unreleased]
 
-Changes merged to `main` since the `1.2.4` release that are not yet published to PyPI:
-
 - FIX: session-level sequence gap detection and recovery on login (#73)
 - Fix: `Record.as_collection` now prints nested `Record`s correctly (#72)
 - Build: migrated the project's own build/test/lint/doc tooling from `tox` to
