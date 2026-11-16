@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Installation &#8212; Nasdaq Protocols Python Library 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css?v=08520df9" />
+    <script src="_static/documentation_options.js?v=d45e8c67"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="SOUP User Guide" href="user_guide_soup.html" />
+    <link rel="prev" title="User Guide" href="user_guide.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Nasdaq Protocols Python Library 0.0.1 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="Related">
+          <a href="user_guide.html" title="User Guide"
+             accesskey="P">previous</a> |
+          <a href="user_guide_soup.html" title="SOUP User Guide"
+             accesskey="N">next</a> |
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="installation">
+<span id="install-guide"></span><h1>Installation<a class="headerlink" href="#installation" title="Link to this heading">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">nasdaq-protocols</span></code> requires <strong>Python 3.10+</strong>.</p>
+<section id="install-from-pypi">
+<h2>Install from PyPI<a class="headerlink" href="#install-from-pypi" title="Link to this heading">¶</a></h2>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>nasdaq-protocols
+</pre></div>
+</div>
+</section>
+<section id="optional-performance-extras">
+<h2>Optional performance extras<a class="headerlink" href="#optional-performance-extras" title="Link to this heading">¶</a></h2>
+<p>For improved async throughput, install with the <code class="docutils literal notranslate"><span class="pre">performance</span></code> extra. This pulls in
+<a class="reference external" href="https://github.com/MagicStack/uvloop">uvloop</a> (Linux/macOS only), which provides ~4-5x
+faster event loop scheduling:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>pip<span class="w"> </span>install<span class="w"> </span>nasdaq-protocols<span class="o">[</span>performance<span class="o">]</span>
+</pre></div>
+</div>
+<p>Activate it early in your application, before any asyncio work:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">nasdaq_protocols.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">use_fast_loop</span>
+<span class="n">use_fast_loop</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If <code class="docutils literal notranslate"><span class="pre">uvloop</span></code> is not installed, <code class="docutils literal notranslate"><span class="pre">use_fast_loop()</span></code> is a no-op.</p>
+</section>
+<section id="setting-up-a-development-environment">
+<h2>Setting up a development environment<a class="headerlink" href="#setting-up-a-development-environment" title="Link to this heading">¶</a></h2>
+<p>This project uses <a class="reference external" href="https://docs.astral.sh/uv/">uv</a> for dependency management, building,
+testing, linting and docs. Clone the repo and run:</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span>uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>dev
+</pre></div>
+</div>
+<p>See the <a class="reference internal" href="developer_guide.html#developer-guide"><span class="std std-ref">Developer’s Guide</span></a> for the full contributor workflow.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          
+          <h3>Table of Contents</h3>
+          <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">MIT License</a></li>
+</ul>
+
+          <search role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+            </form>
+          </search>
+
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="Related">
+            <a href="user_guide.html" title="User Guide"
+              >previous</a> |
+            <a href="user_guide_soup.html" title="SOUP User Guide"
+              >next</a> |
+            <a href="py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/install.md.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+    &#169; Copyright Copyright (c) 2024 Nasdaq.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>
