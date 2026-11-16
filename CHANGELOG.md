@@ -8,6 +8,7 @@ project uses tagged releases published to [PyPI](https://pypi.org/project/nasdaq
 ## [Unreleased]
 
 - Chore: bump `pylint` from 4.0.6 to 4.0.9 (#87)
+- Chore: bump `certifi` from 2026.6.17 to 2026.10.19 (#86)
 
 - Chore: bump `urllib3` from 2.7.0 to 2.8.0 (#79)
 - CI: added CodeQL security scanning, Codecov coverage reporting/badge, and
