@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>FIX User Guide &#8212; Nasdaq Protocols Python Library 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/agogo.css?v=08520df9" />
+    <script src="_static/documentation_options.js?v=d45e8c67"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Create New Project Guide" href="user_guide_create_new_project.html" />
+    <link rel="prev" title="SQF User Guide" href="user_guide_sqf.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="index.html">Nasdaq Protocols Python Library 0.0.1 documentation</a></div>
+        <div class="rel" role="navigation" aria-label="Related">
+          <a href="user_guide_sqf.html" title="SQF User Guide"
+             accesskey="P">previous</a> |
+          <a href="user_guide_create_new_project.html" title="Create New Project Guide"
+             accesskey="N">next</a> |
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="fix-user-guide">
+<span id="user-guide-fix"></span><h1>FIX User Guide<a class="headerlink" href="#fix-user-guide" title="Link to this heading">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">nasdaq_protocols.fix</span></code> module provides a client-side implementation of the FIX
+protocol, including the session layer. Refer <a class="reference internal" href="api_reference_fix.html#api-reference-fix"><span class="std std-ref">FIX API Reference</span></a> for more information
+on the API.</p>
+<p>This package <strong>only</strong> provides the core implementation of the FIX protocol (message
+serialization, deserialization, validation and session handling). It <strong>does not</strong> define
+any actual FIX messages – those are application/dictionary specific and must be defined by
+the user of this package (for example, by generating them from a FIX dictionary). The
+session layer operates generically on the standard header/body tags and message <em>types</em>,
+so the same session works for any conforming message set.</p>
+<p>Follow the steps in <a class="reference internal" href="user_guide_create_new_project.html#user-guide-create-new-project"><span class="std std-ref">Create New Project Guide</span></a> to create a new python package for
+the application specific messages.</p>
+<section id="connecting-to-a-fix-server">
+<h2>Connecting to a FIX server<a class="headerlink" href="#connecting-to-a-fix-server" title="Link to this heading">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nasdaq_protocols</span><span class="w"> </span><span class="kn">import</span> <span class="n">fix</span>
+<span class="c1"># `Fix44Session`/`Fix50Session` are provided by the library; the login message type</span>
+<span class="c1"># is defined by your application/dictionary.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">nasdaq_protocols.fix.session</span><span class="w"> </span><span class="kn">import</span> <span class="n">Fix44Session</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+    <span class="n">login_msg</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># build your application Logon message</span>
+
+    <span class="n">session</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fix</span><span class="o">.</span><span class="n">connect_async</span><span class="p">(</span>
+        <span class="p">(</span><span class="s1">&#39;hostname&#39;</span><span class="p">,</span> <span class="mi">1234</span><span class="p">),</span>
+        <span class="n">login_msg</span><span class="p">,</span>
+        <span class="n">Fix44Session</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># ... use the session ...</span>
+
+    <span class="k">await</span> <span class="n">session</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</pre></div>
+</div>
+</section>
+<section id="session-level-sequence-recovery">
+<h2>Session-level sequence recovery<a class="headerlink" href="#session-level-sequence-recovery" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">FixSession</span></code> always behaves as a compliant FIX client on the <strong>receiver side</strong>: it checks
+for a sequence gap once, at login, and transparently performs the session-layer recovery
+protocol before handing messages to your application. This is core functionality and cannot
+be disabled.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">session</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fix</span><span class="o">.</span><span class="n">connect_async</span><span class="p">(</span>
+    <span class="p">(</span><span class="s1">&#39;hostname&#39;</span><span class="p">,</span> <span class="mi">1234</span><span class="p">),</span>
+    <span class="n">login_msg</span><span class="p">,</span>
+    <span class="k">lambda</span><span class="p">:</span> <span class="n">Fix44Session</span><span class="p">(</span>
+        <span class="n">expected_seq_num</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span>        <span class="c1"># the next inbound MsgSeqNum you expect from the server</span>
+        <span class="n">client_heartbeat_interval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">server_heartbeat_interval</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">expected_seq_num</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>: the session bootstraps itself from the
+<code class="docutils literal notranslate"><span class="pre">MsgSeqNum</span></code> of the <code class="docutils literal notranslate"><span class="pre">Logon</span></code> response, so whatever the server sends first is accepted as
+the baseline. Pass an explicit value (e.g. derived from your persisted sequence store on a
+reconnect) to detect a gap right from the login handshake.</p>
+<p>A FIX session runs over a single TCP connection, which guarantees in-order, gap-free
+delivery for the life of that connection – a real gap can only arise from a disconnect and
+reconnect. Because of this, gap detection happens <strong>only once, during login</strong>: the session
+compares the <code class="docutils literal notranslate"><span class="pre">MsgSeqNum</span></code> the server reports on its <code class="docutils literal notranslate"><span class="pre">Logon</span></code> response against
+<code class="docutils literal notranslate"><span class="pre">expected_seq_num</span></code>. If the server’s sequence is higher, messages were missed on a prior
+connection and recovery kicks in; once recovery completes, messages flow straight through to
+your application with no further per-message sequence bookkeeping.</p>
+<p>What the session does automatically:</p>
+<ul class="simple">
+<li><p><strong>No gap at login</strong>: the <code class="docutils literal notranslate"><span class="pre">Logon</span></code> response’s own <code class="docutils literal notranslate"><span class="pre">MsgSeqNum</span></code> matches (or bootstraps)
+<code class="docutils literal notranslate"><span class="pre">expected_seq_num</span></code>; every subsequent message is checked against the expected sequence
+(a cheap O(1) comparison) and delivered to your <code class="docutils literal notranslate"><span class="pre">on_msg_coro</span></code> in order.</p></li>
+<li><p><strong>Gap detected at login</strong>: the <code class="docutils literal notranslate"><span class="pre">Logon</span></code> response reports a <code class="docutils literal notranslate"><span class="pre">MsgSeqNum</span></code> ahead of
+<code class="docutils literal notranslate"><span class="pre">expected_seq_num</span></code>. The session sends an open-ended
+<code class="docutils literal notranslate"><span class="pre">ResendRequest(BeginSeqNo=expected_seq_num,</span> <span class="pre">EndSeqNo=0)</span></code>, asking the server to replay
+everything from the missing sequence onward. The optional <code class="docutils literal notranslate"><span class="pre">on_gap</span></code> hook is invoked with
+<code class="docutils literal notranslate"><span class="pre">(expected_seq_num,</span> <span class="pre">received_seq)</span></code>.</p></li>
+<li><p><strong>No buffering</strong>: the session never buffers out-of-order traffic. Any message that arrives
+<em>ahead</em> of <code class="docutils literal notranslate"><span class="pre">expected_seq_num</span></code> (for example, live traffic racing the in-flight
+<code class="docutils literal notranslate"><span class="pre">ResendRequest</span></code>) is dropped silently before it is ever queued for your application –
+because the <code class="docutils literal notranslate"><span class="pre">ResendRequest</span></code> is open-ended, the server’s replay naturally re-delivers
+that same message later (marked <code class="docutils literal notranslate"><span class="pre">PossDupFlag=Y</span></code>), in the correct position, once the gap
+has been filled.</p></li>
+<li><p><strong>Gap fill / replay</strong>: a <code class="docutils literal notranslate"><span class="pre">SequenceReset</span></code> with <code class="docutils literal notranslate"><span class="pre">GapFillFlag=Y</span></code> advances the expected
+sequence to <code class="docutils literal notranslate"><span class="pre">NewSeqNo</span></code> (the server may collapse a run of housekeeping messages, e.g.
+several <code class="docutils literal notranslate"><span class="pre">Heartbeat</span></code>s, into a single <code class="docutils literal notranslate"><span class="pre">GapFill</span></code>); a <code class="docutils literal notranslate"><span class="pre">SequenceReset</span></code> without the
+gap-fill flag forces the expected sequence to <code class="docutils literal notranslate"><span class="pre">NewSeqNo</span></code>.</p></li>
+<li><p><strong>Duplicates</strong>: a message <em>below</em> the expected sequence carrying <code class="docutils literal notranslate"><span class="pre">PossDupFlag=Y</span></code> is a
+replayed duplicate and is dropped silently.</p></li>
+<li><p><strong>Fatal sequence error</strong>: a message <em>below</em> the expected sequence <strong>without</strong>
+<code class="docutils literal notranslate"><span class="pre">PossDupFlag=Y</span></code> is a fatal condition – the session sends a <code class="docutils literal notranslate"><span class="pre">Logout</span></code> and closes.</p></li>
+<li><p><strong>TestRequest</strong>: an inbound <code class="docutils literal notranslate"><span class="pre">TestRequest</span></code> is always answered with a <code class="docutils literal notranslate"><span class="pre">Heartbeat</span></code>
+echoing the <code class="docutils literal notranslate"><span class="pre">TestReqID</span></code> – the standard FIX flow.</p></li>
+</ul>
+<p>This filtering happens at the point messages are received off the wire, before they are
+ever handed to the dispatcher – so your application only ever sees messages in strict
+sequence order, and <code class="docutils literal notranslate"><span class="pre">on_msg_coro</span></code>/<code class="docutils literal notranslate"><span class="pre">receive_msg()</span></code> behave exactly as documented by the
+base session, regardless of whether sequence recovery is in progress.</p>
+<p>There is no cap on how long the server can take to complete the replay; if it never does,
+the normal heartbeat-timeout logic closes the session as a safety net.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is Phase 1 (receiver side). Responder-side replay – replaying <em>our own</em> previously
+sent messages when the <em>server</em> sends <em>us</em> a <code class="docutils literal notranslate"><span class="pre">ResendRequest</span></code> – requires a persistent
+outbound message store and is planned as future work.</p>
+</div>
+</section>
+<section id="sending-messages-with-an-explicit-sequence">
+<h2>Sending messages with an explicit sequence<a class="headerlink" href="#sending-messages-with-an-explicit-sequence" title="Link to this heading">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">send_msg</span></code> auto-stamps the outbound <code class="docutils literal notranslate"><span class="pre">MsgSeqNum</span></code> from the session counter. Two keyword-only
+parameters let you override that when producing recovery messages:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Normal send: MsgSeqNum is taken from the session&#39;s outbound counter.</span>
+<span class="n">session</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+<span class="c1"># Send with an explicit sequence number; the auto counter is NOT advanced.</span>
+<span class="n">session</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">seq_num</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="c1"># Mark a message as a possible duplicate: sets PossDupFlag and OrigSendingTime.</span>
+<span class="n">session</span><span class="o">.</span><span class="n">send_msg</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">seq_num</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">poss_dup</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          
+          <h3>Table of Contents</h3>
+          <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="LICENSE.html">MIT License</a></li>
+</ul>
+
+          <search role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+            </form>
+          </search>
+
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="Related">
+            <a href="user_guide_sqf.html" title="SQF User Guide"
+              >previous</a> |
+            <a href="user_guide_create_new_project.html" title="Create New Project Guide"
+              >next</a> |
+            <a href="py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="_sources/user_guide_fix.md.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+    &#169; Copyright Copyright (c) 2024 Nasdaq.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>
