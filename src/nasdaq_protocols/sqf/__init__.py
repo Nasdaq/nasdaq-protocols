@@ -22,7 +22,7 @@ __all__ = [
 ]
 
 
-async def connect_async(remote: tuple[str, int], user: str, passwd: str, session_id,  # pylint: disable=R0913
+async def connect_async(remote: tuple[str, int], user: str, passwd: str, session_id: str = '',  # pylint: disable=R0913
                         sequence: int = 0,
                         session_factory: Callable[[soup.SoupClientSession], ClientSession] = None,
                         on_msg_coro: OnSqfMessageCoro = None,
@@ -36,15 +36,15 @@ async def connect_async(remote: tuple[str, int], user: str, passwd: str, session
     :param remote: tuple of host and port
     :param user: Username to login
     :param passwd:  Password to login
-    :param session_id: Name of the session to join [Default=''] .
-    :param sequence: The sequence number. [Default=1]
-    :param session_factory: Factory to create a SoupClientSession.
+    :param session_id: Name of the session to join, '' to join the current session. [Default='']
+    :param sequence: The sequence number, 0 to start from HEAD, 1 from the start. [Default=0]
+    :param session_factory: Factory to create a ClientSession from the soup session.
     :param on_msg_coro: callback, message from server.
     :param on_close_coro: callback, connection closed .
     :param client_heartbeat_interval: seconds between client heartbeats.
     :param server_heartbeat_interval: seconds between server heartbeats.
     :param connect_timeout: seconds to wait for connection.
-    :return: SoupClientSession
+    :return: ClientSession
     """
 
     # Create a soup session

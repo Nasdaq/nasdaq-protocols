@@ -298,3 +298,94 @@ async def test__dispatchablemessagequeue__continious_message_puts_while_bufferin
     LOG.info('Final Produced: %d, Consumed: %d', produced_messages.qsize(), consumed_messages.qsize())
     LOG.info('Test completed in %.2f seconds', time.monotonic() - start_time)
 
+
+
+async def test__dispatchablemessagequeue__stop_with_drain__all_queued_messages_dispatched():
+    received = []
+
+    async def slow_handler(msg):
+        await asyncio.sleep(0.01)
+        received.append(msg)
+
+    q = common.DispatchableMessageQueue(session_id='test', on_msg_coro=slow_handler)
+    for i in range(10):
+        q.put_nowait(i)
+
+    await asyncio.wait_for(q.stop(drain=True), 5)
+
+    assert received == list(range(10))
+    assert q.is_stopped()
+    assert not q.is_dispatching()
+
+
+async def test__dispatchablemessagequeue__stop__not_dispatching__messages_still_readable():
+    q = common.DispatchableMessageQueue(session_id='test')
+    q.put_nowait('a')
+    q.put_nowait('b')
+
+    await q.stop(drain=True)
+
+    assert await q.get() == 'a'
+    assert await q.get() == 'b'
+    with pytest.raises(common.EndOfQueue):
+        await q.get()
+
+
+async def test__dispatchablemessagequeue__stop_with_drain_from_dispatcher__does_not_deadlock():
+    received = []
+    q = None
+
+    async def handler(msg):
+        received.append(msg)
+        if msg == 'stop':
+            await q.stop(drain=True)
+
+    q = common.DispatchableMessageQueue(session_id='test', on_msg_coro=handler)
+    q.put_nowait('stop')
+    q.put_nowait('after-stop')
+
+    for _ in range(100):
+        if len(received) == 2:
+            break
+        await asyncio.sleep(0.01)
+
+    assert received == ['stop', 'after-stop']
+    assert q.is_stopped()
+
+
+async def test__dispatchablemessagequeue__buffer_until_drained__no_dispatcher__does_not_block():
+    q = common.DispatchableMessageQueue(session_id='test')
+    q.put_nowait('pending')
+
+    async def drain():
+        async with q.buffer_until_drained(discard_buffer=True):
+            pass
+
+    await asyncio.wait_for(drain(), 1)
+    assert q.get_nowait() == 'pending'
+
+
+@pytest.mark.parametrize('falsy_msg', [0, b'', '', []])
+async def test__dispatchablemessagequeue__falsy_message__returned_by_get(falsy_msg):
+    q = common.DispatchableMessageQueue(session_id='test')
+    q.put_nowait(falsy_msg)
+
+    assert await asyncio.wait_for(q.get(), 1) == falsy_msg
+
+
+async def test__dispatchablemessagequeue__handler_raises__traceback_logged_and_dispatching_continues(caplog):
+    received = asyncio.Queue()
+
+    async def handler(msg):
+        if msg == 'bad':
+            raise KeyError('boom')
+        await received.put(msg)
+
+    q = common.DispatchableMessageQueue(session_id='test', on_msg_coro=handler)
+    with caplog.at_level(logging.ERROR):
+        q.put_nowait('bad')
+        q.put_nowait('good')
+        assert await asyncio.wait_for(received.get(), 1) == 'good'
+
+    assert any(record.exc_info and isinstance(record.exc_info[1], KeyError) for record in caplog.records)
+    await q.stop()

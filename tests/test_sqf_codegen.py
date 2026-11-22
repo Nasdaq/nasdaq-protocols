@@ -44,7 +44,7 @@ class ClientSession(sqf.ClientSession):
         return Message.from_bytes(bytes_)
 
 
-async def connect_async(remote: tuple[str, int], user: str, passwd: str, session_id,
+async def connect_async(remote: tuple[str, int], user: str, passwd: str, session_id: str = '',
                         sequence: int = 0,
                         session_factory: Callable[[soup.SoupClientSession], ClientSession] = None,
                         on_msg_coro: Callable[[Type[Message]], Awaitable[None]] = None,

@@ -16,6 +16,7 @@ __all__ = [
 
 
 DispatcherCoro = Callable[[Any], Awaitable[None]]
+_STOP_DISPATCHING = object()
 
 
 @logable
@@ -59,7 +60,7 @@ class DispatchableMessageQueue(Stoppable):
             EndOfQueue - if queue is stopped the underlying queue contains no entries.
         """
         msg = self.get_nowait()
-        return msg if msg else await self._blocking_read()
+        return msg if msg is not None else await self._blocking_read()
 
     def put_nowait(self, msg: Any):
         """
@@ -76,12 +77,14 @@ class DispatchableMessageQueue(Stoppable):
         """
         if self._dispatcher_task:
             raise StateError(f'{self.session_id}-dispatcher, Dispatcher is running, cannot use get_no_wait')
-        msg = None
         try:
             msg = self._msg_queue.get_nowait()
         except asyncio.QueueEmpty:
-            if self._closed:
-                raise EndOfQueue()
+            msg = None
+        if msg is _STOP_DISPATCHING:
+            msg = None
+        if msg is None and self._closed:
+            raise EndOfQueue()
         return msg
 
     @asynccontextmanager
@@ -135,7 +138,9 @@ class DispatchableMessageQueue(Stoppable):
         self._buffer_msg_queue = asyncio.Queue()
 
         try:
-            while not self._msg_queue.empty():
+            # Only a running dispatcher drains the queue; without one, the queued
+            # messages stay available to `get` and waiting here would never finish.
+            while self.is_dispatching() and not self._msg_queue.empty():
                 await asyncio.sleep(0.0001)
             yield
         finally:
@@ -147,12 +152,19 @@ class DispatchableMessageQueue(Stoppable):
                     self._msg_queue = self._buffer_msg_queue
             self._buffer_msg_queue = None
 
-    async def stop(self) -> None:
+    async def stop(self, drain: bool = False) -> None:
         """
         Stop the queue.
+
+        Messages still in the queue remain available to `get` until it is empty.
+
+        :param drain: If True and the queue is dispatching, every message already in the
+                      queue is dispatched before the dispatcher is stopped.
         """
         if not self._closed:
             self._closed = True
+            if drain and self._dispatcher_task:
+                await self._drain_dispatcher()
             self._dispatcher_task = await stop_task(self._dispatcher_task)
             self._recv_task = await stop_task(self._recv_task)
 
@@ -162,21 +174,36 @@ class DispatchableMessageQueue(Stoppable):
         """
         return self._closed
 
+    async def _drain_dispatcher(self):
+        self._msg_queue.put_nowait(_STOP_DISPATCHING)
+        if asyncio.current_task() is self._dispatcher_task:
+            # Stopped from within the dispatcher (e.g. on_msg_coro closed the session),
+            # the dispatcher exits by itself once it reaches the stop marker.
+            self._dispatcher_task = None
+            return
+        await self._dispatcher_task
+
     async def _start_dispatching(self):
         counter = count(1)
         while True:
             try:
-                await self.on_msg_coro(await self._msg_queue.get())
+                msg = await self._msg_queue.get()
+                if msg is _STOP_DISPATCHING:
+                    break
+                await self.on_msg_coro(msg)
                 self.log.debug('%s> dispatched message %s', self.session_id, next(counter))
             except asyncio.CancelledError:
                 break
-            except Exception as exc:  # pylint: disable=broad-except
-                self.log.warning('%s> Exception when handling message, %s', self.session_id, exc)
+            except Exception:  # pylint: disable=broad-except
+                self.log.exception('%s> Exception when handling message', self.session_id)
 
     async def _blocking_read(self):
         self._recv_task = asyncio.create_task(self._msg_queue.get())
         try:
-            return await self._recv_task
+            msg = await self._recv_task
+            if msg is _STOP_DISPATCHING:
+                raise EndOfQueue()
+            return msg
         except asyncio.CancelledError:
             raise EndOfQueue()  # pylint: disable=W0707
         finally:

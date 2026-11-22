@@ -154,10 +154,9 @@ async def test__asyncsession__stream_after_connect_and_close__client_session_abl
     port, server_session = mock_server_session
 
     # server sends 100000 messages after connection and then closes the session
+    # (written in one go: 100000 small transport writes are O(n^2) in asyncio on py3.12+)
     def stream_messages_and_close(session, _):
-        for i in range(100000):
-            session.send(f'msg{i}|'.encode('ascii'))
-        session.send(f'end-of-stream'.encode('ascii'))
+        session.send(b''.join(f'msg{i}|'.encode('ascii') for i in range(100000)) + b'end-of-stream')
         session.close()
     server_session.when_connect().do(stream_messages_and_close)
 
@@ -166,7 +165,7 @@ async def test__asyncsession__stream_after_connect_and_close__client_session_abl
 
     found_end_of_stream = False
     while not session_.closed.is_set() and not found_end_of_stream:
-        msg = await asyncio.wait_for(session_.received.get(), 0.1)
+        msg = await asyncio.wait_for(session_.received.get(), 1)
         if 'end-of-stream' in msg:
             found_end_of_stream = True
 
@@ -218,8 +217,9 @@ async def test__asyncsession__graceful_shutdown__enables_client_to_read_all_mess
     assert session_.closed.is_set()
     assert session_.is_closed()
 
-    assert found_end_of_stream == graceful_shutdown, \
-        "Graceful shutdown should allow reading all messages"
+    # Without graceful shutdown messages may or may not be lost, depending on timing.
+    if graceful_shutdown:
+        assert found_end_of_stream, "Graceful shutdown should allow reading all messages"
 
 
 def get_streamer_close_function(message_count: int):
@@ -229,3 +229,97 @@ def get_streamer_close_function(message_count: int):
         session.send(f'end-of-stream|'.encode('ascii'))
         session.close()
     return stream_messages_and_close
+
+async def test__asyncsession__set_handlers_on_closed_session__handler_not_replaced(mock_server_session, client_session):
+    await client_session.close()
+
+    async def another_on_close():
+        pass
+
+    with pytest.raises(StateError):
+        client_session.set_handlers(on_close_coro=another_on_close)
+    assert client_session.on_close_coro == client_session.on_close
+
+
+async def test__asyncsession__async_context_manager__session_closed_on_exit(mock_server_session, client_session):
+    async with client_session as session:
+        assert session is client_session
+        assert session.is_active()
+
+    assert client_session.is_closed()
+
+
+@attrs.define(auto_attribs=True)
+class FailingTestReader(SampleTestReader):
+    def deserialize(self) -> Any:
+        raise ValueError('malformed frame')
+
+
+async def test__reader__deserialize_raises__reader_stopped_and_close_called(caplog):
+    closed = asyncio.Event()
+
+    async def on_msg(_msg):
+        pass
+
+    async def on_close():
+        closed.set()
+
+    reader = FailingTestReader('test', on_msg, on_close)
+    with caplog.at_level(logging.ERROR):
+        reader.on_data(b'garbage')
+        await asyncio.wait_for(closed.wait(), 1)
+
+    assert reader.is_stopped()
+    assert any(record.exc_info and isinstance(record.exc_info[1], ValueError) for record in caplog.records)
+
+
+async def test__reader__stopped_from_own_handler__close_called_once():
+    close_calls = []
+    reader = None
+
+    async def on_msg(_msg):
+        await reader.stop()
+
+    async def on_close():
+        close_calls.append(True)
+
+    reader = SampleTestReader('test', on_msg, on_close)
+    reader.on_data(b'stop-now')
+
+    for _ in range(100):
+        if reader.is_stopped():
+            break
+        await asyncio.sleep(0.01)
+
+    assert reader.is_stopped()
+    assert close_calls == [True]
+    await asyncio.sleep(0.01)
+    assert reader._task.done()
+
+
+async def test__reader__buffer_until_drained_on_stopped_reader__does_not_block():
+    async def noop(*_args):
+        pass
+
+    reader = SampleTestReader('test', noop, noop)
+    await reader.stop()
+
+    async def drain():
+        async with reader.buffer_until_drained(discard_buffer=True):
+            pass
+
+    await asyncio.wait_for(drain(), 1)
+
+
+async def test__reader__idle__does_not_wake_up_without_data():
+    async def noop(*_args):
+        pass
+
+    reader = SampleTestReader('test', noop, noop)
+    await asyncio.sleep(0.01)
+
+    # the reader waits on data, it does not poll
+    assert not reader._task.done()
+    assert reader._data_available.is_set() is False
+
+    await reader.stop()

@@ -366,3 +366,21 @@ def test__sync_soup_session__sending_debug_from_client(sync_mock_server_session)
 
     client_session.logout()
     sync_wait_for_session_close(client_session)
+
+
+def test__sync_soup_session__send_unseq_data_and_aliases__able_to_communicate(sync_mock_server_session):
+    port, server_session = sync_mock_server_session
+    server_session = configure_login_accept(server_session)
+    server_session.when(
+        matches(soup.UnSequencedData(b'ping')), 'unsequenced-ping'
+    ).do(
+        send(soup.SequencedData(b'pong'))
+    )
+
+    with soup.connect(('127.0.0.1', port), 'test-u', 'test-p', 'session') as client_session:
+        client_session.send_unseq_data(b'ping')
+        reply = client_session.receive_msg()
+        assert isinstance(reply, soup.SequencedData)
+        assert reply.data == b'pong'
+
+    assert client_session.is_closed()

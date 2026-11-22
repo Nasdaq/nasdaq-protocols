@@ -24,11 +24,12 @@ async def connect_async(remote: tuple[str, int],
                         on_msg_coro = None,
                         on_close_coro = None,
                         client_heartbeat_interval: int = 10,
-                        server_heartbeat_interval: int = 10) -> fix.FixSession:
+                        server_heartbeat_interval: int = 10,
+                        connect_timeout: float | None = None) -> fix.FixSession:
     session = ClientSession(
         on_msg_coro=on_msg_coro,
         on_close_coro=on_close_coro,
         client_heartbeat_interval=client_heartbeat_interval,
         server_heartbeat_interval=server_heartbeat_interval
     )
-    return await fix.connect_async(remote, login_msg, lambda: session)
+    return await fix.connect_async(remote, login_msg, lambda: session, connect_timeout=connect_timeout)

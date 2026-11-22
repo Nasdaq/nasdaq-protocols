@@ -32,3 +32,12 @@ def test__asn1app__core__invalid_session_definition__throws_error():
             ...
 
     assert str(e.value) == "Missing 'asn1_message' attribute"
+
+def test__asn1app__session_names__correctly_spelled():
+    from nasdaq_protocols import asn1_app
+    from nasdaq_protocols.soup import soup_app
+
+    assert not hasattr(asn1_app, 'Ans1SoupSessionId')
+    assert not hasattr(asn1_app, 'OnAns1CloseCoro')
+    assert issubclass(asn1_app.Asn1SoupClientSession, soup_app.SoupAppClientSession)
+    assert str(asn1_app.Asn1SoupSessionId()) == 'asn1-nosoup'

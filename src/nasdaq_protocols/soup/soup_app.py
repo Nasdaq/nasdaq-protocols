@@ -77,16 +77,22 @@ class SoupAppClientSession(Generic[M]):
     soup_session: soup.SoupClientSession
     on_msg_coro: Callable[[Type[M]], Awaitable[None]] = None
     on_close_coro: Callable[[], Awaitable[None]] = None
-    closed: bool = False
-    _session_id: SoupAppSessionId = None
-    _close_event: asyncio.Event = None
-    _message_queue: DispatchableMessageQueue = None
+    closed: bool = attrs.field(init=False, default=False)
+    _session_id: SoupAppSessionId = attrs.field(init=False, default=None)
+    _close_event: asyncio.Event = attrs.field(init=False, default=None)
+    _message_queue: DispatchableMessageQueue = attrs.field(init=False, default=None)
 
     def __attrs_post_init__(self):
         self._session_id = self._create_session_id()
         self._message_queue = DispatchableMessageQueue(self._session_id, self.on_msg_coro)
         self.soup_session.set_handlers(on_msg_coro=self._on_soup_message, on_close_coro=self._on_soup_close)
         self.soup_session.start_dispatching()
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *_exc_info):
+        await self.close()
 
     def _create_session_id(self):
         """Create a protocol-specific session ID. Override in subclasses."""
@@ -100,6 +106,10 @@ class SoupAppClientSession(Generic[M]):
         """
         return await self._message_queue.get()
 
+    async def receive_msg(self):
+        """Alias of `receive_message`, named consistently with the soup and fix sessions."""
+        return await self.receive_message()
+
     def send_message(self, msg: M):
         """
         Send a message to the server.
@@ -107,15 +117,24 @@ class SoupAppClientSession(Generic[M]):
         """
         self.soup_session.send_unseq_data(msg.to_bytes()[1])
 
+    def send_msg(self, msg: M):
+        """Alias of `send_message`, named consistently with the soup and fix sessions."""
+        self.send_message(msg)
+
     async def close(self):
         """
         Asynchronously close the session.
+
+        A soup logout request is sent to the server if the session is still active.
         """
         if self._close_event or self.closed:
             self.log.debug('%s> closing in progress..', self._session_id)
             return
         self._close_event = asyncio.Event()
-        self.soup_session.initiate_close()
+        if self.soup_session.is_active():
+            self.soup_session.logout()
+        else:
+            self.soup_session.initiate_close()
         await self._close_event.wait()
         self.log.debug('%s> closed.', self._session_id)
 
@@ -126,7 +145,8 @@ class SoupAppClientSession(Generic[M]):
             await self._message_queue.put(decoded[1])
 
     async def _on_soup_close(self):
-        await self._message_queue.stop()
+        # When the server closed the session, deliver what it sent before closing.
+        await self._message_queue.stop(drain=self._close_event is None)
         if self.on_close_coro is not None:
             await self.on_close_coro()
         if self._close_event:

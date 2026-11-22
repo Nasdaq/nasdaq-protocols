@@ -1,4 +1,7 @@
+import asyncio
 import logging
+
+import pytest
 
 from nasdaq_protocols.common import *
 from nasdaq_protocols import soup, ouch
@@ -90,7 +93,71 @@ async def test__send_message__session_sends_message_to_server(mock_server_sessio
 
     client_session = await connect_to_mock_ouch_server(mock_server_session)
     client_session.send_message(enter_order_1)
+    for _ in range(100):
+        if received_messages:
+            break
+        await asyncio.sleep(0.01)
     await client_session.close()
 
     assert len(received_messages) == 1
     assert received_messages[0] == un_sequenced(enter_order_1).to_bytes()[1]
+
+
+async def test__close__logout_request_sent_to_server(mock_server_session):
+    _, server_session = mock_server_session
+    logout_received = asyncio.Event()
+    server_session.when(matches(soup.LogoutRequest()), 'match-logout').do(lambda _1, _2: logout_received.set())
+
+    client_session = await connect_to_mock_ouch_server(mock_server_session)
+    await client_session.close()
+
+    await asyncio.wait_for(logout_received.wait(), 1)
+    assert client_session.closed is True
+
+
+async def test__server_closes__slow_handler__all_sent_messages_delivered(mock_server_session):
+    _, server_session = mock_server_session
+    num_messages = 20
+    received = []
+    closed = asyncio.Event()
+
+    async def slow_on_msg(msg):
+        await asyncio.sleep(0.01)
+        received.append(msg.status)
+
+    async def on_close():
+        closed.set()
+
+    client_session = await connect_to_mock_ouch_server(
+        mock_server_session,
+        session_factory=lambda x: ouch.ClientSession(x, on_msg_coro=slow_on_msg, on_close_coro=on_close)
+    )
+    for i in range(num_messages):
+        server_session.send(sequenced(TestEnterOrderMsgResponse.get(i)))
+    server_session.close()
+
+    await asyncio.wait_for(closed.wait(), 5)
+    assert received == list(range(num_messages))
+    assert client_session.closed is True
+
+
+async def test__aliases_and_context_manager__work_like_originals(mock_server_session):
+    _, server_session = mock_server_session
+    enter_order = TestEnterOrderMsg.get(1, 1)
+    server_session.when(
+        matches(un_sequenced(enter_order)), 'match-enter-order'
+    ).do(
+        send(sequenced(TestEnterOrderMsgResponse.get(7)))
+    )
+
+    async with await connect_to_mock_ouch_server(mock_server_session) as client_session:
+        client_session.send_msg(enter_order)
+        reply = await asyncio.wait_for(client_session.receive_msg(), 1)
+        assert reply.status == 7
+
+    assert client_session.closed is True
+
+
+def test__client_session__internal_state__not_a_constructor_argument():
+    with pytest.raises(TypeError):
+        ouch.ClientSession(None, None, None, True)
