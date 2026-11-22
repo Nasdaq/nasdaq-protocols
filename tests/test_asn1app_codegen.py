@@ -47,13 +47,14 @@ class SoupClientSession(asn1_app.Asn1SoupClientSession, asn1_message=Message):
     ...
 
 
-async def connect_async_soup(remote: tuple[str, int], user: str, passwd: str, session_id,
+async def connect_async_soup(remote: tuple[str, int], user: str, passwd: str, session_id: str = '',
                              sequence: int = 0,
                              session_factory: Callable[[], SoupClientSession]= None,
                              on_msg_coro: Callable[[Type[asn1_app.Asn1Message]], Awaitable[None]] = None,
                              on_close_coro: Callable[[], Awaitable[None]] = None,
                              client_heartbeat_interval: int = 10,
-                             server_heartbeat_interval: int = 10) -> SoupClientSession:
+                             server_heartbeat_interval: int = 10,
+                             connect_timeout: int = 5) -> SoupClientSession:
     def session_factory_default(x):
         return SoupClientSession(x, on_msg_coro=on_msg_coro, on_close_coro=on_close_coro)
 
@@ -62,7 +63,8 @@ async def connect_async_soup(remote: tuple[str, int], user: str, passwd: str, se
     return await asn1_app.connect_async_soup(
         remote, user, passwd, session_id, session_factory,
         sequence,
-        client_heartbeat_interval, server_heartbeat_interval
+        client_heartbeat_interval, server_heartbeat_interval,
+        connect_timeout=connect_timeout
     )
 
 

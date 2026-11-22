@@ -319,8 +319,18 @@ class SoupClientSessionSync:
                     self.closed_event.set()
         self.session.on_close_coro = on_close_coro
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_exc_info):
+        self.close()
+
     def receive(self):
         return self.bridge.execute(self.session.receive_msg())
+
+    def receive_msg(self):
+        """Alias of `receive`, named consistently with the async sessions."""
+        return self.receive()
 
     def send_msg(self, msg: SoupMessage):
         self.bridge.execute_sync(self.session.send_msg, msg)
@@ -329,7 +339,7 @@ class SoupClientSessionSync:
         self.bridge.execute_sync(self.session.send_debug, text)
 
     def send_unseq_data(self, data: bytes):
-        self.session.send_unseq_data(data)
+        self.bridge.execute_sync(self.session.send_unseq_data, data)
 
     def logout(self):
         with self.close_lock:

@@ -113,7 +113,9 @@ class Reader(Stoppable):
     _drain_buffer: bytearray | None = attrs.field(init=False, default=None)
     _task: asyncio.Task = attrs.field(init=False, default=None)
     _stopped: bool = attrs.field(init=False, default=False)
+    _stopping: bool = attrs.field(init=False, default=False)
     _drain_mode: asyncio.Event | None = attrs.field(init=False, default=None)
+    _data_available: asyncio.Event = attrs.field(init=False, factory=asyncio.Event)
 
     def __attrs_post_init__(self):
         self._task = asyncio.create_task(self._process(), name=f'reader:{self.session_id}')
@@ -126,6 +128,11 @@ class Reader(Stoppable):
         self._drain_mode = asyncio.Event()
         self._drain_buffer = bytearray()
         try:
+            if self._stopping:
+                # Nothing left to parse once the reader is stopping.
+                self._drain_mode.set()
+            # Wake the reader so that it reports drained even when no new data arrives.
+            self._data_available.set()
             await self._drain_mode.wait()
             yield
         finally:
@@ -136,39 +143,62 @@ class Reader(Stoppable):
                     del self._buffer[:self._read_pos]
                     self._read_pos = 0
                 self._buffer.extend(self._drain_buffer)
+                self._data_available.set()
             self._drain_buffer = None
 
     def on_data(self, data: bytes):
         self.log.debug('%s> on_data: existing = %s, received = %s', self.session_id, self._buffer, data)
         if len(data) == 0:
             return
-        buffer = self._drain_buffer if self._drain_buffer is not None else self._buffer
-        buffer.extend(data)
+        if self._drain_buffer is not None:
+            self._drain_buffer.extend(data)
+        else:
+            self._buffer.extend(data)
+            self._data_available.set()
 
     async def stop(self):
-        if self._stopped:
+        if self._stopping:
             return
-        await stop_task(self._task)
-        await self.on_close_coro()
-        self._stopped = True
+        self._stopping = True
+        if self._drain_mode:
+            self._drain_mode.set()
+        try:
+            if asyncio.current_task() is not self._task:
+                await stop_task(self._task)
+            await self.on_close_coro()
+        finally:
+            self._stopped = True
         self.log.debug('%s> stopped.', self.session_id)
 
     def is_stopped(self):
         return self._stopped
 
     async def _process(self):
-        while not self._stopped:
-            available_before = available_after = len(self._buffer) - self._read_pos
-            if available_before > 0:
+        while not self._stopping:
+            await self._data_available.wait()
+            self._data_available.clear()
+
+            while not self._stopping:
+                available_before = len(self._buffer) - self._read_pos
+                if available_before <= 0:
+                    break
                 await self._process_1()
-                available_after = len(self._buffer) - self._read_pos
-            if self._drain_mode and not self._drain_mode.is_set() and available_after == available_before:
+                if len(self._buffer) - self._read_pos == available_before:
+                    # Only a partial message is buffered, wait for more data.
+                    break
+                # Let other tasks run between messages of a large burst.
+                await asyncio.sleep(0)
+
+            if self._drain_mode and not self._drain_mode.is_set():
                 self._drain_mode.set()
 
-            await asyncio.sleep(0.0001)
-
     async def _process_1(self):
-        msg, stop, skip = self.deserialize()
+        try:
+            msg, stop, skip = self.deserialize()
+        except Exception:  # pylint: disable=broad-except
+            self.log.exception('%s> unable to deserialize incoming data, stopping reader', self.session_id)
+            await self.stop()
+            return
 
         if stop:
             self.log.debug('%s> stopping reader', self.session_id)
@@ -183,6 +213,7 @@ class Reader(Stoppable):
         try:
             await self.on_msg_coro(msg)
         except Exception:  # pylint: disable=broad-except
+            self.log.exception('%s> error handling message %s, stopping reader', self.session_id, str(msg))
             await self.stop()
 
     @abc.abstractmethod
@@ -243,14 +274,22 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
         # By default do not dispatch messages
         self._msg_queue = DispatchableMessageQueue(self.session_id)
 
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *_exc_info):
+        await self.close()
+
     async def receive_msg(self) -> Type[T]:
         """
         Receive a message from the peer. This is a blocking call.
         This call blocks until a new message is available.
 
-        If the session is dispatching messages, then this call raises an exception.
+        If the session is dispatching messages (an `on_msg_coro` is set), then this call
+        raises :class:`StateError`; use either the callback or this method, not both.
 
         :return Any: The message received.
+        :raises EndOfQueue: if the session is closed and no more messages are available.
         """
         return await self._msg_queue.get()
 
@@ -311,10 +350,13 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
             await stop_task([self._local_hb_monitor, self._remote_hb_monitor])
 
             if drain:
-                async with self.buffer_until_drained(discard_buffer=True):
-                    self.log.debug('%s> close: drained session.', self.session_id)
+                # Parse whatever is already buffered, then deliver every queued message
+                # to the dispatcher (if any) before stopping.
+                async with self._reader.buffer_until_drained(discard_buffer=True):
+                    self.log.debug('%s> close: drained reader.', self.session_id)
 
-            await stop_task([self._msg_queue,self._reader])
+            await self._msg_queue.stop(drain=drain)
+            await stop_task(self._reader)
 
             if self.on_close_coro:
                 await self.on_close_coro()
@@ -337,14 +379,14 @@ class AsyncSession(asyncio.Protocol, abc.ABC, Generic[T]):
         self.log.debug('%s> started heartbeats', self.session_id)
 
     def set_handlers(self, on_msg_coro: OnMsgCoro = None, on_close_coro: OnCloseCoro = None):
+        if on_msg_coro and self._msg_queue.is_dispatching():
+            raise StateError('Dispatcher already active, cannot set on_msg handler')
+        if on_close_coro and (self._closing_task is not None or self._closed):
+            raise StateError("Session already closed, cannot set close handler")
         if on_msg_coro:
-            if self._msg_queue.is_dispatching():
-                raise StateError('Dispatcher already active, cannot set on_msg handler')
             self.on_msg_coro = on_msg_coro
         if on_close_coro:
             self.on_close_coro = on_close_coro
-            if self._closing_task is not None or self._closed:
-                raise StateError("Session already closed, cannot set close handler")
 
     def start_dispatching(self):
         """

@@ -19,7 +19,7 @@ LOG = logging.getLogger(__name__)
 
 
 @attrs.define(auto_attribs=True)
-class Ans1Generator:
+class Asn1Generator:
     asn1_input_files_dir: str
     app_name: str
     pdu: str
@@ -58,7 +58,7 @@ class Ans1Generator:
         }
         context.update(extra_context or {})
 
-        generated_files = [Ans1Generator._generate(self.template, context, self._op_file)]
+        generated_files = [Asn1Generator._generate(self.template, context, self._op_file)]
         if self.generate_init_file:
             generated_files.append(self._generate_init_file())
 
@@ -74,7 +74,7 @@ class Ans1Generator:
             ]
         }
         init_template = os.path.join(str(TEMPLATES_PATH), 'init.mustache')
-        Ans1Generator._generate(init_template, context, init_file)
+        Asn1Generator._generate(init_template, context, init_file)
         return init_file
 
     def _copy_asn1_files(self):
@@ -101,12 +101,12 @@ class Ans1Generator:
 @click.option('--package-name', type=click.STRING)
 @click.option('--init-file/--no-init-file', show_default=True, default=True)
 def generate_soup_app(asn1_files_dir, app_name, pdu_name, prefix, op_dir, package_name, init_file):
-    generator = Ans1Generator(
+    generator = Asn1Generator(
         asn1_files_dir,
         app_name,
         pdu_name,
         op_dir,
-        template='ans1_soup_app.mustache',
+        template='asn1_soup_app.mustache',
         prefix=prefix,
         package_name=package_name,
         generate_init_file=init_file

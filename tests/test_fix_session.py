@@ -618,3 +618,21 @@ async def test__fix_session__start_dispatching__no_op_without_on_msg_coro(sessio
     received = await session.receive_msg()
     assert received.Header.MsgSeqNum == 3
 
+
+
+@pytest.mark.parametrize('session_factory', [Fix44Session, Fix50Session])
+def test__fix_session__int_sequence__converted_to_counter(session_factory):
+    session = session_factory(sequence=5)
+    assert next(session.sequence) == 5
+    assert next(session.sequence) == 6
+
+
+async def test__fix_session__connect_timeout__raises_connection_error(monkeypatch):
+    loop = asyncio.get_running_loop()
+
+    async def never_connects(*_args, **_kwargs):
+        await asyncio.sleep(10)
+
+    monkeypatch.setattr(loop, 'create_connection', never_connects)
+    with pytest.raises(ConnectionError):
+        await fix.connect_async(('127.0.0.1', 1), ENTER_LOGIN_MSG, Fix44Session, connect_timeout=0.05)

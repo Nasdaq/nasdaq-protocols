@@ -57,7 +57,7 @@ class FixSessionId(common.SessionId):
 class FixSession(common.AsyncSession):
     on_msg_coro: OnFixMsgCoro = None
     on_close_coro: common.OnCloseCoro = None
-    sequence: Iterator[int] = attrs.field(default=1, kw_only=True)
+    sequence: int | Iterator[int] = attrs.field(default=1, kw_only=True)
     client_heartbeat_interval: int = attrs.field(default=1, kw_only=True)
     server_heartbeat_interval: int = attrs.field(default=1, kw_only=True)
     session_id: FixSessionId = attrs.Factory(FixSessionId)
@@ -70,6 +70,13 @@ class FixSession(common.AsyncSession):
     target_comp_id: str = attrs.field(init=False, default=None)
     _logon_msg_type: str = attrs.field(init=False, default=None)
     _login_pending: bool = attrs.field(init=False, default=True)
+    _logon_reply_received: bool = attrs.field(init=False, default=False)
+    _pre_login_backlog: list = attrs.field(init=False, factory=list)
+
+    def __attrs_post_init__(self):
+        if isinstance(self.sequence, int):
+            self.sequence = count(self.sequence)
+        super().__attrs_post_init__()
 
     @abc.abstractmethod
     def begin_string(self):
@@ -93,8 +100,12 @@ class FixSession(common.AsyncSession):
         self.log.debug('%s> received logon response: %s', self.session_id, logon_resp)
         self.log.debug('%s> login success', self.session_id)
 
-        self._login_pending = False
         await self._check_for_gap(logon_resp)
+        # Messages that arrived right behind the logon reply are sequence checked only now,
+        # once the expected sequence is known.
+        while self._pre_login_backlog:
+            await self._on_session_message(self._pre_login_backlog.pop(0))
+        self._login_pending = False
 
         self.start_dispatching()
         self.start_heartbeats(self.client_heartbeat_interval, self.server_heartbeat_interval)
@@ -102,9 +113,15 @@ class FixSession(common.AsyncSession):
 
     async def on_message(self, msg: core.Message) -> None:
         if self._login_pending:
+            if self._logon_reply_received:
+                self._pre_login_backlog.append(msg)
+                return
+            self._logon_reply_received = True
             await super().on_message(msg)
             return
+        await self._on_session_message(msg)
 
+    async def _on_session_message(self, msg: core.Message) -> None:
         if msg.is_sequence_reset():
             self._handle_sequence_reset(msg)
             return
@@ -125,6 +142,16 @@ class FixSession(common.AsyncSession):
             await super().on_message(msg)
 
     def send_msg(self, msg: core.Message, *, seq_num: int | None = None, poss_dup: bool = False) -> None:
+        """
+        Send a message to the peer.
+
+        The session header fields (comp ids, MsgSeqNum, SendingTime, ...) are stamped onto
+        `msg` itself, so build a new message for every send rather than reusing one.
+
+        :param msg: The message to send.
+        :param seq_num: explicit MsgSeqNum, the session's outbound counter is not advanced.
+        :param poss_dup: mark the message as a possible duplicate.
+        """
         msg.validate(segments=[core.MessageSegments.BODY])
         msg.Header.SenderSubID = self.sender_sub_id
         msg.Header.TargetCompID = self.target_comp_id
